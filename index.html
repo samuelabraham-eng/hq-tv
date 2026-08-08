@@ -182,16 +182,16 @@ body{
 
     <div class="t hot" tabindex="0">
       <button class="q" data-q="cashapp" aria-label="What does this mean?">?</button>
-      <div class="lab">CASH APP</div>
+      <div class="lab">A BILL IS LATE</div>
       <div class="big">8d</div>
-      <div class="sub">late · pay before the 29th</div>
+      <div class="sub">sample · pay before day 30</div>
     </div>
 
     <div class="t hot" tabindex="0">
       <button class="q" data-q="turo" aria-label="What does this mean?">?</button>
-      <div class="lab">TURO</div>
+      <div class="lab">THE CAR</div>
       <div class="mid">unlisted</div>
-      <div class="sub">renews aug 24</div>
+      <div class="sub">sample · needs a webinar</div>
     </div>
 
     <div class="t" tabindex="0">
@@ -204,7 +204,7 @@ body{
     <div class="t" tabindex="0">
       <div class="lab">PROJECTS</div>
       <div class="big">4</div>
-      <div class="sub">karrina · firststop · sml · turo</div>
+      <div class="sub">sample · your live count goes here</div>
     </div>
 
     <div class="t w2" tabindex="0">
@@ -247,22 +247,24 @@ body{
    v1 is hand-written and honest. Anything not verified says so on screen instead of
    inventing a number. Phase 3 replaces this object with a fetch of a curated file
    generated out of Samuel-HQ. Nothing else in this file has to change. */
+const DEMO = true;   /* flip to false once this is hosted somewhere private */
+
 const DATA = {
-  owed:      { value:null, sub:"Hanok settled · anything else?" },
+  owed:      { value:null, sub:"nothing confirmed outstanding" },
   askables:  [
-    "Hanok $500, settled right?",
+    "the invoice you are owed on",
     "your Turo daily rate",
     "your Turo delivery fee",
     "which calendar is the real one",
     "what else is owed to you"
   ],
   notes: {
-    cashapp:{ t:"Cash App Borrow, 8 days late",
-      b:"Late fees apply now, but a payment under 30 days past due should not be reported to the credit bureaus. That gives you until roughly August 29. It is the 30-day line that costs you, not the 8." },
+    cashapp:{ t:"Why a late bill still shows a countdown",
+      b:"Late fees start immediately, but most lenders do not report to the credit bureaus until a payment is 30 days past due. So the number that matters is days to 30, not days late. This tile is sample data until the real feed is wired up." },
     turo:{ t:"Why the car says unlisted",
-      b:"A trip got cancelled on your side on August 7. Turo excused the fee, but your car stays out of search and unbookable until you finish their cancellations webinar. Existing bookings still stand." },
+      b:"A host side cancellation takes a car out of search and stops new bookings until the platform's cancellations webinar is done. Existing bookings still stand. Sample data for now." },
     owed:{ t:"This number is blank on purpose",
-      b:"You told me Hanok is settled, so the old $500 is gone. I will not put a number here until you confirm what is actually outstanding. A wrong number on a wall is worse than no number." },
+      b:"Nothing goes here until you confirm what is actually outstanding. A wrong number on a wall is worse than no number, and a stale one is worse than both." },
     today:{ t:"No calendar is connected",
       b:"You use the iPhone calendar, plus Google, Notion and two Apple accounts. Until one of them is chosen as the real one, this tile stays honest and empty rather than showing half your day." }
   }
