@@ -159,3 +159,37 @@ source, **4 dated commitments** in `life/COMMITMENTS.md` feeding On the clock, t
 expense tracker** as a real money source needing no bank connection.
 
 **Gemini handoff given** for the two-way calendar sync comparison, with a paste-ready question.
+
+## v5, 2026-08-08 — the alarm sound, sleep mode, device roles
+
+**The alarm voice was wrong and he called it.** *"the alarm noise is so annoying... sounds like a
+fire. This is not waking anyone up."* A pulsing 523Hz sine IS how smoke detectors are built.
+Replaced with a synthesised struck bell: fundamental + inharmonic partials (2.01, 3.04, 4.17,
+5.43), 6ms attack, exponential decay that kills highs first the way a real bar does, played as a
+**C major pentatonic** phrase (no semitones = cannot sound anxious), escalating 3 notes / 4.2s →
+6 notes + octaves / 2.4s, through a 5.2kHz lowpass. **Do not replace this with a beep.**
+
+**Sleep mode shipped** — the Hatch half, and per him the half that actually matters:
+*"when I'm sleeping, it doesn't matter how the dashboard looks."* Dim amber screen, big clock,
+time-until-alarm, and a **generated** sound machine (pink / brown / rain / fan / white, all
+synthesised in Web Audio so nothing is downloaded and it works offline) with 15/30/60 fade-out
+that glides to silence. Reached by the `sleep mode` button; a launcher pattern he asked for.
+
+**Device roles.** *"the pin needs to be on the iPad, please, not the actual TV, because I'm not
+typing a pin on a TV."* Each device answers one question on first open: TV or iPad. **A TV never
+sees a PIN.** PIN seeded to **123456** at his request. The behaviour he really described (iPad
+verifies → TV unlocks) needs shared state = the Cloudflare step, pinned.
+
+**ALARM SAFETY — a real bug was found and fixed, then tested.** Browsers block audio until the
+page is interacted with, so after an overnight Fire TV restart the alarm would have fired
+**silently**. Fixes: any interaction arms audio (typing the PIN counts), a silent keep-alive loop
+holds the audio session, the wake screen flashes the full screen so it works with no sound at all,
+a red warning shows on the dashboard whenever armed-but-muted, and the wake screen sits above both
+the lock and sleep mode with dismiss focused and no PIN required. Verified in-browser.
+
+**Layout.** He photographed tiles cutting off. Type now clamps against viewport HEIGHT as well as
+width (a 16:9 TV is height-constrained), and every list caps itself with an honest "and N more".
+Verified zero clipped tiles and zero page overflow at 1280x720.
+
+**Still open:** the calendar view toggle (Toggl-style week grid he sent), real cross-device
+control, and the calendar unification itself, which is blocked on his two-phone setup — see below.
