@@ -79,3 +79,43 @@ Govee, then decide.
 - No em dashes anywhere in his surfaces.
 - Do not point this page at the private brain. Only curated fields leave HQ.
 - Do not ship anything he said to mock.
+
+## v2 review, 2026-08-08 (his second pass on the live page)
+
+**He loves the design and froze it.** *"I love this design. Say this design is the original
+design, and don't change this up at all... other than the actual comments of this stuff inside."*
+**noir is LOCKED.** Change content inside it freely, never its look. ink / cream / frame were
+added as separate themes so noir never has to be touched to explore.
+
+**Answers this round:**
+- Q9 flip tiles: he took the recommendation. Nothing rotates. Only "do this next" animates, and
+  only when it changes. He raised the objection himself: *"what if I look away and there's one
+  thing?"* Do not revisit rotation without a reason.
+- Q10: he did not understand the $10. It was a Fire TV kiosk app, never the website. **Dropped**
+  until something actually breaks. His instruction: *"if it costs money or is complicated for
+  now, we can just deploy to a site."*
+- Content: owed-to-you OUT, replaced by what he must cover by the 1st with the subscription share.
+  Projects show name + status, never a bare count. Subscriptions matter to him ("make sure they're
+  all paid on time and I'm making enough"). Bank accounts are a later connection.
+- "Needs your word" renamed **the whiteboard**, and made read only. *"realistically on a TV, I'm
+  not tapping anything. I'm just looking at it."* **Nothing on the TV should require a tap.**
+- He likes ring visualisations (Oura, Apple Watch, Apple Health). Month + week rings shipped, both
+  real with no data source. Money ring stays dim until connected.
+- He wants MORE on screen. The TV is very big and he offered to photograph it for scale.
+
+**Hatch verdict delivered:** Restore 3 is $169.99 plus $50/yr for the full sound library. TV wins
+on light and dashboard; Hatch wins on being a small bedside lamp and its sound machine. Told him
+not to buy yet, run the TV sunrise two weeks first.
+
+**Research tooling:** he has Gemini AI Pro for a year and asked what is best. Told him honestly:
+Gemini Deep Research beats me on wide multi-source sweeps, I win when research must become a file
+or a build, Codex is the wrong tool for it. **No automatic bridge — he pastes Gemini output to me
+and I file it.** Building an integration would cost more than the paste.
+
+**Standing instruction, reinforced hard this round:** *"everything you said after the
+visualization, that's not reading because I want you to visualize it."* **He does not read prose
+after a visual.** Substance goes IN the widget. Chat text stays to a few lines at most.
+
+**Still queued:** a photo of the TV for scale, iPad-as-remote design, wake-up mission (mock only,
+mocked once already), weather line, and possibly prompts for Codex and Claude Design so he can
+compare their takes on the same screen.
