@@ -193,3 +193,71 @@ Verified zero clipped tiles and zero page overflow at 1280x720.
 
 **Still open:** the calendar view toggle (Toggl-style week grid he sent), real cross-device
 control, and the calendar unification itself, which is blocked on his two-phone setup — see below.
+
+## v7, 2026-08-08 — why he could not hear the alarm, and the iPad becomes a controller
+
+### THE AUDIO BUG, root-caused in WebKit source (do not re-litigate this)
+He said *"I can't even hear shit."* The synthesis was never broken: an AnalyserNode on
+the output measured peak **0.67** for the test bell and **0.18** for the full alarm.
+
+**Cause.** `MediaSessionManagerCocoa::updateSessionState()` picks the AVAudioSession category
+in a fixed order and a page whose ONLY audio is Web Audio falls through to **AmbientSound**.
+Apple documents AmbientSound as silenced by the Ring/Silent switch **and by screen lock**.
+HTML `<audio>`/`<video>` get **MediaPlayback**, which is not silenced. That asymmetry is the
+entire bug. Verified against current WebKit main; two independent adversarial reviewers tried
+to refute it and could not (0 of 2).
+
+**Fix, shipped:**
+1. `navigator.audioSession.type = "playback"` (Safari/iPadOS **16.4+**) sets a `categoryOverride`,
+   which WebKit checks BEFORE the Web-Audio default. **Claimed only when sound is genuinely
+   wanted** (alarm armed, testing, sleep sounds) and released otherwise — the category is
+   EXCLUSIVE and would pause his music just for opening a dashboard.
+2. A **genuinely encoded** looping silent WAV as the pre-16.4 fallback. It must be a real file
+   and must NOT be `muted` or volume 0 — WebKit only promotes the session for an *audible*
+   element. A zero-byte data URI does not work.
+3. Safari has a **non-standard `interrupted`** AudioContext state. Every check tested only for
+   `"suspended"`, which silently skipped the resume and left the alarm mute after a screen-off.
+   All checks now test `!== "running"` and re-arm immediately before ringing.
+
+**Red herrings, ruled out:** the 2.8s delay (Safari dropped the synchronous-gesture requirement
+in 16.4 — transient activation is enough), `playsinline`, and the MediaSession API (metadata only,
+zero effect on the silent switch).
+
+**HARD LIMIT to tell him honestly:** JS timers freeze when Safari is backgrounded, and Ambient
+audio dies on screen lock. **A browser tab cannot reliably ring at a set time on a locked iPad.**
+The supported paths are a foreground kiosk (wake lock + Auto-Lock Never) or a Home Screen web app
+with Web Push. The TV, which stays on and foregrounded, is the right home for the alarm — the iPad
+is the controller. `rise/` on the phone remains the real wake-up.
+
+**Diagnostic shipped** so he never has to trust an assertion: test A plays a real sound file, test
+B a generated tone. A works + B silent = silent mode. Neither = volume.
+
+### The iPad is a control panel, not a mirror
+His correction: *"the iPad one is just supposed to be straight customization and settings."*
+Control-role devices open `#panel` instead of the dashboard: a real **time picker** (the alarm was
+hard-coded to 6:30 with no way to change it — a genuine gap he caught), **test sound** that plays
+instantly, every sleep sound auditionable, theme, fade timer, reset.
+
+### CROSS-DEVICE CONTROL DOES NOT EXIST YET, and he called it
+*"Are you sure that when the iPad controls, it's going to actually change on the TV? Cause I have
+a feeling it's not going to."* **He was right.** Device ROLES were built; device CONTROL was not.
+A red banner in the panel now says so rather than letting the UI imply otherwise.
+
+**Researched answer: Firebase Realtime Database, free Spark plan.** Only option that is free
+forever with no card, no project pausing (Supabase pauses after 7 days idle — disqualifying for an
+appliance), sub-second push, and **an automatic long-polling fallback**, which matters most for
+Fire TV Silk behind a home router. Use the `-compat` UMD bundles via classic `<script src>` so no
+build step is needed. The API key is not a secret; **security rules are the gate** — scope to one
+unguessable room path plus per-field `.validate`, never `{".read": true, ".write": true}`.
+**Rejected: polling a gist or GitHub Pages** (CDN caches ~5 min, and a write token client-side).
+**Blocked on Samuel creating the Firebase project** — it is his account, ~5 minutes.
+
+### Control-panel UX principles (from research, apply as this grows)
+The display owns CONTENT; the controller owns ACTIONS, AUTHORING and PROOF. Never restate a number
+that is already on the wall, except one deliberate duplication: the next-alarm line, which exists
+as proof-of-delivery. Status must show an **age in seconds** plus the value the display echoes back
+— a bare green dot proves only that the controller's own poll worked. **Do not use
+`<input type="time">` long-term:** on iPad it is a segmented keypad field, not a wheel, it has a
+still-open Safari bug where an empty value becomes uneditable after blur, and it cannot be styled
+to match. Replace with big tappable digits + a numeric keypad + 5-minute steppers, AM/PM always
+visible as two large segments.
