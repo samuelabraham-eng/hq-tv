@@ -26,18 +26,26 @@
   --bone:#100e0c; --dim:#6f6656; --accent:#b58d47; --onAccent:#241b06; --onAccentDim:#5c4a20;
   --alert:#bf3826; --ok:#4f7a52; --border:1px solid var(--line); --tilebg:var(--tile);
 }
-[data-theme="frame"]{
-  --ground:#0c0b0a; --tile:transparent; --tile2:rgba(255,255,255,.05); --line:rgba(241,235,223,.10);
-  --bone:#efe9dd; --dim:#7a7266; --accent:#c9a96a; --onAccent:#2b2208; --onAccentDim:#5c4a20;
-  --alert:#d0402e; --ok:#7e9b7a; --border:none; --tilebg:transparent;
+[data-theme="oat"]{        /* cream with the glare taken out. for a dark room. */
+  --ground:#e7dfce; --tile:#f3eee3; --tile2:#ece5d8; --line:#d3c7b1;
+  --bone:#1b1712; --dim:#6c6353; --accent:#a5803b; --onAccent:#241b06; --onAccentDim:#54421a;
+  --alert:#b3341f; --ok:#4a7350; --border:1px solid var(--line); --tilebg:var(--tile);
 }
-[data-theme="frame"] .t{border-bottom:1px solid var(--line)}
-[data-theme="frame"] .t.gold{background:transparent}
-[data-theme="frame"] .t.gold .lab{color:var(--accent)}
-[data-theme="frame"] .t.gold .mid{color:var(--bone)}
-[data-theme="frame"] .t.gold .sub{color:var(--dim)}
-[data-theme="frame"] .clock{font-size:clamp(58px,14vw,240px)}
-[data-theme="frame"] .alarmcard{border:none;border-left:2px solid var(--accent)}
+[data-theme="clay"]{       /* the true middle. warm mid-dark, far softer than noir. */
+  --ground:#2a231e; --tile:#352d26; --tile2:#3e352c; --line:#473c32;
+  --bone:#f0e7d9; --dim:#a3947f; --accent:#d8b473; --onAccent:#2b2208; --onAccentDim:#6b5427;
+  --alert:#e2604a; --ok:#8fb08a; --border:1px solid var(--line); --tilebg:var(--tile);
+}
+[data-theme="espresso"]{   /* his stated favourite dark, from the HQ kit */
+  --ground:#1a1512; --tile:#251e18; --tile2:#2e251e; --line:#392e25;
+  --bone:#efe4d3; --dim:#998b78; --accent:#cfa863; --onAccent:#2b2208; --onAccentDim:#5c4a20;
+  --alert:#d9503a; --ok:#86a882; --border:1px solid var(--line); --tilebg:var(--tile);
+}
+[data-theme="sage"]{       /* calm light. the least shouty of the light ones. */
+  --ground:#dde1d5; --tile:#eaeee2; --tile2:#e3e7db; --line:#c6cbba;
+  --bone:#1b201a; --dim:#5d685a; --accent:#77894f; --onAccent:#171e0c; --onAccentDim:#3e4a28;
+  --alert:#a83a22; --ok:#456b46; --border:1px solid var(--line); --tilebg:var(--tile);
+}
 
 :root{ --safe:3.2vw; --gap:0.9vw; }
 *{margin:0;padding:0;box-sizing:border-box}
@@ -118,12 +126,6 @@ body{
 .row .st.live{color:var(--ok)}
 .row .st.warn{color:var(--alert)}
 
-/* rings, the apple watch idea */
-.rings{display:flex;align-items:center;gap:.9vw}
-.rings svg{width:clamp(56px,7vw,116px);height:auto;flex-shrink:0}
-.rkey{display:flex;flex-direction:column;gap:.25vw;font-size:clamp(9px,1vw,16px);font-weight:500}
-.rkey span{color:var(--dim);white-space:nowrap}
-.rkey b{color:var(--bone);font-weight:500}
 
 /* the whiteboard. read only. he is not tapping anything on a tv. */
 .wb{
@@ -165,8 +167,7 @@ body{
   position:fixed;z-index:70;display:none;max-width:min(46ch,80vw);
   background:var(--tile2);border:1px solid var(--accent);padding:1.1vw 1.3vw;
 }
-[data-theme="cream"] #pop,[data-theme="frame"] #pop{background:var(--ground)}
-#pop.show{display:block}
+[data-theme="cream"] #pop,#pop.show{display:block}
 #pop h4{font-size:clamp(12px,1.3vw,21px);font-weight:800;letter-spacing:-.02em;margin-bottom:.4em;color:var(--bone)}
 #pop p{font-size:clamp(11px,1.15vw,18px);color:var(--dim);line-height:1.5;font-weight:500}
 
@@ -178,11 +179,9 @@ body{
   .t.w2{grid-column:span 2}
   html,body{overflow:auto}
   #board{height:auto;min-height:100%}
-  .clock,[data-theme="frame"] .clock{font-size:clamp(64px,20vw,150px)}
-  .big{font-size:clamp(26px,7.5vw,48px)} .mid{font-size:clamp(17px,4.6vw,30px)}
+  .clock,  .big{font-size:clamp(26px,7.5vw,48px)} .mid{font-size:clamp(17px,4.6vw,30px)}
   .sub,.row{font-size:14px} .lab,.wb .wlabel{font-size:11px} .wb .items{font-size:13px}
   .q{width:26px;height:26px;font-size:13px;top:10px;right:10px}
-  .rings svg{width:78px} .rkey{font-size:12px}
   #bar{opacity:1;padding:10px} #bar button{font-size:13px;padding:8px 12px}
 }
 @media (max-width:560px){ .grid{grid-template-columns:1fr} .t.w2{grid-column:span 1} }
@@ -227,33 +226,16 @@ body{
     </div>
 
     <div class="t" tabindex="0">
-      <button class="q" data-q="need" aria-label="Explain">?</button>
-      <div class="lab">NEEDED BY THE 1st</div>
-      <div class="big">$1,240</div>
-      <div class="sub">sample · $310 of it is subscriptions</div>
+      <button class="q" data-q="in" aria-label="Explain">?</button>
+      <div class="lab">NEXT MONEY IN</div>
+      <div class="big" id="nextIn">$68</div>
+      <div class="sub" id="nextInSub">sample · a booking, 21 days out</div>
     </div>
 
     <div class="t" tabindex="0">
-      <button class="q" data-q="rings" aria-label="Explain">?</button>
-      <div class="lab">THE MONTH</div>
-      <div class="rings">
-        <svg viewBox="0 0 100 100" aria-hidden="true">
-          <circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" stroke-width="9" opacity=".13"/>
-          <circle cx="50" cy="50" r="31" fill="none" stroke="currentColor" stroke-width="9" opacity=".13"/>
-          <circle cx="50" cy="50" r="18" fill="none" stroke="currentColor" stroke-width="9" opacity=".13"/>
-          <circle id="r1" cx="50" cy="50" r="44" fill="none" stroke="var(--accent)" stroke-width="9"
-                  stroke-linecap="round" transform="rotate(-90 50 50)"/>
-          <circle id="r2" cx="50" cy="50" r="31" fill="none" stroke="var(--ok)" stroke-width="9"
-                  stroke-linecap="round" transform="rotate(-90 50 50)"/>
-          <circle id="r3" cx="50" cy="50" r="18" fill="none" stroke="var(--alert)" stroke-width="9"
-                  stroke-linecap="round" transform="rotate(-90 50 50)" opacity=".25"/>
-        </svg>
-        <div class="rkey">
-          <span><b id="kmonth">—</b> of august</span>
-          <span><b id="kweek">—</b> of the week</span>
-          <span>money, once connected</span>
-        </div>
-      </div>
+      <button class="q" data-q="clock" aria-label="Explain">?</button>
+      <div class="lab">ON THE CLOCK</div>
+      <div class="rows" id="ddRows"></div>
     </div>
 
     <div class="t w2" tabindex="0">
@@ -327,10 +309,10 @@ const DATA = {
       b:"Late fees start straight away, but most lenders do not report to the credit bureaus until a payment is 30 days past due. The number that matters is days remaining to 30, not days late. Sample data for now." },
     car:{ t:"Why the car says unlisted",
       b:"A host side cancellation pulls a car out of search and blocks new bookings until the platform's cancellations webinar is done. Existing bookings still stand. Sample data for now." },
-    need:{ t:"What this number is",
-      b:"Everything due before the 1st, in one figure, with the subscription share called out. This replaced the old owed-to-you tile because knowing what you have to cover matters more than knowing what someone owes you. Sample until the accounts are connected." },
-    rings:{ t:"The rings",
-      b:"Outer ring is how far through August you are, middle is the week. Both are real and need no data. The inner ring stays dim until money is connected, because a ring that fakes a number is worse than an empty one." },
+    in:{ t:"Next money in",
+      b:"The next payment actually scheduled to land, and how far away it is. One real number beats a total you cannot act on. Sample until the feed is wired." },
+    clock:{ t:"On the clock",
+      b:"Only things with a date that costs you money if you miss it. Counted in days, because days you can act on. This replaced a ring showing how far through the month you were, which was just time passing." },
     cal:{ t:"No calendar is connected",
       b:"You have the iPhone calendar, Google, Notion and two Apple accounts. Notion Calendar can read all of them and it is free. Once you pick one, this tile stops being a placeholder." },
     subs:{ t:"Subscriptions",
@@ -342,7 +324,7 @@ const $ = s => document.querySelector(s);
 const pad = n => String(n).padStart(2,"0");
 
 /* ── themes ── */
-const THEMES = ["noir","ink","cream","frame"];
+const THEMES = ["noir","clay","espresso","oat","sage","cream","ink"];
 let theme = localStorage.getItem("hqtv.theme") || "noir";
 function paintTheme(){
   document.documentElement.dataset.theme = theme;
@@ -368,19 +350,7 @@ function tick(){
     ' &nbsp;·&nbsp; <b>arlington</b>';
   $("#stamp").textContent = "updated " + h + ":" + pad(m) + " " + mer;
 
-  const dim = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
-  const mp = (d.getDate() - 1 + d.getHours()/24) / dim;
-  const wp = (d.getDay() + d.getHours()/24) / 7;
-  setRing("#r1", 44, mp); setRing("#r2", 31, wp); setRing("#r3", 18, 0);
-  $("#kmonth").textContent = Math.round(mp*100) + "%";
-  $("#kweek").textContent  = Math.round(wp*100) + "%";
-
   paintSunrise(d); checkAlarm(d);
-}
-function setRing(sel, r, p){
-  const c = 2 * Math.PI * r, el = $(sel);
-  el.style.strokeDasharray = c;
-  el.style.strokeDashoffset = c * (1 - Math.max(0, Math.min(1, p)));
 }
 
 /* ── alarm ── */
@@ -464,6 +434,25 @@ $("#fs").addEventListener("click", () => {
   else document.documentElement.requestFullscreen?.();
 });
 
+/* ── deadlines. real dates, counted in days. ── */
+const DEADLINES = [
+  { nm:"Turo webinar",      on:null,          note:"sunday" },
+  { nm:"bill hits credit",  on:"2026-08-29",  note:"" },
+  { nm:"Turo renews",       on:"2026-08-24",  note:"" }
+];
+function paintDeadlines(){
+  const now = new Date(); now.setHours(0,0,0,0);
+  $("#ddRows").innerHTML = DEADLINES.map(d => {
+    let right = d.note, cls = "st";
+    if (d.on){
+      const days = Math.round((new Date(d.on + "T00:00:00") - now) / 86400000);
+      right = days + (days === 1 ? " day" : " days");
+      if (days <= 7) cls = "st warn";
+    } else { cls = "st warn"; }
+    return '<div class="row"><span class="nm">' + d.nm + '</span><span class="' + cls + '">' + right + '</span></div>';
+  }).join("");
+}
+
 /* ── the whiteboard, read only ── */
 $("#wbItems").innerHTML = DATA.whiteboard.map(t => "<i>" + t + "</i>").join("");
 
@@ -514,7 +503,7 @@ async function holdWake(){
 }
 document.addEventListener("visibilitychange", () => { if (!document.hidden) holdWake(); });
 
-paintTheme(); paintAlarm(); tick(); setInterval(tick, 1000); holdWake();
+paintTheme(); paintAlarm(); paintDeadlines(); tick(); setInterval(tick, 1000); holdWake();
 </script>
 </body>
 </html>
