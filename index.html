@@ -16,11 +16,46 @@
   --bone:#f1ebdf; --dim:#8a8073; --accent:#c9a96a; --onAccent:#2b2208; --onAccentDim:#5c4a20;
   --alert:#d0402e; --ok:#7e9b7a; --border:1px solid var(--line); --tilebg:var(--tile);
 }
-[data-theme="ink"]{
-  --ground:#080808; --tile:#131313; --tile2:#1c1c1c; --line:#282828;
-  --bone:#f2f2f0; --dim:#787876; --accent:#f2f2f0; --onAccent:#0a0a0a; --onAccentDim:#4a4a48;
-  --alert:#ff4b39; --ok:#6fbf8f; --border:1px solid var(--line); --tilebg:var(--tile);
+[data-theme="metro"]{      /* the Windows 8 he actually meant. solid colour blocks. */
+  --ground:#1c1733; --tile:#2a2350; --tile2:#332b5e; --line:transparent;
+  --bone:#ffffff; --dim:rgba(255,255,255,.62); --accent:#ffffff; --onAccent:#14112a; --onAccentDim:rgba(20,17,42,.66);
+  --alert:#ff6b57; --ok:#8fe0a8; --border:none; --tilebg:var(--tile);
 }
+[data-theme="metrowarm"]{  /* Metro blocks, your palette instead of Microsoft's */
+  --ground:#14100e; --tile:#241c17; --tile2:#2d241d; --line:transparent;
+  --bone:#fdf8ef; --dim:rgba(253,248,239,.6); --accent:#fdf8ef; --onAccent:#241b06; --onAccentDim:rgba(36,27,6,.66);
+  --alert:#ff7a63; --ok:#a9cf9f; --border:none; --tilebg:var(--tile);
+}
+/* in Metro a tile IS a colour. no borders, no cards, block against block. */
+[data-theme^="metro"] .t,[data-theme^="metro"] .alarmcard{border:none}
+[data-theme^="metro"] .t .lab,[data-theme^="metro"] .t.hot .lab{color:rgba(255,255,255,.75)}
+[data-theme^="metro"] .t .sub,[data-theme^="metro"] .row .st{color:rgba(255,255,255,.72)}
+[data-theme^="metro"] .t .big,[data-theme^="metro"] .t .mid,[data-theme^="metro"] .row .nm{color:#fff}
+[data-theme^="metro"] .t.hot .big,[data-theme^="metro"] .t.hot .mid{color:#fff}
+[data-theme^="metro"] .t.hot{border:none}
+[data-theme^="metro"] .row .st.warn{color:#ffd9d2}
+[data-theme^="metro"] .row .st.live{color:#d9f5df}
+[data-theme^="metro"] .t.gold .lab{color:rgba(255,255,255,.72)}
+[data-theme^="metro"] .t.gold .big,[data-theme^="metro"] .t.gold .mid{color:#fff}
+[data-theme^="metro"] .t.gold .sub{color:rgba(255,255,255,.72)}
+[data-theme^="metro"] .q{border-color:rgba(255,255,255,.4);color:rgba(255,255,255,.8)}
+[data-theme^="metro"] .wb{border-top-color:rgba(255,255,255,.16)}
+[data-theme="metro"] .t[data-c="1"],[data-theme="metro"] .t.gold{background:#0f6cbd}
+[data-theme="metro"] .t[data-c="2"]{background:#b02a37}
+[data-theme="metro"] .t[data-c="3"]{background:#7a3fa8}
+[data-theme="metro"] .t[data-c="4"]{background:#00807d}
+[data-theme="metro"] .t[data-c="5"]{background:#4a7a1f}
+[data-theme="metro"] .t[data-c="6"]{background:#c25708}
+[data-theme="metro"] .t[data-c="7"]{background:#3b4a5a}
+[data-theme="metro"] .t[data-c="8"]{background:#8a5a1f}
+[data-theme="metrowarm"] .t[data-c="1"],[data-theme="metrowarm"] .t.gold{background:#8a6a2c}
+[data-theme="metrowarm"] .t[data-c="2"]{background:#9c3a24}
+[data-theme="metrowarm"] .t[data-c="3"]{background:#4c4459}
+[data-theme="metrowarm"] .t[data-c="4"]{background:#3f5340}
+[data-theme="metrowarm"] .t[data-c="5"]{background:#55603a}
+[data-theme="metrowarm"] .t[data-c="6"]{background:#7a3b22}
+[data-theme="metrowarm"] .t[data-c="7"]{background:#463d33}
+[data-theme="metrowarm"] .t[data-c="8"]{background:#6b4a3a}
 [data-theme="cream"]{
   --ground:#f1ebdf; --tile:#faf7f0; --tile2:#f5f0e4; --line:#e0d6c2;
   --bone:#100e0c; --dim:#6f6656; --accent:#b58d47; --onAccent:#241b06; --onAccentDim:#5c4a20;
@@ -136,9 +171,29 @@ body{
 .wb .items i{font-style:normal;color:var(--dim)}
 .wb .items i::before{content:"○ ";color:var(--accent);opacity:.7}
 
+/* ── lock. hides the numbers, never the clock, never the alarm. ── */
+#lock{
+  position:fixed;inset:0;z-index:55;background:var(--ground);display:none;
+  flex-direction:column;align-items:center;justify-content:center;gap:2.2vh;padding:5vw;
+}
+#lock.show{display:flex}
+#lock .lclock{font-size:clamp(44px,9vw,150px);font-weight:800;letter-spacing:-.05em;line-height:.9;color:var(--bone)}
+#lock .lmsg{font-size:clamp(11px,1.35vw,22px);color:var(--dim);font-weight:500;text-align:center;max-width:34ch;line-height:1.5}
+#lock .dots{display:flex;gap:1.1vw;margin:.4vh 0}
+#lock .dot{width:clamp(11px,1.35vw,20px);height:clamp(11px,1.35vw,20px);border-radius:50%;border:2px solid var(--dim)}
+#lock .dot.on{background:var(--accent);border-color:var(--accent)}
+#pad{display:grid;grid-template-columns:repeat(3,1fr);gap:.9vw}
+#pad button{
+  width:clamp(52px,6.4vw,104px);height:clamp(52px,6.4vw,104px);border-radius:50%;
+  background:var(--tile);border:1px solid var(--line);color:var(--bone);
+  font-family:inherit;font-size:clamp(17px,2.2vw,36px);font-weight:500;cursor:pointer;
+}
+#pad button:focus-visible,#pad button:hover{border-color:var(--accent);outline:none;background:var(--tile2)}
+#pad button.wide{border-radius:var(--radius,8px);font-size:clamp(11px,1.2vw,18px)}
+
 /* ── wake screen ── */
 #wake{
-  position:fixed;inset:0;z-index:60;display:none;flex-direction:column;
+  position:fixed;inset:0;z-index:65;display:none;flex-direction:column;
   align-items:center;justify-content:center;gap:2vh;text-align:center;padding:6vw;background:var(--alert);
 }
 #wake.show{display:flex}
@@ -205,40 +260,40 @@ body{
   </section>
 
   <section class="grid">
-    <div class="t gold w2" tabindex="0">
+    <div class="t gold w2" data-c="1" tabindex="0">
       <div class="lab">DO THIS NEXT</div>
       <div class="mid">attend the Turo webinar</div>
       <div class="sub">your car earns $0 until you do</div>
     </div>
 
-    <div class="t hot" tabindex="0">
+    <div class="t hot" data-c="2" tabindex="0">
       <button class="q" data-q="late" aria-label="Explain">?</button>
       <div class="lab">A BILL IS LATE</div>
       <div class="big">8d</div>
       <div class="sub">sample · 22 days until it counts</div>
     </div>
 
-    <div class="t hot" tabindex="0">
+    <div class="t hot" data-c="6" tabindex="0">
       <button class="q" data-q="car" aria-label="Explain">?</button>
       <div class="lab">THE CAR</div>
       <div class="mid">unlisted</div>
       <div class="sub">sample · needs a webinar</div>
     </div>
 
-    <div class="t" tabindex="0">
+    <div class="t" data-c="5" tabindex="0">
       <button class="q" data-q="in" aria-label="Explain">?</button>
       <div class="lab">NEXT MONEY IN</div>
       <div class="big" id="nextIn">$68</div>
       <div class="sub" id="nextInSub">sample · a booking, 21 days out</div>
     </div>
 
-    <div class="t" tabindex="0">
+    <div class="t" data-c="4" tabindex="0">
       <button class="q" data-q="clock" aria-label="Explain">?</button>
       <div class="lab">ON THE CLOCK</div>
       <div class="rows" id="ddRows"></div>
     </div>
 
-    <div class="t w2" tabindex="0">
+    <div class="t w2" data-c="3" tabindex="0">
       <button class="q" data-q="cal" aria-label="Explain">?</button>
       <div class="lab">TODAY</div>
       <div class="rows">
@@ -248,7 +303,13 @@ body{
       <div class="sub" id="stamp">&nbsp;</div>
     </div>
 
-    <div class="t w2" tabindex="0">
+    <div class="t w2" data-c="5" tabindex="0">
+      <button class="q" data-q="todo" aria-label="Explain">?</button>
+      <div class="lab">TO DO, HIGH PRIORITY</div>
+      <div class="rows" id="todoRows"></div>
+    </div>
+
+    <div class="t w2" data-c="7" tabindex="0">
       <div class="lab">PROJECTS</div>
       <div class="rows">
         <div class="row"><span class="nm">firststop</span><span class="st">design pass, not started</span></div>
@@ -258,7 +319,7 @@ body{
       </div>
     </div>
 
-    <div class="t w2" tabindex="0">
+    <div class="t w2" data-c="8" tabindex="0">
       <button class="q" data-q="subs" aria-label="Explain">?</button>
       <div class="lab">SUBSCRIPTIONS COMING UP</div>
       <div class="rows">
@@ -273,6 +334,13 @@ body{
     <div class="items" id="wbItems"></div>
   </div>
 </main>
+
+<div id="lock" role="dialog" aria-label="Locked">
+  <div class="lclock" id="lockClock">--:--</div>
+  <div class="lmsg" id="lockMsg">enter your pin</div>
+  <div class="dots" id="dots"></div>
+  <div id="pad"></div>
+</div>
 
 <div id="wake" role="dialog" aria-label="Alarm">
   <div class="wlab">GET UP, SAMUEL</div>
@@ -304,6 +372,12 @@ const DATA = {
     "which calendar is the real one",
     "which subscriptions are still running"
   ],
+  todo:[
+    { t:"book the Turo webinar", w:"today" },
+    { t:"pay the late bill", w:"today" },
+    { t:"pick one calendar", w:"this week" },
+    { t:"install the alarm app", w:"this week" }
+  ],
   notes:{
     late:{ t:"Why a late bill shows a countdown",
       b:"Late fees start straight away, but most lenders do not report to the credit bureaus until a payment is 30 days past due. The number that matters is days remaining to 30, not days late. Sample data for now." },
@@ -311,6 +385,8 @@ const DATA = {
       b:"A host side cancellation pulls a car out of search and blocks new bookings until the platform's cancellations webinar is done. Existing bookings still stand. Sample data for now." },
     in:{ t:"Next money in",
       b:"The next payment actually scheduled to land, and how far away it is. One real number beats a total you cannot act on. Sample until the feed is wired." },
+    todo:{ t:"Your to do list",
+      b:"Say \u201cadd to my to do list\u201d in any Claude session and it lands here. Only the high priority ones make the screen, the rest stay in HQ so this never becomes a wall you stop reading." },
     clock:{ t:"On the clock",
       b:"Only things with a date that costs you money if you miss it. Counted in days, because days you can act on. This replaced a ring showing how far through the month you were, which was just time passing." },
     cal:{ t:"No calendar is connected",
@@ -324,7 +400,7 @@ const $ = s => document.querySelector(s);
 const pad = n => String(n).padStart(2,"0");
 
 /* ── themes ── */
-const THEMES = ["noir","clay","espresso","oat","sage","cream","ink"];
+const THEMES = ["noir","clay","espresso","oat","sage","cream","metro","metrowarm"];
 let theme = localStorage.getItem("hqtv.theme") || "noir";
 function paintTheme(){
   document.documentElement.dataset.theme = theme;
@@ -349,6 +425,7 @@ function tick(){
     d.toLocaleDateString(undefined,{month:"long",day:"numeric"}).toLowerCase() +
     ' &nbsp;·&nbsp; <b>arlington</b>';
   $("#stamp").textContent = "updated " + h + ":" + pad(m) + " " + mer;
+  $("#lockClock").innerHTML = h + ":" + pad(m) + '<span class="mer">' + mer + "</span>";
 
   paintSunrise(d); checkAlarm(d);
 }
@@ -453,6 +530,11 @@ function paintDeadlines(){
   }).join("");
 }
 
+/* ── to do ── */
+$("#todoRows").innerHTML = DATA.todo.map(x =>
+  '<div class="row"><span class="nm">' + x.t + '</span><span class="st' +
+  (x.w === "today" ? " warn" : "") + '">' + x.w + '</span></div>').join("");
+
 /* ── the whiteboard, read only ── */
 $("#wbItems").innerHTML = DATA.whiteboard.map(t => "<i>" + t + "</i>").join("");
 
@@ -502,6 +584,79 @@ async function holdWake(){
   }catch(e){}
 }
 document.addEventListener("visibilitychange", () => { if (!document.hidden) holdWake(); });
+
+/* ── the lock ──────────────────────────────────────────────────────────────
+   Honest about what this is: it stops a person in the room, and a stranger who
+   lands on the URL, from reading your numbers at a glance. It is NOT security.
+   This page is served publicly, so anything it can show, a determined person
+   could pull from the source. Cloudflare Access is the real gate. Until then
+   the deployed copy carries sample data only.
+   The pin never leaves this device and is never stored in the repo: it is set
+   per device on first use and kept as a hash in local storage.            */
+const PKEY = "hqtv.pin", SKEY = "hqtv.unlocked";
+let entry = "", firstPin = null;
+
+async function hash(str){
+  if (crypto?.subtle && isSecureContext){
+    const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("hqtv:" + str));
+    return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,"0")).join("");
+  }
+  let h = 0;                                  // file:// fallback for local testing
+  for (const c of "hqtv:" + str) h = (h * 31 + c.charCodeAt(0)) | 0;
+  return "x" + (h >>> 0).toString(16);
+}
+function paintDots(){
+  const need = firstPin ? firstPin.length : 6;
+  $("#dots").innerHTML = Array.from({length: Math.max(entry.length, Math.min(need, 6))},
+    (_, i) => '<div class="dot' + (i < entry.length ? " on" : "") + '"></div>').join("");
+}
+function lockMsg(t){ $("#lockMsg").textContent = t; }
+
+async function submitPin(){
+  const stored = localStorage.getItem(PKEY);
+  if (!stored){
+    if (entry.length < 5){ lockMsg("make it 5 or 6 digits"); entry = ""; paintDots(); return; }
+    if (!firstPin){ firstPin = entry; entry = ""; paintDots(); lockMsg("enter it once more"); return; }
+    if (firstPin !== entry){ firstPin = null; entry = ""; paintDots(); lockMsg("those did not match. pick a pin"); return; }
+    localStorage.setItem(PKEY, await hash(entry));
+    firstPin = null; entry = ""; unlock(); return;
+  }
+  if (await hash(entry) === stored){ entry = ""; unlock(); }
+  else { entry = ""; paintDots(); lockMsg("wrong pin"); }
+}
+function unlock(){
+  sessionStorage.setItem(SKEY, "1");
+  $("#lock").classList.remove("show");
+  paintDots();
+}
+function lock(){
+  $("#lock").classList.add("show");
+  lockMsg(localStorage.getItem(PKEY) ? "enter your pin" : "pick a pin, 5 or 6 digits");
+  paintDots();
+  $("#pad").firstChild?.focus();
+}
+(function buildPad(){
+  const pad = $("#pad");
+  [1,2,3,4,5,6,7,8,9].forEach(n => {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = n;
+    b.addEventListener("click", () => { if (entry.length < 6){ entry += n; paintDots(); } });
+    pad.appendChild(b);
+  });
+  const del = document.createElement("button"); del.type = "button"; del.className = "wide"; del.textContent = "del";
+  del.addEventListener("click", () => { entry = entry.slice(0, -1); paintDots(); });
+  const zero = document.createElement("button"); zero.type = "button"; zero.textContent = "0";
+  zero.addEventListener("click", () => { if (entry.length < 6){ entry += "0"; paintDots(); } });
+  const go = document.createElement("button"); go.type = "button"; go.className = "wide"; go.textContent = "ok";
+  go.addEventListener("click", submitPin);
+  pad.append(del, zero, go);
+})();
+document.addEventListener("keydown", e => {
+  if (!$("#lock").classList.contains("show")) return;
+  if (/^[0-9]$/.test(e.key) && entry.length < 6){ entry += e.key; paintDots(); }
+  else if (e.key === "Backspace"){ entry = entry.slice(0, -1); paintDots(); }
+  else if (e.key === "Enter" && document.activeElement?.textContent !== "del"){ submitPin(); }
+});
+if (!sessionStorage.getItem(SKEY)) lock();
 
 paintTheme(); paintAlarm(); paintDeadlines(); tick(); setInterval(tick, 1000); holdWake();
 </script>
