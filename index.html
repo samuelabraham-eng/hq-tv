@@ -171,6 +171,31 @@ body{
 .wb .items i{font-style:normal;color:var(--dim)}
 .wb .items i::before{content:"○ ";color:var(--accent);opacity:.7}
 
+/* ── the control panel. this is the iPad. it drives, it does not mirror. ── */
+#panel{position:fixed;inset:0;z-index:45;display:none;overflow-y:auto;background:var(--ground);padding:22px 18px 60px}
+#panel.show{display:block}
+.pwrap{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.phead{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.ptitle{font-size:26px;font-weight:800;letter-spacing:-.03em;color:var(--bone)}
+.pdev{font-size:12px;color:var(--dim);font-weight:500}
+.pcard{background:var(--tile);border:1px solid var(--line);border-radius:14px;padding:15px 16px}
+.pcard h3{font-size:11px;letter-spacing:.16em;color:var(--accent);font-weight:700;margin-bottom:11px}
+.prow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.prow:last-child{border-bottom:none}
+.plabel{font-size:15px;color:var(--bone);font-weight:500}
+.phint{font-size:12.5px;color:var(--dim);font-weight:500;margin-top:2px;line-height:1.4}
+.pbtn{background:transparent;border:1px solid var(--line);color:var(--bone);border-radius:10px;
+  padding:10px 15px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;min-height:44px}
+.pbtn:hover,.pbtn:focus-visible{border-color:var(--accent);outline:none}
+.pbtn.on{background:var(--accent);border-color:var(--accent);color:var(--onAccent)}
+.pbtn.wide{width:100%;justify-content:center}
+.pchips{display:flex;gap:8px;flex-wrap:wrap}
+input[type=time]{background:var(--tile2);border:1px solid var(--line);color:var(--bone);
+  border-radius:10px;padding:10px 12px;font-family:inherit;font-size:22px;font-weight:700;min-height:46px}
+.pbanner{border-radius:14px;padding:13px 15px;font-size:13.5px;line-height:1.5;font-weight:500}
+.pbanner.warn{background:rgba(208,64,46,.12);border:1px solid var(--alert);color:var(--alert)}
+.pbanner.ok{background:rgba(126,155,122,.12);border:1px solid var(--ok);color:var(--ok)}
+
 /* ── sleep mode. the Hatch half. this is what matters at 3am. ── */
 #sleep{
   position:fixed;inset:0;z-index:50;display:none;background:#0a0705;
@@ -353,6 +378,67 @@ body{
   </div>
 </main>
 
+<div id="panel" aria-label="Control panel">
+ <div class="pwrap">
+  <div class="phead">
+    <div class="ptitle">control</div>
+    <div class="pdev" id="pDev">this iPad</div>
+  </div>
+
+  <div class="pbanner warn" id="pLink">
+    This panel changes THIS device only. It cannot reach the TV yet, that link is not built.
+  </div>
+
+  <div class="pcard">
+    <h3>ALARM</h3>
+    <div class="prow">
+      <div><div class="plabel">wake me at</div><div class="phint">sunrise starts 25 minutes before</div></div>
+      <input type="time" id="pTime">
+    </div>
+    <div class="prow">
+      <div><div class="plabel">alarm</div><div class="phint" id="pArmHint">off</div></div>
+      <button class="pbtn" id="pArm">turn on</button>
+    </div>
+    <div class="prow">
+      <div><div class="plabel">hear the alarm</div><div class="phint">plays instantly, no waiting</div></div>
+      <button class="pbtn" id="pTest">test sound</button>
+    </div>
+    <div class="prow">
+      <div><div class="plabel">see the whole wake-up</div><div class="phint">sunrise, then the alarm, about 3 seconds</div></div>
+      <button class="pbtn" id="pFull">preview</button>
+    </div>
+  </div>
+
+  <div class="pcard">
+    <h3>SLEEP SOUNDS</h3>
+    <div class="phint" style="margin-bottom:10px">tap to hear each one. tap again to stop.</div>
+    <div class="pchips" id="pSounds"></div>
+    <div class="prow" style="margin-top:8px">
+      <div><div class="plabel">fade out after</div></div>
+      <div class="pchips" id="pFade"></div>
+    </div>
+  </div>
+
+  <div class="pcard">
+    <h3>LOOK</h3>
+    <div class="phint" style="margin-bottom:10px">changes this screen. the TV keeps its own until the link exists.</div>
+    <div class="pchips" id="pThemes"></div>
+  </div>
+
+  <div class="pcard">
+    <h3>THIS DEVICE</h3>
+    <div class="prow">
+      <div><div class="plabel">open the dashboard here</div><div class="phint">the TV view, for checking it</div></div>
+      <button class="pbtn" id="pDash">show it</button>
+    </div>
+    <div class="prow">
+      <div><div class="plabel">forget this device</div><div class="phint">asks TV or iPad again next time</div></div>
+      <button class="pbtn" id="pReset">reset</button>
+    </div>
+  </div>
+ </div>
+</div>
+
 <div id="sleep" role="dialog" aria-label="Sleep mode">
   <div class="slab">WIND DOWN</div>
   <div class="sclock" id="sleepClock">--:--</div>
@@ -384,6 +470,7 @@ body{
 <div id="bar">
   <button id="theme">theme: noir</button>
   <button id="sleepBtn">sleep mode</button>
+  <button id="panelBtn">control panel</button>
   <button id="arm">arm the alarm</button>
   <button id="preview">preview the wake-up</button>
   <button id="fs">full screen</button>
@@ -804,8 +891,85 @@ function exitSleep(){
   if (role !== "tv" && !sessionStorage.getItem(SKEY)) lock();
 }
 $("#sleepBtn").addEventListener("click", enterSleep);
+$("#panelBtn").addEventListener("click", () => showPanel());
 $("#wakeUpBtn").addEventListener("click", exitSleep);
 paintSoundRow(); paintFadeRow();
+
+/* ── control panel wiring ────────────────────────────────────────────────
+   Everything here acts on THIS device. When the cross-device link is built,
+   each handler gains one extra line that publishes the same change.        */
+function pad2(n){ return String(n).padStart(2,"0"); }
+
+function paintPanelAlarm(){
+  $("#pTime").value = pad2(alarm.h) + ":" + pad2(alarm.m);
+  $("#pArm").textContent = alarm.armed ? "turn off" : "turn on";
+  $("#pArm").classList.toggle("on", alarm.armed);
+  const h12 = alarm.h % 12 || 12, mer = alarm.h < 12 ? "am" : "pm";
+  $("#pArmHint").textContent = alarm.armed
+    ? "on, ringing at " + h12 + ":" + pad2(alarm.m) + " " + mer
+    : "off";
+}
+$("#pTime").addEventListener("change", e => {
+  const [h, m] = e.target.value.split(":").map(Number);
+  if (Number.isFinite(h) && Number.isFinite(m)){
+    alarm.h = h; alarm.m = m; firedOn = null;
+    localStorage.setItem(KEY, JSON.stringify(alarm));
+    paintAlarm(); paintPanelAlarm();
+  }
+});
+$("#pArm").addEventListener("click", () => {
+  alarm.armed = !alarm.armed;
+  if (alarm.armed) unlockAudio();
+  localStorage.setItem(KEY, JSON.stringify(alarm));
+  paintAlarm(); paintPanelAlarm(); markAudio();
+});
+// one bell, right now, so he can judge the voice without waiting 3 seconds
+$("#pTest").addEventListener("click", () => {
+  unlockAudio(); if (!ctx) return;
+  if (!master){
+    master = ctx.createGain();
+    const soft = ctx.createBiquadFilter();
+    soft.type = "lowpass"; soft.frequency.value = 5200;
+    master.gain.value = 0.5;
+    master.connect(soft); soft.connect(ctx.destination);
+  }
+  const t = ctx.currentTime + 0.03;
+  [0,1,2,3].forEach(i => strike(PHRASE[i], t + i * 0.34, 0.9));
+  setTimeout(() => { if (master && !chimeTimer){ master.disconnect(); master = null; } }, 4000);
+});
+$("#pFull").addEventListener("click", () => $("#preview").click());
+$("#pDash").addEventListener("click", () => { $("#panel").classList.remove("show"); });
+$("#pReset").addEventListener("click", () => {
+  localStorage.removeItem(RKEY); sessionStorage.removeItem(SKEY); location.reload();
+});
+
+function paintPanelSounds(){
+  $("#pSounds").innerHTML = SOUNDS.filter(([k]) => k !== "off").map(([k,l]) =>
+    '<button class="pbtn' + (currentSound === k ? " on" : "") + '" data-ps="' + k + '">' + l + '</button>').join("");
+  $("#pSounds").querySelectorAll("button").forEach(b =>
+    b.addEventListener("click", () => {
+      playSound(currentSound === b.dataset.ps ? "off" : b.dataset.ps);
+      paintPanelSounds();
+    }));
+  $("#pFade").innerHTML = FADES.map(f =>
+    '<button class="pbtn' + (fadeMins === f ? " on" : "") + '" data-pf="' + f + '">' +
+    (f ? f + "m" : "never") + '</button>').join("");
+  $("#pFade").querySelectorAll("button").forEach(b =>
+    b.addEventListener("click", () => { fadeMins = +b.dataset.pf; armFade(); paintPanelSounds(); }));
+}
+function paintPanelThemes(){
+  $("#pThemes").innerHTML = THEMES.map(t =>
+    '<button class="pbtn' + (theme === t ? " on" : "") + '" data-pt="' + t + '">' + t + '</button>').join("");
+  $("#pThemes").querySelectorAll("button").forEach(b =>
+    b.addEventListener("click", () => {
+      theme = b.dataset.pt; localStorage.setItem("hqtv.theme", theme);
+      paintTheme(); paintPanelThemes();
+    }));
+}
+function showPanel(){
+  $("#panel").classList.add("show");
+  paintPanelAlarm(); paintPanelSounds(); paintPanelThemes();
+}
 
 /* ── the lock ──────────────────────────────────────────────────────────────
    Honest about what this is: it stops a person in the room, and a stranger who
@@ -855,6 +1019,7 @@ function unlock(){
   sessionStorage.setItem(SKEY, "1");
   $("#lock").classList.remove("show");
   paintDots();
+  if (role === "control") showPanel();      // the iPad is a controller, not a copy
 }
 function lock(){
   if ($("#wake").classList.contains("show")) return;   // never lock over a ringing alarm
@@ -911,6 +1076,7 @@ function askRole(){
   if (!role){ askRole(); }
   else if (role === "tv"){ sessionStorage.setItem(SKEY, "1"); }
   else if (!sessionStorage.getItem(SKEY)) lock();
+  else showPanel();
 })();
 
 paintTheme(); paintAlarm(); paintDeadlines(); tick(); markAudio(); setInterval(tick, 1000); holdWake();
