@@ -119,3 +119,43 @@ after a visual.** Substance goes IN the widget. Chat text stays to a few lines a
 **Still queued:** a photo of the TV for scale, iPad-as-remote design, wake-up mission (mock only,
 mocked once already), weather line, and possibly prompts for Codex and Claude Design so he can
 compare their takes on the same screen.
+
+## v4 review, 2026-08-08 (Windows 8 reference, security, calendar)
+
+**Themes now:** noir (LOCKED), clay, espresso, oat, sage, cream, **metro**, **metrowarm**.
+`ink` and `frame` are DELETED at his instruction. He sent the actual Windows 8 Start screen as
+reference, so metro is a genuine Metro treatment: solid colour blocks, no borders, white text,
+deep plum ground. metrowarm is the same structure in his palette. Tiles carry `data-c="1..8"`
+colour slots that only the metro themes read.
+
+**To-do tile shipped.** His words: *"Sometimes I'd be saying 'add to my to-do list' or just
+'high priority things.' Having it there would be a genuine lifesaver."* Source of truth is the
+new `life/TODO.md`. Only `today` and `this week` items reach the TV.
+
+**Lock screen shipped, with the honest caveat in the code.** Per-device PIN, 5 to 6 digits, set
+on first use, stored ONLY as a hash in localStorage, never in the repo. Clock stays visible and
+the alarm still fires while locked. **It is a privacy curtain, not security** — on a public page
+the data reaches the visitor before the PIN is asked. Told him plainly.
+
+**THE REAL GATE, and it is his next decision: Cloudflare Access.** Free to 50 users, no card,
+one-time PIN to email, session configurable up to one month, blocks at the edge so a stranger
+with the URL gets nothing. Verified 2026-08-08. **Until he does this the deployed page carries
+sample data only.** This same decision unlocks the iPad control panel, because once both devices
+sit behind one gate they are trivially known to be him, which is what he asked for
+(*"I don't need a code that we need to make... it kinda connects automatically"*).
+
+**Calendar plan (verified 2026-08-08).** Google Calendar becomes the hub because it is the only
+one Claude can connect to. Both iCloud accounts publish a public feed that Google subscribes to.
+Honest limits told to him: that feed is **read-only** and Apple refreshes it on its own schedule,
+often 12-24 hours, and the Apple link is readable by anyone holding it. Two-way, fast sync needs
+a paid third-party service. He also wants a **calendar VIEW toggle** on the dashboard, modelled
+on the Toggl week grid he sent. Not built yet.
+
+**HQ scan (he asked me to go through everything and propose tiles).** Found and recommended:
+**12 decisions waiting in the Review Room** (the single best unused tile), the **ideas board
+`hub/ideas.html` built this same morning as HQ01** which should become the whiteboard's real
+source, **4 dated commitments** in `life/COMMITMENTS.md` feeding On the clock, the
+**workflow-audit LOG.jsonl** as the honest streak signal, and **`hub/money.html`'s existing
+expense tracker** as a real money source needing no bank connection.
+
+**Gemini handoff given** for the two-way calendar sync comparison, with a paste-ready question.
