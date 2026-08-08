@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="noir">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -10,17 +10,42 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
-:root{
+/* ═══ themes. noir is the original and is not to be changed. ═══ */
+[data-theme="noir"]{
   --ground:#100e0c; --tile:#1a1512; --tile2:#211b16; --line:#2a241d;
-  --bone:#f1ebdf; --dim:#8a8073; --gold:#c9a96a; --alert:#d0402e; --ok:#7e9b7a;
-  --safe:3.2vw;                     /* TV overscan guard, real on many sets */
-  --gap:0.9vw;
+  --bone:#f1ebdf; --dim:#8a8073; --accent:#c9a96a; --onAccent:#2b2208; --onAccentDim:#5c4a20;
+  --alert:#d0402e; --ok:#7e9b7a; --border:1px solid var(--line); --tilebg:var(--tile);
 }
+[data-theme="ink"]{
+  --ground:#080808; --tile:#131313; --tile2:#1c1c1c; --line:#282828;
+  --bone:#f2f2f0; --dim:#787876; --accent:#f2f2f0; --onAccent:#0a0a0a; --onAccentDim:#4a4a48;
+  --alert:#ff4b39; --ok:#6fbf8f; --border:1px solid var(--line); --tilebg:var(--tile);
+}
+[data-theme="cream"]{
+  --ground:#f1ebdf; --tile:#faf7f0; --tile2:#f5f0e4; --line:#e0d6c2;
+  --bone:#100e0c; --dim:#6f6656; --accent:#b58d47; --onAccent:#241b06; --onAccentDim:#5c4a20;
+  --alert:#bf3826; --ok:#4f7a52; --border:1px solid var(--line); --tilebg:var(--tile);
+}
+[data-theme="frame"]{
+  --ground:#0c0b0a; --tile:transparent; --tile2:rgba(255,255,255,.05); --line:rgba(241,235,223,.10);
+  --bone:#efe9dd; --dim:#7a7266; --accent:#c9a96a; --onAccent:#2b2208; --onAccentDim:#5c4a20;
+  --alert:#d0402e; --ok:#7e9b7a; --border:none; --tilebg:transparent;
+}
+[data-theme="frame"] .t{border-bottom:1px solid var(--line)}
+[data-theme="frame"] .t.gold{background:transparent}
+[data-theme="frame"] .t.gold .lab{color:var(--accent)}
+[data-theme="frame"] .t.gold .mid{color:var(--bone)}
+[data-theme="frame"] .t.gold .sub{color:var(--dim)}
+[data-theme="frame"] .clock{font-size:clamp(58px,14vw,240px)}
+[data-theme="frame"] .alarmcard{border:none;border-left:2px solid var(--accent)}
+
+:root{ --safe:3.2vw; --gap:0.9vw; }
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%;background:var(--ground);overflow:hidden}
 body{
   font-family:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   color:var(--bone); -webkit-font-smoothing:antialiased;
+  transition:background .5s;
 }
 
 /* the sunrise. the tv is a very large lamp, so use it as one. */
@@ -33,77 +58,86 @@ body{
 #board{height:100%;padding:var(--safe);display:flex;flex-direction:column;gap:var(--gap);position:relative;z-index:10}
 
 /* ── top band ── */
-.top{display:grid;grid-template-columns:1.55fr 1fr;gap:var(--gap);align-items:stretch}
+.top{display:grid;grid-template-columns:1.55fr 1fr;gap:var(--gap)}
 .clockwrap{display:flex;flex-direction:column;justify-content:center}
-.clock{font-size:clamp(52px,11.5vw,190px);font-weight:800;letter-spacing:-.05em;line-height:.86}
+.clock{font-size:clamp(48px,10.5vw,176px);font-weight:800;letter-spacing:-.05em;line-height:.86}
 .clock .mer{font-size:.2em;font-weight:500;letter-spacing:.12em;color:var(--dim);margin-left:.12em;vertical-align:.9em}
-.dateline{font-size:clamp(12px,1.65vw,27px);color:var(--dim);margin-top:.5vw;font-weight:500}
+.dateline{font-size:clamp(11px,1.5vw,25px);color:var(--dim);margin-top:.5vw;font-weight:500}
 .dateline b{color:var(--bone);font-weight:500}
 
 .alarmcard{
-  background:var(--tile);border:1px solid var(--line);border-left:3px solid var(--gold);
-  padding:1.5vw 1.7vw;display:flex;flex-direction:column;justify-content:space-between;gap:.6vw;
+  background:var(--tilebg);border:var(--border);border-left:3px solid var(--accent);
+  padding:1.3vw 1.5vw;display:flex;flex-direction:column;justify-content:space-between;gap:.5vw;
 }
-.lab{font-size:clamp(9.5px,.95vw,16px);letter-spacing:.16em;color:var(--gold);font-weight:700}
-.alarmtime{font-size:clamp(26px,4.6vw,76px);font-weight:800;letter-spacing:-.03em;line-height:1}
+.lab{font-size:clamp(9px,.9vw,15px);letter-spacing:.16em;color:var(--accent);font-weight:700}
+.alarmtime{font-size:clamp(24px,4.2vw,70px);font-weight:800;letter-spacing:-.03em;line-height:1}
 .alarmtime .mer{font-size:.32em;font-weight:500;color:var(--dim);letter-spacing:.1em;margin-left:.1em}
-.alarmstate{font-size:clamp(10.5px,1.25vw,20px);color:var(--dim);font-weight:500}
+.alarmstate{font-size:clamp(10px,1.15vw,19px);color:var(--dim);font-weight:500}
 .alarmstate.armed{color:var(--ok)}
 .alarmstate.off{color:var(--alert)}
 
 /* ── tiles ── */
 .grid{flex:1;display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:1fr;gap:var(--gap);min-height:0}
 .t{
-  background:var(--tile);border:1px solid var(--line);padding:1.35vw 1.5vw;
-  display:flex;flex-direction:column;justify-content:space-between;gap:.5vw;
+  background:var(--tilebg);border:var(--border);padding:1.2vw 1.35vw;
+  display:flex;flex-direction:column;justify-content:space-between;gap:.4vw;
   position:relative;overflow:hidden;outline:none;
 }
-.t:focus-visible,.t.on{border-color:var(--gold);background:var(--tile2)}
+.t:focus-visible{border-color:var(--accent);background:var(--tile2)}
 .t.w2{grid-column:span 2}
-.t.w4{grid-column:span 4}
-.t.gold{background:var(--gold);border-color:var(--gold)}
-.t.gold .lab{color:#5c4a20}
-.t.gold .big,.t.gold .mid{color:#2b2208}
-.t.gold .sub{color:#5c4a20}
+.t.gold{background:var(--accent);border-color:var(--accent)}
+.t.gold .lab{color:var(--onAccentDim)}
+.t.gold .big,.t.gold .mid{color:var(--onAccent)}
+.t.gold .sub{color:var(--onAccentDim)}
 .t.hot{border-color:var(--alert)}
 .t.hot .lab{color:var(--alert)}
 .t .lab{color:var(--dim)}
-.big{font-size:clamp(26px,4.1vw,68px);font-weight:800;letter-spacing:-.04em;line-height:.95}
-.mid{font-size:clamp(15px,2.15vw,36px);font-weight:800;letter-spacing:-.03em;line-height:1.1}
-.sub{font-size:clamp(10px,1.15vw,19px);color:var(--dim);font-weight:500;line-height:1.3}
+.big{font-size:clamp(24px,3.8vw,62px);font-weight:800;letter-spacing:-.04em;line-height:.95}
+.mid{font-size:clamp(14px,2vw,33px);font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.sub{font-size:clamp(9.5px,1.05vw,17px);color:var(--dim);font-weight:500;line-height:1.3}
 .hot .big,.hot .mid{color:var(--alert)}
-.ok{color:var(--ok)}
 
-/* the question mark. his standing rule: never leave a number unexplained. */
+/* the one thing allowed to move. it only moves when it changes. */
+@keyframes settle{0%{opacity:0;transform:translateY(.6vw)}100%{opacity:1;transform:none}}
+.t.gold .mid,.t.gold .sub{animation:settle .5s ease-out}
+
 .q{
-  position:absolute;top:.8vw;right:.9vw;width:2.1vw;height:2.1vw;min-width:20px;min-height:20px;
+  position:absolute;top:.7vw;right:.8vw;width:2vw;height:2vw;min-width:19px;min-height:19px;
   border:1px solid var(--line);border-radius:50%;background:transparent;color:var(--dim);
-  font-family:inherit;font-size:clamp(10px,1.1vw,17px);font-weight:700;cursor:pointer;
+  font-family:inherit;font-size:clamp(9.5px,1vw,16px);font-weight:700;cursor:pointer;
   display:grid;place-items:center;line-height:1;
 }
-.t.gold .q{border-color:#8a6f2e;color:#5c4a20}
-.q:hover,.q:focus-visible{border-color:var(--gold);color:var(--gold);outline:none}
+.t.gold .q{border-color:var(--onAccentDim);color:var(--onAccentDim)}
+.q:hover,.q:focus-visible{border-color:var(--accent);color:var(--accent);outline:none}
 
-/* rows inside the wide tiles */
-.rows{display:flex;flex-direction:column;gap:.45vw}
-.row{display:flex;gap:1vw;align-items:baseline;font-size:clamp(11px,1.35vw,23px);font-weight:500}
-.row .when{color:var(--dim);min-width:4.6em}
-.row.dimmed,.row.dimmed .when{color:var(--dim)}
+/* list rows inside wide tiles */
+.rows{display:flex;flex-direction:column;gap:.3vw;width:100%}
+.row{display:flex;gap:.9vw;align-items:baseline;font-size:clamp(10px,1.2vw,21px);font-weight:500;justify-content:space-between}
+.row .nm{color:var(--bone);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .st{color:var(--dim);flex-shrink:0}
+.row .st.live{color:var(--ok)}
+.row .st.warn{color:var(--alert)}
 
-/* the close-the-loop strip. this is the answer to stale numbers. */
-.ask{display:flex;gap:.6vw;flex-wrap:wrap;align-items:center}
-.chip{
-  border:1px dashed var(--line);color:var(--dim);padding:.5vw .9vw;
-  font-size:clamp(10px,1.15vw,19px);font-weight:500;background:transparent;
-  font-family:inherit;cursor:pointer;
+/* rings, the apple watch idea */
+.rings{display:flex;align-items:center;gap:.9vw}
+.rings svg{width:clamp(56px,7vw,116px);height:auto;flex-shrink:0}
+.rkey{display:flex;flex-direction:column;gap:.25vw;font-size:clamp(9px,1vw,16px);font-weight:500}
+.rkey span{color:var(--dim);white-space:nowrap}
+.rkey b{color:var(--bone);font-weight:500}
+
+/* the whiteboard. read only. he is not tapping anything on a tv. */
+.wb{
+  border-top:1px solid var(--line);padding-top:.8vw;display:flex;gap:1.4vw;align-items:baseline;flex-wrap:wrap;
 }
-.chip:hover,.chip:focus-visible{border-color:var(--gold);border-style:solid;color:var(--bone);outline:none}
+.wb .wlabel{font-size:clamp(9px,.9vw,15px);letter-spacing:.16em;color:var(--accent);font-weight:700;flex-shrink:0}
+.wb .items{display:flex;gap:1.2vw;flex-wrap:wrap;font-size:clamp(9.5px,1.1vw,18px);color:var(--dim);font-weight:500}
+.wb .items i{font-style:normal;color:var(--dim)}
+.wb .items i::before{content:"○ ";color:var(--accent);opacity:.7}
 
 /* ── wake screen ── */
 #wake{
   position:fixed;inset:0;z-index:60;display:none;flex-direction:column;
-  align-items:center;justify-content:center;gap:2vh;text-align:center;padding:6vw;
-  background:var(--alert);
+  align-items:center;justify-content:center;gap:2vh;text-align:center;padding:6vw;background:var(--alert);
 }
 #wake.show{display:flex}
 #wake .wlab{font-size:clamp(11px,1.5vw,24px);letter-spacing:.2em;color:#4a1b0c;font-weight:700}
@@ -115,46 +149,44 @@ body{
 }
 .dismiss:focus-visible{outline:3px solid #faece7;outline-offset:3px}
 
-/* ── controls, deliberately quiet ── */
+/* ── controls ── */
 #bar{
   position:fixed;bottom:0;left:0;right:0;z-index:40;display:flex;gap:.5vw;justify-content:center;
-  padding:.6vw;opacity:.4;transition:opacity .25s;
+  padding:.6vw;opacity:.35;transition:opacity .25s;
 }
 #bar:hover,#bar:focus-within,#bar.lit{opacity:1}
 #bar button{
-  background:var(--tile);color:var(--dim);border:1px solid var(--line);padding:.5vw 1vw;
-  font-family:inherit;font-size:clamp(10px,1.05vw,16px);font-weight:500;cursor:pointer;
+  background:var(--tile);color:var(--dim);border:1px solid var(--line);padding:.45vw .95vw;
+  font-family:inherit;font-size:clamp(9.5px,1vw,15px);font-weight:500;cursor:pointer;
 }
-#bar button:hover,#bar button:focus-visible{color:var(--bone);border-color:var(--gold);outline:none}
+#bar button:hover,#bar button:focus-visible{color:var(--bone);border-color:var(--accent);outline:none}
 
-/* ── popover ── */
 #pop{
   position:fixed;z-index:70;display:none;max-width:min(46ch,80vw);
-  background:var(--tile2);border:1px solid var(--gold);padding:1.2vw 1.4vw;
+  background:var(--tile2);border:1px solid var(--accent);padding:1.1vw 1.3vw;
 }
+[data-theme="cream"] #pop,[data-theme="frame"] #pop{background:var(--ground)}
 #pop.show{display:block}
-#pop h4{font-size:clamp(12px,1.35vw,22px);font-weight:800;letter-spacing:-.02em;margin-bottom:.4em}
-#pop p{font-size:clamp(11px,1.2vw,19px);color:var(--dim);line-height:1.5;font-weight:500}
+#pop h4{font-size:clamp(12px,1.3vw,21px);font-weight:800;letter-spacing:-.02em;margin-bottom:.4em;color:var(--bone)}
+#pop p{font-size:clamp(11px,1.15vw,18px);color:var(--dim);line-height:1.5;font-weight:500}
 
-/* ── smaller screens: ipad, phone, pc window ── */
+/* ── ipad, phone, monitor ── */
 @media (max-width:1100px){
   :root{--safe:20px;--gap:10px}
   .top{grid-template-columns:1fr}
-  .grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:minmax(96px,auto)}
-  .t.w2,.t.w4{grid-column:span 2}
+  .grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:minmax(92px,auto)}
+  .t.w2{grid-column:span 2}
   html,body{overflow:auto}
   #board{height:auto;min-height:100%}
-  .clock{font-size:clamp(64px,20vw,150px)}
-  .big{font-size:clamp(28px,8vw,52px)}
-  .mid{font-size:clamp(18px,5vw,32px)}
-  .sub,.row,.chip{font-size:14px}
-  .lab{font-size:11px}
+  .clock,[data-theme="frame"] .clock{font-size:clamp(64px,20vw,150px)}
+  .big{font-size:clamp(26px,7.5vw,48px)} .mid{font-size:clamp(17px,4.6vw,30px)}
+  .sub,.row{font-size:14px} .lab,.wb .wlabel{font-size:11px} .wb .items{font-size:13px}
   .q{width:26px;height:26px;font-size:13px;top:10px;right:10px}
-  #bar{opacity:1;padding:10px}
-  #bar button{font-size:13px;padding:8px 12px}
+  .rings svg{width:78px} .rkey{font-size:12px}
+  #bar{opacity:1;padding:10px} #bar button{font-size:13px;padding:8px 12px}
 }
-@media (max-width:560px){ .grid{grid-template-columns:1fr} .t.w2,.t.w4{grid-column:span 1} }
-@media (prefers-reduced-motion:reduce){ #sunrise{transition:none} }
+@media (max-width:560px){ .grid{grid-template-columns:1fr} .t.w2{grid-column:span 1} }
+@media (prefers-reduced-motion:reduce){ #sunrise{transition:none} .t.gold .mid,.t.gold .sub{animation:none} }
 </style>
 </head>
 <body>
@@ -163,7 +195,7 @@ body{
 <main id="board">
   <section class="top">
     <div class="clockwrap">
-      <div class="clock" id="clock">--:--<span class="mer" id="mer"></span></div>
+      <div class="clock" id="clock">--:--</div>
       <div class="dateline" id="dateline">&nbsp;</div>
     </div>
     <div class="alarmcard">
@@ -173,68 +205,104 @@ body{
     </div>
   </section>
 
-  <section class="grid" id="grid">
+  <section class="grid">
     <div class="t gold w2" tabindex="0">
       <div class="lab">DO THIS NEXT</div>
-      <div class="mid" id="nextTitle">attend the Turo webinar</div>
-      <div class="sub" id="nextSub">your car earns $0 until you do</div>
+      <div class="mid">attend the Turo webinar</div>
+      <div class="sub">your car earns $0 until you do</div>
     </div>
 
     <div class="t hot" tabindex="0">
-      <button class="q" data-q="cashapp" aria-label="What does this mean?">?</button>
+      <button class="q" data-q="late" aria-label="Explain">?</button>
       <div class="lab">A BILL IS LATE</div>
       <div class="big">8d</div>
-      <div class="sub">sample · pay before day 30</div>
+      <div class="sub">sample · 22 days until it counts</div>
     </div>
 
     <div class="t hot" tabindex="0">
-      <button class="q" data-q="turo" aria-label="What does this mean?">?</button>
+      <button class="q" data-q="car" aria-label="Explain">?</button>
       <div class="lab">THE CAR</div>
       <div class="mid">unlisted</div>
       <div class="sub">sample · needs a webinar</div>
     </div>
 
     <div class="t" tabindex="0">
-      <button class="q" data-q="owed" aria-label="What does this mean?">?</button>
-      <div class="lab">OWED TO YOU</div>
-      <div class="big" id="owed">--</div>
-      <div class="sub" id="owedSub">not confirmed yet</div>
+      <button class="q" data-q="need" aria-label="Explain">?</button>
+      <div class="lab">NEEDED BY THE 1st</div>
+      <div class="big">$1,240</div>
+      <div class="sub">sample · $310 of it is subscriptions</div>
     </div>
 
     <div class="t" tabindex="0">
-      <div class="lab">PROJECTS</div>
-      <div class="big">4</div>
-      <div class="sub">sample · your live count goes here</div>
+      <button class="q" data-q="rings" aria-label="Explain">?</button>
+      <div class="lab">THE MONTH</div>
+      <div class="rings">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" stroke-width="9" opacity=".13"/>
+          <circle cx="50" cy="50" r="31" fill="none" stroke="currentColor" stroke-width="9" opacity=".13"/>
+          <circle cx="50" cy="50" r="18" fill="none" stroke="currentColor" stroke-width="9" opacity=".13"/>
+          <circle id="r1" cx="50" cy="50" r="44" fill="none" stroke="var(--accent)" stroke-width="9"
+                  stroke-linecap="round" transform="rotate(-90 50 50)"/>
+          <circle id="r2" cx="50" cy="50" r="31" fill="none" stroke="var(--ok)" stroke-width="9"
+                  stroke-linecap="round" transform="rotate(-90 50 50)"/>
+          <circle id="r3" cx="50" cy="50" r="18" fill="none" stroke="var(--alert)" stroke-width="9"
+                  stroke-linecap="round" transform="rotate(-90 50 50)" opacity=".25"/>
+        </svg>
+        <div class="rkey">
+          <span><b id="kmonth">—</b> of august</span>
+          <span><b id="kweek">—</b> of the week</span>
+          <span>money, once connected</span>
+        </div>
+      </div>
     </div>
 
     <div class="t w2" tabindex="0">
-      <button class="q" data-q="today" aria-label="What does this mean?">?</button>
+      <button class="q" data-q="cal" aria-label="Explain">?</button>
       <div class="lab">TODAY</div>
       <div class="rows">
-        <div class="row"><span>no calendar connected yet</span></div>
-        <div class="row dimmed"><span>pick the one that rules them all and this fills in</span></div>
+        <div class="row"><span class="nm">no calendar connected yet</span><span class="st">—</span></div>
+        <div class="row"><span class="nm">pick the one that rules them all</span><span class="st">then this fills in</span></div>
       </div>
       <div class="sub" id="stamp">&nbsp;</div>
     </div>
 
-    <div class="t w4" tabindex="0">
-      <div class="lab">NEEDS YOUR WORD · TAP ONE AND TELL ME</div>
-      <div class="ask" id="askRow"></div>
-      <div class="sub">nothing here is guessed. these are the numbers on this screen that are stale, unknown, or waiting on you.</div>
+    <div class="t w2" tabindex="0">
+      <div class="lab">PROJECTS</div>
+      <div class="rows">
+        <div class="row"><span class="nm">firststop</span><span class="st">design pass, not started</span></div>
+        <div class="row"><span class="nm">karrina</span><span class="st live">retainer live</span></div>
+        <div class="row"><span class="nm">turo</span><span class="st warn">unlisted</span></div>
+        <div class="row"><span class="nm">hq tv</span><span class="st live">you are looking at it</span></div>
+      </div>
+    </div>
+
+    <div class="t w2" tabindex="0">
+      <button class="q" data-q="subs" aria-label="Explain">?</button>
+      <div class="lab">SUBSCRIPTIONS COMING UP</div>
+      <div class="rows">
+        <div class="row"><span class="nm">sample, until the feed is wired</span><span class="st">—</span></div>
+        <div class="row"><span class="nm">these land in the calendar too</span><span class="st">—</span></div>
+      </div>
     </div>
   </section>
+
+  <div class="wb">
+    <div class="wlabel">THE WHITEBOARD</div>
+    <div class="items" id="wbItems"></div>
+  </div>
 </main>
 
 <div id="wake" role="dialog" aria-label="Alarm">
   <div class="wlab">GET UP, SAMUEL</div>
   <div class="wtime" id="wakeTime">6:30</div>
-  <div class="wsub" id="wakeSub">the sun came up early for you</div>
+  <div class="wsub">the sun came up early for you</div>
   <button class="dismiss" id="dismiss">stop the alarm</button>
 </div>
 
 <div id="pop" role="dialog"><h4 id="popT"></h4><p id="popB"></p></div>
 
 <div id="bar">
+  <button id="theme">theme: noir</button>
   <button id="arm">arm the alarm</button>
   <button id="preview">preview the wake-up</button>
   <button id="fs">full screen</button>
@@ -243,58 +311,83 @@ body{
 <script>
 "use strict";
 
-/* ═══ the data ═══
-   v1 is hand-written and honest. Anything not verified says so on screen instead of
-   inventing a number. Phase 3 replaces this object with a fetch of a curated file
-   generated out of Samuel-HQ. Nothing else in this file has to change. */
-const DEMO = true;   /* flip to false once this is hosted somewhere private */
-
+/* ═══ everything on this screen comes from here ═══
+   Hand written and honest. Anything unverified says "sample" out loud or stays blank.
+   Phase 3 swaps this for a fetch of a curated file generated out of the private HQ repo. */
 const DATA = {
-  owed:      { value:null, sub:"nothing confirmed outstanding" },
-  askables:  [
-    "the invoice you are owed on",
+  whiteboard: [
+    "what you actually owe each month",
     "your Turo daily rate",
     "your Turo delivery fee",
     "which calendar is the real one",
-    "what else is owed to you"
+    "which subscriptions are still running"
   ],
-  notes: {
-    cashapp:{ t:"Why a late bill still shows a countdown",
-      b:"Late fees start immediately, but most lenders do not report to the credit bureaus until a payment is 30 days past due. So the number that matters is days to 30, not days late. This tile is sample data until the real feed is wired up." },
-    turo:{ t:"Why the car says unlisted",
-      b:"A host side cancellation takes a car out of search and stops new bookings until the platform's cancellations webinar is done. Existing bookings still stand. Sample data for now." },
-    owed:{ t:"This number is blank on purpose",
-      b:"Nothing goes here until you confirm what is actually outstanding. A wrong number on a wall is worse than no number, and a stale one is worse than both." },
-    today:{ t:"No calendar is connected",
-      b:"You use the iPhone calendar, plus Google, Notion and two Apple accounts. Until one of them is chosen as the real one, this tile stays honest and empty rather than showing half your day." }
+  notes:{
+    late:{ t:"Why a late bill shows a countdown",
+      b:"Late fees start straight away, but most lenders do not report to the credit bureaus until a payment is 30 days past due. The number that matters is days remaining to 30, not days late. Sample data for now." },
+    car:{ t:"Why the car says unlisted",
+      b:"A host side cancellation pulls a car out of search and blocks new bookings until the platform's cancellations webinar is done. Existing bookings still stand. Sample data for now." },
+    need:{ t:"What this number is",
+      b:"Everything due before the 1st, in one figure, with the subscription share called out. This replaced the old owed-to-you tile because knowing what you have to cover matters more than knowing what someone owes you. Sample until the accounts are connected." },
+    rings:{ t:"The rings",
+      b:"Outer ring is how far through August you are, middle is the week. Both are real and need no data. The inner ring stays dim until money is connected, because a ring that fakes a number is worse than an empty one." },
+    cal:{ t:"No calendar is connected",
+      b:"You have the iPhone calendar, Google, Notion and two Apple accounts. Notion Calendar can read all of them and it is free. Once you pick one, this tile stops being a placeholder." },
+    subs:{ t:"Subscriptions",
+      b:"The plan is every recurring charge listed with its date, and the same dates pushed into the calendar so a renewal never surprises you. Needs a source before it can show anything real." }
   }
 };
 
 const $ = s => document.querySelector(s);
 const pad = n => String(n).padStart(2,"0");
 
-/* ── clock ── */
+/* ── themes ── */
+const THEMES = ["noir","ink","cream","frame"];
+let theme = localStorage.getItem("hqtv.theme") || "noir";
+function paintTheme(){
+  document.documentElement.dataset.theme = theme;
+  $("#theme").textContent = "theme: " + theme;
+  const bg = getComputedStyle(document.body).backgroundColor;
+  document.querySelector('meta[name=theme-color]').setAttribute("content", bg);
+}
+$("#theme").addEventListener("click", () => {
+  theme = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
+  localStorage.setItem("hqtv.theme", theme);
+  paintTheme();
+});
+
+/* ── clock, date, rings ── */
 function tick(){
   const d = new Date();
   let h = d.getHours(); const m = d.getMinutes();
-  const mer = h < 12 ? "am" : "pm";
-  h = h % 12 || 12;
+  const mer = h < 12 ? "am" : "pm"; h = h % 12 || 12;
   $("#clock").innerHTML = h + ":" + pad(m) + '<span class="mer">' + mer + "</span>";
   $("#dateline").innerHTML =
     d.toLocaleDateString(undefined,{weekday:"long"}).toLowerCase() + ", " +
     d.toLocaleDateString(undefined,{month:"long",day:"numeric"}).toLowerCase() +
     ' &nbsp;·&nbsp; <b>arlington</b>';
   $("#stamp").textContent = "updated " + h + ":" + pad(m) + " " + mer;
-  paintSunrise(d);
-  checkAlarm(d);
+
+  const dim = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+  const mp = (d.getDate() - 1 + d.getHours()/24) / dim;
+  const wp = (d.getDay() + d.getHours()/24) / 7;
+  setRing("#r1", 44, mp); setRing("#r2", 31, wp); setRing("#r3", 18, 0);
+  $("#kmonth").textContent = Math.round(mp*100) + "%";
+  $("#kweek").textContent  = Math.round(wp*100) + "%";
+
+  paintSunrise(d); checkAlarm(d);
+}
+function setRing(sel, r, p){
+  const c = 2 * Math.PI * r, el = $(sel);
+  el.style.strokeDasharray = c;
+  el.style.strokeDashoffset = c * (1 - Math.max(0, Math.min(1, p)));
 }
 
-/* ── alarm state ── */
+/* ── alarm ── */
 const KEY = "hqtv.alarm";
 let alarm = JSON.parse(localStorage.getItem(KEY) || 'null') || { h:6, m:30, armed:false };
 let firedOn = null, ctx = null, osc = null, gain = null;
 
-function saveAlarm(){ localStorage.setItem(KEY, JSON.stringify(alarm)); paintAlarm(); }
 function paintAlarm(){
   const h12 = alarm.h % 12 || 12, mer = alarm.h < 12 ? "am" : "pm";
   $("#alarmTime").innerHTML = h12 + ":" + pad(alarm.m) + '<span class="mer">' + mer + "</span>";
@@ -303,53 +396,37 @@ function paintAlarm(){
   s.textContent = alarm.armed ? "armed · sunrise starts 25 min early" : "not armed yet";
   $("#arm").textContent = alarm.armed ? "turn the alarm off" : "arm the alarm";
 }
-
-/* minutes from now until the next occurrence of the alarm */
 function minsUntil(now){
   const a = new Date(now); a.setHours(alarm.h, alarm.m, 0, 0);
   if (a <= now) a.setDate(a.getDate() + 1);
   return (a - now) / 60000;
 }
-
-/* ── sunrise: the tv is the lamp. 25 minutes of warm light before the noise. ── */
 const RAMP = 25;
 function paintSunrise(now){
-  if (!alarm.armed){ $("#sunrise").style.opacity = 0; return; }
-  const left = minsUntil(now);
   const el = $("#sunrise");
-  if (left <= RAMP){
-    const p = 1 - (left / RAMP);          // 0 → 1 across the ramp
-    el.style.opacity = (p * p * 0.92).toFixed(3);   // eased, so the last minutes brighten hardest
-  } else if (left > 1439) {
-    el.style.opacity = 0;
-  } else {
-    el.style.opacity = 0;
-  }
+  if (!alarm.armed){ el.style.opacity = 0; return; }
+  const left = minsUntil(now);
+  if (left <= RAMP){ const p = 1 - (left / RAMP); el.style.opacity = (p*p*0.92).toFixed(3); }
+  else el.style.opacity = 0;
 }
-
-/* ── sound. gentle, then insistent. ── */
 function unlockAudio(){
   if (ctx) return ctx;
   const AC = window.AudioContext || window.webkitAudioContext;
   if (!AC) return null;
-  ctx = new AC();
-  if (ctx.state === "suspended") ctx.resume();
+  ctx = new AC(); if (ctx.state === "suspended") ctx.resume();
   return ctx;
 }
 function startTone(){
   if (!unlockAudio()) return;
   stopTone();
   osc = ctx.createOscillator(); gain = ctx.createGain();
-  osc.type = "sine"; osc.frequency.value = 523.25;          // C5, not a buzzer
+  osc.type = "sine"; osc.frequency.value = 523.25;
   gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.30, ctx.currentTime + 22); // 22s ramp up, never a jump scare
-  osc.connect(gain); gain.connect(ctx.destination);
-  osc.start();
-  // pulse so it reads as an alarm and not a hum
+  gain.gain.exponentialRampToValueAtTime(0.30, ctx.currentTime + 22);
+  osc.connect(gain); gain.connect(ctx.destination); osc.start();
   let on = true;
   osc._pulse = setInterval(() => {
-    if (!gain) return;
-    on = !on;
+    if (!gain) return; on = !on;
     gain.gain.setTargetAtTime(on ? 0.30 : 0.06, ctx.currentTime, 0.08);
   }, 900);
 }
@@ -357,47 +434,38 @@ function stopTone(){
   if (osc){ clearInterval(osc._pulse); try{ osc.stop(); }catch(e){} osc.disconnect(); osc = null; }
   if (gain){ gain.disconnect(); gain = null; }
 }
-
-/* ── firing ── */
-function fire(now){
-  const h12 = alarm.h % 12 || 12;
-  $("#wakeTime").textContent = h12 + ":" + pad(alarm.m);
-  $("#wake").classList.add("show");
-  $("#dismiss").focus();
-  startTone();
+function fire(){
+  $("#wakeTime").textContent = (alarm.h % 12 || 12) + ":" + pad(alarm.m);
+  $("#wake").classList.add("show"); $("#dismiss").focus(); startTone();
 }
 function checkAlarm(now){
   if (!alarm.armed) return;
   const stamp = now.toDateString() + " " + alarm.h + ":" + alarm.m;
   if (firedOn === stamp) return;
-  if (now.getHours() === alarm.h && now.getMinutes() === alarm.m){
-    firedOn = stamp;
-    fire(now);
-  }
+  if (now.getHours() === alarm.h && now.getMinutes() === alarm.m){ firedOn = stamp; fire(); }
 }
 $("#dismiss").addEventListener("click", () => {
-  $("#wake").classList.remove("show");
-  stopTone();
-  $("#sunrise").style.opacity = 0;
+  $("#wake").classList.remove("show"); stopTone(); $("#sunrise").style.opacity = 0;
 });
-
-/* ── controls ── */
 $("#arm").addEventListener("click", () => {
   alarm.armed = !alarm.armed;
-  if (alarm.armed) unlockAudio();     // must happen inside a click or the browser stays mute
-  saveAlarm();
+  if (alarm.armed) unlockAudio();
+  localStorage.setItem(KEY, JSON.stringify(alarm)); paintAlarm();
 });
 $("#preview").addEventListener("click", () => {
   unlockAudio();
-  $("#sunrise").style.transition = "opacity 2.6s linear";
-  $("#sunrise").style.opacity = 0.92;
-  setTimeout(() => fire(new Date()), 2800);
-  setTimeout(() => { $("#sunrise").style.transition = "opacity 1.4s linear"; }, 3200);
+  const s = $("#sunrise");
+  s.style.transition = "opacity 2.6s linear"; s.style.opacity = 0.92;
+  setTimeout(fire, 2800);
+  setTimeout(() => { s.style.transition = "opacity 1.4s linear"; }, 3200);
 });
 $("#fs").addEventListener("click", () => {
   if (document.fullscreenElement) document.exitFullscreen();
   else document.documentElement.requestFullscreen?.();
 });
+
+/* ── the whiteboard, read only ── */
+$("#wbItems").innerHTML = DATA.whiteboard.map(t => "<i>" + t + "</i>").join("");
 
 /* ── question marks ── */
 function closePop(){ $("#pop").classList.remove("show"); }
@@ -417,61 +485,36 @@ document.querySelectorAll(".q").forEach(b => {
 document.addEventListener("click", closePop);
 document.addEventListener("keydown", e => { if (e.key === "Escape") closePop(); });
 
-/* ── the close-the-loop chips ── */
-const askRow = $("#askRow");
-DATA.askables.forEach(t => {
-  const b = document.createElement("button");
-  b.className = "chip"; b.type = "button"; b.textContent = t;
-  b.addEventListener("click", e => {
-    e.stopPropagation();
-    $("#popT").textContent = "waiting on you";
-    $("#popB").textContent = 'Say the answer to "' + t + '" in any Claude session and it gets filed into Samuel HQ, then it shows up here. Nothing on this screen is invented, so anything you have not told me stays blank.';
-    const p = $("#pop"); p.classList.add("show");
-    const r = b.getBoundingClientRect(), pr = p.getBoundingClientRect();
-    p.style.left = Math.max(12, Math.min(r.left, innerWidth - pr.width - 12)) + "px";
-    p.style.top  = Math.max(12, r.top - pr.height - 10) + "px";
-  });
-  askRow.appendChild(b);
-});
-
-/* ── owed tile, honest about being blank ── */
-if (DATA.owed.value === null){
-  $("#owed").textContent = "—";
-  $("#owed").style.color = "var(--dim)";
-  $("#owedSub").textContent = DATA.owed.sub;
-}
-
-/* ── remote control: fire tv d-pad sends arrow keys ── */
-const cols = () => (innerWidth <= 560 ? 1 : innerWidth <= 1100 ? 2 : 4);
+/* ── fire tv remote ── */
 let litTimer = null;
 document.addEventListener("keydown", e => {
+  if (e.key === "t"){ $("#theme").click(); return; }
   if (!["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Enter"].includes(e.key)) return;
-  // a remote is in use, so stop hiding the controls
   $("#bar").classList.add("lit");
   clearTimeout(litTimer);
   litTimer = setTimeout(() => $("#bar").classList.remove("lit"), 8000);
   if (e.key === "Enter") return;
-  const items = [...document.querySelectorAll('.t, #bar button, .chip')];
+  const items = [...document.querySelectorAll('.t, #bar button')];
   const i = items.indexOf(document.activeElement);
   if (i === -1){ items[0]?.focus(); e.preventDefault(); return; }
-  const step = (e.key === "ArrowLeft") ? -1 : (e.key === "ArrowRight") ? 1
-             : (e.key === "ArrowUp") ? -cols() : cols();
+  const cols = innerWidth <= 560 ? 1 : innerWidth <= 1100 ? 2 : 4;
+  const step = e.key === "ArrowLeft" ? -1 : e.key === "ArrowRight" ? 1 : e.key === "ArrowUp" ? -cols : cols;
   const n = items[Math.max(0, Math.min(items.length - 1, i + step))];
   if (n){ n.focus(); e.preventDefault(); }
 });
 
-/* ── keep the screen awake where the browser allows it ── */
+/* ── keep the screen awake where the browser allows ── */
 async function holdWake(){
   try{
     if ("wakeLock" in navigator){
       const l = await navigator.wakeLock.request("screen");
       l.addEventListener("release", () => setTimeout(holdWake, 1000));
     }
-  }catch(e){ /* Silk may refuse. the Fire TV sleep fix is the real answer. */ }
+  }catch(e){}
 }
 document.addEventListener("visibilitychange", () => { if (!document.hidden) holdWake(); });
 
-paintAlarm(); tick(); setInterval(tick, 1000); holdWake();
+paintTheme(); paintAlarm(); tick(); setInterval(tick, 1000); holdWake();
 </script>
 </body>
 </html>
