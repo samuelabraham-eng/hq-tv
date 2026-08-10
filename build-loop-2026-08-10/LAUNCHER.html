@@ -1,0 +1,133 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>hq-tv · build loop 2026-08-10</title><style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0c0b0a; --ink2:#141210; --line:#252119; --line2:#332c21;
+  --cream:#f1ebdf; --dim:#a09585; --dim2:#6f6759;
+  --gold:#c9a96a; --red:#d0402e; --green:#7fa66a;
+  --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;
+}
+body{background:var(--ink);color:var(--cream);font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;line-height:1.5;padding:0 0 80px}
+.wrap{max-width:1240px;margin:0 auto;padding:0 28px}
+header{padding:56px 0 34px;border-bottom:1px solid var(--line)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.chip{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  border:1px solid var(--line2);color:var(--dim);padding:5px 10px;border-radius:3px;white-space:nowrap}
+.chip.on{border-color:var(--gold);color:var(--gold)}
+.chip.warn{border-color:var(--red);color:var(--red)}
+h1{font-size:clamp(34px,5.2vw,58px);font-weight:800;letter-spacing:-.03em;line-height:1.02;
+  text-transform:lowercase;margin-bottom:16px}
+.lede{max-width:74ch;color:var(--dim);font-size:16.5px}
+.lede strong{color:var(--cream);font-weight:600}
+h2{font-size:13px;font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim2);margin:52px 0 18px;display:flex;align-items:center;gap:14px}
+h2::after{content:"";flex:1;height:1px;background:var(--line)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:20px}
+.card{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--ink2);
+  display:flex;flex-direction:column;transition:border-color .18s,transform .18s}
+.card:hover{border-color:var(--line2);transform:translateY(-2px)}
+.card a.shot{display:block;aspect-ratio:16/10;overflow:hidden;background:#000;border-bottom:1px solid var(--line)}
+.card a.shot img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
+.noshot{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:11px;color:var(--dim2);letter-spacing:.1em;background:#100e0c}
+.body{padding:16px 17px 18px;display:flex;flex-direction:column;gap:9px;flex:1}
+.code{font-family:var(--mono);font-size:11px;letter-spacing:.09em;color:var(--gold);
+  border:1px solid var(--gold);padding:3px 8px;border-radius:3px;align-self:flex-start}
+.code.grey{color:var(--dim2);border-color:var(--line2)}
+.name{font-size:17px;font-weight:650;letter-spacing:-.01em}
+.desc{font-size:14px;color:var(--dim);flex:1}
+.meta{font-family:var(--mono);font-size:10.5px;color:var(--dim2);letter-spacing:.06em;
+  padding-top:9px;border-top:1px solid var(--line)}
+.card.current{border-color:#3a3123;background:#100e0b}
+.card.current .code{color:var(--green);border-color:#3f5c33}
+a{color:inherit;text-decoration:none}
+.note{border-left:2px solid var(--gold);padding:14px 18px;background:#12100d;margin:26px 0;
+  font-size:14.5px;color:var(--dim);max-width:88ch;border-radius:0 6px 6px 0}
+.note strong{color:var(--cream)}
+.note.warn{border-left-color:var(--red)}
+footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:11px;color:var(--dim2);letter-spacing:.06em;line-height:1.9}
+@media (max-width:640px){.wrap{padding:0 18px}header{padding:36px 0 26px}.grid{grid-template-columns:1fr}}
+</style></head><body>
+<div class="wrap">
+<header>
+  <div class="chips"><span class="chip on">2026-08-10</span><span class="chip ">6 new builds</span><span class="chip ">TV01 to TV06</span><span class="chip ">noir untouched</span></div>
+  <h1>hq-tv build loop</h1>
+  <p class="lede">You said it was displaying things but not updating, that a bill had been eight days late for more than a day, and that you wanted declines, upcoming bills and a way to see your schedule. <strong>TV01 is the fix.</strong> The other five push the design further. Your current dashboard is untouched and sits at the bottom for comparison.</p>
+</header>
+<div class="note warn"><strong>Read this before you trust a number on any of these.</strong> They all ship with sample data, marked as sample on screen. hq-tv is a public repository, so real amounts must never be committed to it. The build folder includes a data file and a generator script so real numbers can live on your machine only. What has to happen for the sample ribbon to disappear is written on TV01 itself.</div>
+<h2>tonight&#x27;s builds</h2>
+    <div class="grid">
+      <div class="card">
+        <a class="shot" href="TV01-live.html"><img src="_thumbs/TV01-live.png" alt="" loading="lazy"></a>
+        <div class="body">
+          <span class="code">TV01</span>
+          <a href="TV01-live.html"><div class="name">the live one</div></a>
+          <div class="desc">Fixes the thing you actually complained about. Nothing on this screen is a stored string. <strong>&quot;8 days late&quot; is now computed from the due date every time the page loads</strong>, so it moves on its own. Every tile carries the age of its own data and fades as it gets stale. A SAMPLE DATA ribbon sits at the bottom and only disappears when the data file says it is live.</div>
+          <div class="meta">built 2026-08-10 · overnight loop</div>
+        </div>
+      </div>
+      <div class="card">
+        <a class="shot" href="TV02-week.html"><img src="_thumbs/TV02-week.png" alt="" loading="lazy"></a>
+        <div class="body">
+          <span class="code">TV02</span>
+          <a href="TV02-week.html"><div class="name">the week</div></a>
+          <div class="desc">The Toggl style week grid you asked for months ago and never got. Readable at ten feet, collapses to a day list on a phone. No taps anywhere.</div>
+          <div class="meta">built 2026-08-10 · overnight loop</div>
+        </div>
+      </div>
+      <div class="card">
+        <a class="shot" href="TV03-money.html"><img src="_thumbs/TV03-money.png" alt="" loading="lazy"></a>
+        <div class="body">
+          <span class="code">TV03</span>
+          <a href="TV03-money.html"><div class="name">the money</div></a>
+          <div class="desc">Upcoming bills, recent declines, subscriptions and whether they are covered. Anything with no source yet asks a question instead of showing a zero.</div>
+          <div class="meta">built 2026-08-10 · overnight loop</div>
+        </div>
+      </div>
+      <div class="card">
+        <a class="shot" href="TV04-console.html"><img src="_thumbs/TV04-console.png" alt="" loading="lazy"></a>
+        <div class="body">
+          <span class="code">TV04</span>
+          <a href="TV04-console.html"><div class="name">the console</div></a>
+          <div class="desc">The creative swing. A mission control layout that fits far more on a 1920 screen without becoming a wall of text.</div>
+          <div class="meta">built 2026-08-10 · overnight loop</div>
+        </div>
+      </div>
+      <div class="card">
+        <a class="shot" href="TV05-dayparts.html"><img src="_thumbs/TV05-dayparts.png" alt="" loading="lazy"></a>
+        <div class="body">
+          <span class="code">TV05</span>
+          <a href="TV05-dayparts.html"><div class="name">dayparts</div></a>
+          <div class="desc">The screen changes what it shows by time of day. Morning is different from evening, and night hands over to sleep mode.</div>
+          <div class="meta">built 2026-08-10 · overnight loop</div>
+        </div>
+      </div>
+      <div class="card">
+        <a class="shot" href="TV06-board.html"><img src="_thumbs/TV06-board.png" alt="" loading="lazy"></a>
+        <div class="body">
+          <span class="code">TV06</span>
+          <a href="TV06-board.html"><div class="name">the board</div></a>
+          <div class="desc">A denser mosaic that pushes the Metro idea further than the current metro theme does.</div>
+          <div class="meta">built 2026-08-10 · overnight loop</div>
+        </div>
+      </div>
+    </div>
+<h2>what you already had</h2>
+    <div class="grid">
+      <div class="card current">
+        <a class="shot" href="../index.html"><div class="noshot">the current build</div></a>
+        <div class="body">
+          <span class="code grey">CURRENT</span>
+          <a href="../index.html"><div class="name">the live TV dashboard</div></a>
+          <div class="desc">What is on your TV right now. The noir theme is locked and this loop did not touch this file.</div>
+          <div class="meta">approved · do not change</div>
+        </div>
+      </div>
+    </div>
+<footer>built overnight 2026-08-10 by a creative build loop · exploration only, nothing here is approved<br>launcher generated 2026-08-10 13:15 local time · nothing outside this folder was modified<br>the loop contract lives in the brain repo at hub/build-loop-2026-08-10/LOOP-BRIEF.md</footer>
+</div></body></html>

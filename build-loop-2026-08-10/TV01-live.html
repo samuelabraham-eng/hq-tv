@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d0b09">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>TV01 · the live one</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   TV01 · the live one
+   The point of view: a number you cannot date is a rumour. So every value on
+   this screen sits above a thin bar that drains over its 24 hour freshness
+   window, and the right hand column is a ledger of where each thing came from
+   and how old it is. Nothing here is a typed string. Ages count up by themselves.
+   This is deliberately NOT the locked noir layout. noir is untouched.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root{
+  --ground:#0d0b09;
+  --panel:#17120e;
+  --panel2:#1e1813;
+  --edge:#2b2219;
+  --bone:#f2ece0;
+  --dim:#8d8271;
+  --faint:#5c5347;
+  --gold:#c9a96a;
+  --slate:#7d9bb0;        /* second signal hue. "computed here", not "given to you" */
+  --alert:#e0533b;
+  --ok:#86a97f;
+  --safe:2.1vw; --gap:0.85vw;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;max-width:100%}
+body{
+  background:
+    radial-gradient(120% 90% at 12% 0%, #1a140f 0%, rgba(26,20,15,0) 62%),
+    radial-gradient(90% 70% at 100% 100%, #17120d 0%, rgba(23,18,13,0) 58%),
+    var(--ground);
+  color:var(--bone);
+  font-family:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+/* real texture, not a flat fill. an svg grain at 3.5%, so the black has a surface */
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.035;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>");
+}
+.mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+
+#board{position:relative;z-index:2;height:100%;padding:var(--safe);
+  display:flex;flex-direction:column;gap:var(--gap)}
+.hq-sample #board{padding-bottom:calc(var(--safe) + 2.6em)}
+
+/* ── SCN-01 masthead ─────────────────────────────────────────────────────── */
+.mast{display:grid;grid-template-columns:auto 1fr auto;gap:1.6vw;align-items:end;
+  padding-bottom:.7vw;border-bottom:1px solid var(--edge)}
+.clock{font-size:clamp(34px,min(6.6vw,11.4vh),108px);font-weight:800;letter-spacing:-.055em;
+  line-height:.84;font-variant-numeric:tabular-nums}
+.clock .mer{font-size:.19em;font-weight:500;letter-spacing:.14em;color:var(--dim);
+  margin-left:.14em;vertical-align:.95em}
+.mastmid{min-width:0;padding-bottom:.5vh}
+.dateline{font-size:clamp(11px,min(1.35vw,2.5vh),21px);color:var(--dim);font-weight:500}
+.dateline b{color:var(--bone);font-weight:700}
+.refresh{margin-top:.35vh;font-size:clamp(9px,min(1vw,1.9vh),15px);color:var(--faint);
+  font-weight:500;letter-spacing:.02em;display:flex;align-items:center}
+.refresh b{color:var(--slate);font-weight:700}
+.alarmbox{text-align:right;padding-bottom:.5vh}
+.eyebrow{font-size:clamp(8px,min(.82vw,1.55vh),12px);letter-spacing:.24em;font-weight:700;
+  color:var(--gold);text-transform:uppercase}
+.alarmtime{font-size:clamp(17px,min(2.5vw,4.4vh),40px);font-weight:800;letter-spacing:-.035em;
+  line-height:1.05;font-variant-numeric:tabular-nums}
+.alarmtime .mer{font-size:.34em;font-weight:500;color:var(--dim);letter-spacing:.1em}
+.alarmstate{font-size:clamp(9px,min(1vw,1.9vh),15px);color:var(--ok);font-weight:600}
+
+/* ── the body: three columns of different jobs ───────────────────────────── */
+.body{flex:1;min-height:0;display:grid;grid-template-columns:1.15fr 2.05fr 1.05fr;gap:var(--gap)}
+
+/* every panel is a surface with a lit top edge, not a flat rectangle */
+.p{
+  position:relative;min-height:0;overflow:hidden;
+  background:linear-gradient(177deg,var(--panel2) 0%,var(--panel) 58%,#130f0b 100%);
+  border:1px solid var(--edge);border-radius:3px;
+  box-shadow:inset 0 1px 0 rgba(255,240,214,.055), 0 16px 34px -26px #000;
+  padding:.85vw 1.05vw;display:flex;flex-direction:column;gap:.4vw;
+}
+/* the drain bar. this is the freshness of THIS panel's source, and it moves. */
+.p::before{
+  content:"";position:absolute;top:0;left:0;height:2px;width:var(--hq-left,100%);
+  background:linear-gradient(90deg,var(--gold),rgba(201,169,106,.15));
+  transition:width 1.2s linear;
+}
+.p.hq-s-stale::before{background:linear-gradient(90deg,#6b6155,rgba(107,97,85,.1))}
+.p.hq-s-unknown::before{background:repeating-linear-gradient(90deg,#4a3f33 0 5px,transparent 5px 10px);width:100%}
+.p .lab{font-size:clamp(8px,min(.82vw,1.55vh),12px);letter-spacing:.24em;font-weight:700;
+  color:var(--faint);text-transform:uppercase;display:flex;justify-content:space-between;gap:.6em}
+.p .lab .from{color:#4b4238;letter-spacing:.12em}
+
+/* ── SCN-02 the lead. one thing, said at size, with the reason underneath ── */
+.lead{grid-row:span 2;justify-content:space-between;
+  background:linear-gradient(170deg,#241c12 0%,#1b150f 60%,#141009 100%);
+  border-color:#3a2d1b}
+.lead .kick{font-size:clamp(9px,min(1vw,1.9vh),15px);color:var(--gold);font-weight:700;
+  letter-spacing:.05em}
+.lead .say{font-size:clamp(19px,min(2.5vw,4.6vh),44px);font-weight:800;letter-spacing:-.04em;
+  line-height:1.02}
+.lead .why{font-size:clamp(10px,min(1.1vw,2.1vh),17px);color:var(--dim);font-weight:500;
+  line-height:1.4}
+.lead .count{font-size:clamp(13px,min(1.5vw,2.8vh),24px);font-weight:800;color:var(--alert);
+  letter-spacing:-.02em}
+.lead .rule{height:1px;background:linear-gradient(90deg,var(--gold),transparent);opacity:.4}
+/* the days count, set enormous and almost invisible. it fills the head of the
+   panel with the one fact the panel is about, instead of leaving a hole. */
+.lead .ghost{position:absolute;top:.06em;right:.08em;line-height:.78;pointer-events:none;
+  font-size:clamp(70px,min(11.5vw,21vh),210px);font-weight:800;letter-spacing:-.07em;
+  color:var(--gold);opacity:.08;font-variant-numeric:tabular-nums}
+.lead .inner{display:flex;flex-direction:column;justify-content:flex-end;gap:.55vw;
+  position:relative;z-index:2}
+/* the queue behind the lead. it is not a card grid, it is a numbered order of play. */
+.lead .then{flex:1;min-height:0;position:relative;z-index:2;display:flex;
+  flex-direction:column;gap:.3vw;overflow:hidden;padding-top:.4vw}
+.lead .then .row{border-bottom:1px solid rgba(255,255,255,.05);opacity:.62}
+.lead .then .row .nm::before{content:attr(data-n) "  ";color:var(--gold);font-weight:800;
+  font-family:"JetBrains Mono",monospace;font-size:.85em}
+
+/* in the stack, the eyebrow pins to the top and the value takes the middle */
+.stack .p{justify-content:center;padding-top:2.1vw}
+.stack .p > .lab{position:absolute;top:.85vw;left:1.05vw;right:1.05vw}
+
+/* ── SCN-03 the stack ────────────────────────────────────────────────────── */
+.stack{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:var(--gap);
+  min-height:0}
+.big{font-size:clamp(20px,min(3.1vw,5.6vh),52px);font-weight:800;letter-spacing:-.045em;
+  line-height:.94;font-variant-numeric:tabular-nums}
+.mid{font-size:clamp(14px,min(1.9vw,3.5vh),30px);font-weight:800;letter-spacing:-.03em;line-height:1.08}
+.sub{font-size:clamp(9.5px,min(1.02vw,2vh),16px);color:var(--dim);font-weight:500;line-height:1.35}
+.late .big{color:var(--alert)}
+.late{border-color:#4a2418}
+.rows{display:flex;flex-direction:column;gap:.1vw;min-height:0;overflow:hidden}
+.row{display:flex;justify-content:space-between;gap:.8vw;align-items:baseline;
+  font-size:clamp(9.5px,min(1.02vw,2.05vh),16px);font-weight:500;
+  padding:.16vw 0;border-bottom:1px solid rgba(255,255,255,.035)}
+.row:last-child{border-bottom:none}
+.row .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--bone)}
+.row .st{flex-shrink:0;color:var(--dim);font-weight:600}
+.row .st.late{color:var(--alert)}
+.row .st.now{color:var(--gold)}
+.more{font-size:clamp(9px,min(.95vw,1.8vh),14px);color:var(--faint);font-weight:600;
+  letter-spacing:.04em;padding-top:.2vw}
+
+/* ── SCN-04 the ledger. the answer to "is any of this real" ──────────────── */
+.ledger{gap:.2vw}
+#ledgerRows{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.lrow{display:grid;grid-template-columns:1fr auto;gap:.5vw;align-items:baseline;
+  padding:.1vw 0 .22vw;border-bottom:1px solid rgba(255,255,255,.04);
+  min-height:0;flex-shrink:0}
+.lrow:last-of-type{border-bottom:none}
+.lname{font-size:clamp(9px,min(.98vw,1.85vh),15px);font-weight:700;letter-spacing:-.01em;
+  line-height:1.15}
+.lkind{font-size:clamp(7.5px,min(.8vw,1.5vh),11px);color:var(--faint);font-weight:500;
+  line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lage{font-size:clamp(8.5px,min(.92vw,1.72vh),14px);font-weight:700;text-align:right;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.lage.fresh{color:var(--ok)} .lage.stale{color:#9b8f7c} .lage.unknown{color:var(--alert)}
+.bar{grid-column:1/-1;height:2px;background:#241d16;overflow:hidden;margin-top:.12vw}
+.bar i{display:block;height:100%;background:var(--ok);transition:width 1.2s linear}
+.lrow.stale .bar i{background:#7a6f5e}
+.lrow.unknown .bar i{width:100%!important;
+  background:repeating-linear-gradient(90deg,#4a2b22 0 4px,transparent 4px 8px)}
+.needs{font-size:clamp(7.5px,min(.82vw,1.55vh),12px);color:#93704c;font-weight:500;
+  line-height:1.3;grid-column:1/-1;margin-top:.08vw;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.legend{font-size:clamp(7.5px,min(.8vw,1.5vh),11px);color:var(--faint);
+  border-top:1px solid var(--edge);padding-top:.3vw;line-height:1.4;flex-shrink:0}
+.gapline{font-size:clamp(7.5px,min(.8vw,1.5vh),11px);letter-spacing:.2em;color:#8a5f3c;
+  font-weight:700;margin:.5vw 0 .12vw;text-transform:uppercase;flex-shrink:0}
+
+/* ── SCN-05 the ticker ───────────────────────────────────────────────────── */
+.ticker{border-top:1px solid var(--edge);padding-top:.55vw;display:flex;gap:1.1vw;
+  align-items:baseline;overflow:hidden}
+.ticker .tl{font-size:clamp(8px,min(.82vw,1.55vh),12px);letter-spacing:.24em;font-weight:700;
+  color:var(--gold);flex-shrink:0}
+.ticker .ti{display:flex;gap:1.4vw;font-size:clamp(9px,min(1vw,1.9vh),15px);color:var(--dim);
+  font-weight:500;white-space:nowrap}
+.ticker .ti i{font-style:normal}
+.ticker .ti i::before{content:"○ ";color:var(--gold);opacity:.55}
+
+/* ── iPad, phone ─────────────────────────────────────────────────────────── */
+@media (max-width:1180px){
+  :root{--safe:18px;--gap:12px}
+  html,body{overflow:auto;height:auto}
+  #board{height:auto;min-height:100%}
+  .mast{grid-template-columns:1fr;gap:10px;align-items:start}
+  .alarmbox{text-align:left}
+  .body{grid-template-columns:1fr;grid-auto-rows:auto}
+  .lead{grid-row:auto}
+  .stack{grid-template-columns:1fr 1fr;grid-template-rows:auto}
+  .clock{font-size:clamp(40px,13vw,86px)}
+  .big{font-size:clamp(26px,8vw,46px)} .mid{font-size:clamp(18px,5vw,30px)}
+  .sub,.row,.lname{font-size:14px} .lab,.eyebrow,.ticker .tl{font-size:10px}
+  .p{padding:13px 14px;gap:7px}
+  /* on a phone the eyebrow goes back into the flow, or it sits on top of the value */
+  .stack .p{padding-top:13px;justify-content:flex-start}
+  .stack .p > .lab{position:static}
+  .lead .ghost{display:none}
+  .lead .inner{justify-content:flex-start}
+  .ticker{flex-direction:column;gap:8px} .ticker .ti{flex-wrap:wrap;white-space:normal}
+  .hq-sample #board{padding-bottom:130px}
+  #ledgerRows{overflow:visible}
+}
+@media (max-width:620px){
+  .stack{grid-template-columns:1fr}
+  .clock{font-size:clamp(38px,15vw,70px)}
+}
+@media (prefers-reduced-motion:reduce){ .p::before,.bar i{transition:none} }
+</style>
+</head>
+<body>
+
+<main id="board">
+
+  <!-- SCN-01 · MASTHEAD -->
+  <header class="mast">
+    <div class="clock" id="clock">--:--</div>
+    <div class="mastmid">
+      <div class="dateline" id="dateline">&nbsp;</div>
+      <div class="refresh mono" id="refresh">&nbsp;</div>
+    </div>
+    <div class="alarmbox">
+      <div class="eyebrow mono">next alarm</div>
+      <div class="alarmtime" id="alarmTime">6:30<span class="mer">am</span></div>
+      <div class="alarmstate mono" id="alarmIn">&nbsp;</div>
+    </div>
+  </header>
+
+  <div class="body">
+
+    <!-- SCN-02 · THE LEAD -->
+    <section class="p lead" id="lead">
+      <div class="ghost mono" id="leadGhost"></div>
+      <div class="lab"><span>scn-02 · do this next</span><span class="from mono" id="leadFrom"></span></div>
+      <div class="then">
+        <div class="eyebrow mono" style="color:var(--faint)">then, in order</div>
+        <div class="rows" id="thenRows"></div>
+      </div>
+      <div class="inner">
+        <div class="kick mono" id="leadKick"></div>
+        <div class="say" id="leadSay">&nbsp;</div>
+        <div class="rule"></div>
+        <div class="why" id="leadWhy"></div>
+      </div>
+      <div class="count mono" id="leadCount" style="position:relative;z-index:2"></div>
+    </section>
+
+    <!-- SCN-03 · THE STACK -->
+    <section class="stack">
+      <div class="p late" id="pBill">
+        <div class="lab"><span>scn-03a · a bill is late</span><span class="from mono" id="billFrom"></span></div>
+        <div class="big" id="billDays">?</div>
+        <div class="sub" id="billSub"></div>
+      </div>
+
+      <div class="p" id="pCar">
+        <div class="lab"><span>scn-03b · the car</span><span class="from mono" id="carFrom"></span></div>
+        <div class="mid" id="carState">?</div>
+        <div class="sub" id="carSub"></div>
+      </div>
+
+      <div class="p" id="pIn">
+        <div class="lab"><span>scn-03c · next money in</span><span class="from mono" id="inFrom"></span></div>
+        <div class="big" id="inAmt">?</div>
+        <div class="sub" id="inSub"></div>
+      </div>
+
+      <div class="p" id="pClock">
+        <div class="lab"><span>scn-03d · on the clock</span><span class="from mono" id="clkFrom"></span></div>
+        <div class="rows" id="ddRows"></div>
+      </div>
+    </section>
+
+    <!-- SCN-04 · THE LEDGER -->
+    <aside class="p ledger" id="pLedger">
+      <div class="lab"><span>scn-04 · where this came from</span></div>
+      <div id="ledgerRows"></div>
+      <div class="legend mono">
+        green under 24h · grey is stale · red means the screen hides the number and shows a question mark
+      </div>
+    </aside>
+  </div>
+
+  <!-- SCN-05 · THE TICKER -->
+  <div class="ticker">
+    <div class="tl mono">still unanswered</div>
+    <div class="ti" id="wb"></div>
+  </div>
+</main>
+
+<script src="data.js"></script>
+<script src="hq-core.js"></script>
+<script>
+"use strict";
+
+function two(n){ return String(n).padStart(2,"0"); }
+
+/* the clock is the one thing that must never look frozen */
+HQ.everySecond(function(){
+  var n = new Date();
+  var h = n.getHours(), mer = h >= 12 ? "pm" : "am";
+  document.getElementById("clock").innerHTML =
+    (h % 12 || 12) + ":" + two(n.getMinutes()) + '<span class="mer">' + mer + '</span>';
+});
+
+function render(){
+  var D = HQ.data();
+
+  /* ── SCN-01 ──────────────────────────────────────────────────────────── */
+  var n = new Date();
+  document.getElementById("dateline").innerHTML =
+    "<b>" + n.toLocaleDateString(undefined,{weekday:"long"}).toLowerCase() + "</b> · " +
+    n.toLocaleDateString(undefined,{month:"long",day:"numeric"}).toLowerCase() +
+    " · Arlington " + HQ.field("weather", D.weather && D.weather.value,
+      {needs:"one free forecast call for Arlington, once an hour. not wired yet"});
+
+  var a = D.alarm || {hour:6,minute:30};
+  document.getElementById("alarmTime").innerHTML =
+    (a.hour % 12 || 12) + ":" + two(a.minute) +
+    '<span class="mer">' + (a.hour >= 12 ? "pm" : "am") + '</span>';
+  var t = new Date(); t.setHours(a.hour, a.minute, 0, 0);
+  if (t <= n) t.setDate(t.getDate() + 1);
+  var mins = Math.round((t - n) / 60000);
+  document.getElementById("alarmIn").textContent =
+    "in " + Math.floor(mins/60) + "h " + (mins%60) + "m · sunrise " +
+    (a.sunrise_minutes||25) + "m before";
+
+  /* ── SCN-02 · the lead. the single most expensive open thing ─────────── */
+  var late = (D.bills||[]).filter(function(b){ return !b.paid && HQ.daysFromToday(b.due) < 0; })
+    .sort(function(x,y){ return HQ.daysFromToday(x.due) - HQ.daysFromToday(y.due); })[0];
+  var webinar = (D.deadlines||[]).find(function(d){ return /webinar/i.test(d.name); });
+
+  var lead = webinar || (late ? {name:"pay " + late.name, on:late.due, why:late.why, source:late.source} : null);
+  if (lead){
+    HQ.mark(document.getElementById("lead"), lead.source);
+    document.getElementById("leadKick").textContent =
+      HQ.dueTone(lead.on) === "late" ? "overdue" : "next";
+    document.getElementById("leadSay").textContent = lead.name;
+    document.getElementById("leadWhy").textContent = lead.why || "";
+    document.getElementById("leadCount").textContent = HQ.dueText(lead.on) + " · " + HQ.shortDate(lead.on);
+    document.getElementById("leadFrom").textContent = HQ.fresh(lead.source).age;
+    var gd = HQ.daysFromToday(lead.on);
+    document.getElementById("leadGhost").textContent = gd === null ? "?" : Math.abs(gd);
+
+    /* what comes after it. today's to do list, then the next dated things,
+       so the lead panel is a queue rather than a single shouted line. */
+    var queue = (D.todos||[]).filter(function(t){ return t.when === "today"; })
+      .map(function(t){ return {nm:t.text, st:"today"}; })
+      .concat((D.todos||[]).filter(function(t){ return t.when === "this week"; })
+        .map(function(t){ return {nm:t.text, st:"this week"}; }))
+      .filter(function(x){ return x.nm.toLowerCase().indexOf("webinar") === -1; });
+    var qShow = queue.slice(0,4);
+    document.getElementById("thenRows").innerHTML = qShow.map(function(x,i){
+      return '<div class="row"><span class="nm" data-n="' + (i+2) + '">' + HQ.esc(x.nm) +
+        '</span><span class="st">' + HQ.esc(x.st) + '</span></div>';
+    }).join("") + (queue.length > qShow.length
+      ? '<div class="more mono">and ' + (queue.length - qShow.length) + ' more on the list</div>' : "");
+  }
+
+  /* ── SCN-03a · the bill. THE number he watched not move. ─────────────
+     days late is subtracted from a due date every render, so it grows by itself. */
+  if (late){
+    var f = HQ.mark(document.getElementById("pBill"), late.source);
+    var d = -HQ.daysFromToday(late.due);
+    document.getElementById("billDays").innerHTML =
+      f.state === "unknown" ? HQ.field(late.source, null)
+        : d + "<span style='font-size:.4em;font-weight:700;letter-spacing:0'>&nbsp;days late</span>";
+    var hard = late.hard_date ? HQ.daysFromToday(late.hard_date) : null;
+    document.getElementById("billSub").innerHTML =
+      HQ.esc(late.name) + " · amount " + HQ.field("money", HQ.money(late.amount),
+        {needs:"no amount for this is stored in HQ. tell Claude the figure and it lands here"}) +
+      (hard !== null ? "<br>" + hard + " days until it " + HQ.esc(late.hard_label||"counts") : "");
+    document.getElementById("billFrom").textContent = f.age;
+  }
+
+  /* ── SCN-03b · the car ───────────────────────────────────────────────── */
+  var car = (D.projects||[]).find(function(p){ return p.name === "turo"; });
+  if (car){
+    var cf = HQ.mark(document.getElementById("pCar"), car.source);
+    document.getElementById("carState").innerHTML = HQ.field(car.source, car.status.split(",")[0]);
+    document.getElementById("carSub").textContent =
+      cf.state === "fresh" ? "every day it is unlisted is $0"
+        : "nobody has confirmed this for " + cf.age.replace(" old","") + ". it may already be listed";
+    document.getElementById("carFrom").textContent = cf.age;
+  }
+
+  /* ── SCN-03c · next money in ─────────────────────────────────────────── */
+  var mi = (D.money_in||[]).slice().sort(function(x,y){
+    return HQ.daysFromToday(x.on) - HQ.daysFromToday(y.on); })[0];
+  if (mi){
+    var mf = HQ.mark(document.getElementById("pIn"), mi.source);
+    document.getElementById("inAmt").innerHTML = HQ.field(mi.source, HQ.money(mi.amount),
+      {needs:"nothing is scheduled to land that HQ knows about"});
+    document.getElementById("inSub").innerHTML =
+      HQ.esc(mi.name) + " · " + HQ.dueText(mi.on) +
+      (mi.state === "blocked" ? "<br><span style='color:var(--alert)'>blocked. the car is unlisted, so nothing can book</span>" : "") +
+      (mi.sample ? "<br>sample figure" : "");
+    document.getElementById("inFrom").textContent = mf.age;
+  }
+
+  /* ── SCN-03d · on the clock. dates that cost money if missed ─────────── */
+  var dd = (D.deadlines||[]).slice().sort(function(x,y){
+    return HQ.daysFromToday(x.on) - HQ.daysFromToday(y.on); });
+  HQ.mark(document.getElementById("pClock"), "commitments");
+  document.getElementById("clkFrom").textContent = HQ.fresh("commitments").age;
+  var show = dd.slice(0,4);
+  document.getElementById("ddRows").innerHTML = show.map(function(x){
+    var tone = HQ.dueTone(x.on);
+    return '<div class="row"><span class="nm">' + HQ.esc(x.name) + '</span>' +
+      '<span class="st ' + (tone === "late" ? "late" : tone === "now" ? "now" : "") + '">' +
+      HQ.dueText(x.on) + '</span></div>';
+  }).join("") + (dd.length > show.length
+    ? '<div class="more mono">and ' + (dd.length - show.length) + ' more in HQ</div>' : "");
+
+  /* ── SCN-04 · the ledger ─────────────────────────────────────────────── */
+  var all = Object.keys(D.sources || {}).map(HQ.fresh);
+  var connected = all.filter(function(s){ return s.state !== "unknown"; });
+  var missing   = all.filter(function(s){ return s.state === "unknown"; });
+
+  // connected sources: one compact row each, with a bar that drains as it ages
+  var html = connected.map(function(s){
+    return '<div class="lrow ' + s.state + '">' +
+      '<div><div class="lname">' + HQ.esc(s.label) + '</div>' +
+      '<div class="lkind mono">' + HQ.esc(s.kind) + '</div></div>' +
+      '<div class="lage mono ' + s.state + '">' + s.age + '</div>' +
+      '<div class="bar"><i style="width:' + (s.left*100).toFixed(1) + '%"></i></div>' +
+      '</div>';
+  }).join("");
+
+  // missing sources: never a zero, never a blank. what it is, and what it needs.
+  if (missing.length){
+    var shown = missing.slice(0,2);
+    html += '<div class="gapline mono">not connected · ' + missing.length + '</div>' +
+      shown.map(function(s){
+        return '<div class="lrow unknown">' +
+          '<div><div class="lname">' + HQ.esc(s.label) + '</div></div>' +
+          '<div class="lage mono unknown">?</div>' +
+          '<div class="needs">needs ' + HQ.esc(s.needs) + '</div></div>';
+      }).join("") +
+      (missing.length > shown.length
+        ? '<div class="more mono">and ' + (missing.length - shown.length) + ' more: ' +
+          missing.slice(2).map(function(s){ return HQ.esc(s.label); }).join(", ") + '</div>'
+        : "");
+  }
+  document.getElementById("ledgerRows").innerHTML = html;
+
+  /* ── SCN-05 ──────────────────────────────────────────────────────────── */
+  document.getElementById("wb").innerHTML =
+    (D.whiteboard||[]).slice(0,5).map(function(w){ return "<i>" + HQ.esc(w) + "</i>"; }).join("");
+}
+
+HQ.boot(render);
+HQ.refreshLine(document.getElementById("refresh"));
+
+/* safety net: if anything above threw, the page must not stay blank */
+setTimeout(function(){
+  var c = document.getElementById("leadSay");
+  if (c && c.textContent.trim() === "") {
+    c.textContent = "data did not load. run python3 make-data.py in this folder.";
+  }
+}, 2500);
+</script>
+</body>
+</html>

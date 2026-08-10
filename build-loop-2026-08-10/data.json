@@ -1,0 +1,436 @@
+{
+  "schema": 1,
+  "mode": "sample",
+  "generated_at": "2026-08-10T04:36:44-04:00",
+  "generator": "make-data.py",
+  "sample_note": "Every amount in this file is invented. hq-tv is a public repo, so no real figure is ever committed to it. Dates that HQ genuinely knows are real, because a date is not a secret.",
+  "todo_note": "the real to do list is not read by default, because this repo is public. run with --todos-from-hq to pull it in",
+  "sources": {
+    "money": {
+      "label": "money",
+      "kind": "typed by hand into HQ",
+      "as_of": "2026-08-10T02:36:44-04:00",
+      "needs": null
+    },
+    "turo": {
+      "label": "turo",
+      "kind": "typed by hand into HQ",
+      "as_of": "2026-08-08T22:36:44-04:00",
+      "needs": null
+    },
+    "todo": {
+      "label": "to do list",
+      "kind": "sample, TODO.md not found",
+      "as_of": "2026-08-09T19:36:44-04:00",
+      "needs": null
+    },
+    "commitments": {
+      "label": "commitments",
+      "kind": "life/COMMITMENTS.md",
+      "as_of": "2026-08-09T17:36:44-04:00",
+      "needs": null
+    },
+    "projects": {
+      "label": "projects",
+      "kind": "typed by hand into HQ",
+      "as_of": "2026-08-09T08:36:44-04:00",
+      "needs": null
+    },
+    "calendar": {
+      "label": "calendar",
+      "kind": "not connected",
+      "as_of": null,
+      "needs": "pick one calendar as the hub, then publish a read only feed to it"
+    },
+    "bank": {
+      "label": "bank and cards",
+      "kind": "not connected",
+      "as_of": null,
+      "needs": "a bank connection, or a weekly export you drop into HQ"
+    },
+    "health": {
+      "label": "sleep and health",
+      "kind": "typed by hand into HQ",
+      "as_of": "2026-08-05T04:36:44-04:00",
+      "needs": "nothing is writing this. it is old enough that the screen hides it"
+    },
+    "weather": {
+      "label": "weather",
+      "kind": "not connected",
+      "as_of": null,
+      "needs": "one free forecast call for Arlington, once an hour"
+    }
+  },
+  "alarm": {
+    "hour": 6,
+    "minute": 30,
+    "sunrise_minutes": 25
+  },
+  "weather": {
+    "place": "Arlington",
+    "value": null,
+    "source": "weather"
+  },
+  "bills": [
+    {
+      "id": "cashapp",
+      "name": "Cash App Borrow",
+      "amount": null,
+      "sample": false,
+      "due": "2026-07-30",
+      "paid": false,
+      "source": "money",
+      "why": "late fees started already. the date that costs real money is the 30 day mark, when it can reach the credit bureaus",
+      "hard_date": "2026-08-29",
+      "hard_label": "can reach the credit bureaus"
+    },
+    {
+      "id": "rent",
+      "name": "rent",
+      "amount": null,
+      "sample": false,
+      "due": "2026-09-01",
+      "paid": false,
+      "source": "money",
+      "why": "no amount is stored in HQ for this yet"
+    },
+    {
+      "id": "phone",
+      "name": "phone bill",
+      "amount": 84.0,
+      "sample": true,
+      "due": "2026-08-14",
+      "paid": false,
+      "source": "money",
+      "why": ""
+    },
+    {
+      "id": "card",
+      "name": "credit card minimum",
+      "amount": 35.0,
+      "sample": true,
+      "due": "2026-08-19",
+      "paid": false,
+      "source": "money",
+      "why": ""
+    },
+    {
+      "id": "insurance",
+      "name": "car insurance",
+      "amount": 162.0,
+      "sample": true,
+      "due": "2026-08-26",
+      "paid": false,
+      "source": "money",
+      "why": ""
+    },
+    {
+      "id": "turorenew",
+      "name": "Turo listing renewal",
+      "amount": null,
+      "sample": false,
+      "due": "2026-08-24",
+      "paid": false,
+      "source": "turo",
+      "why": "from COMMITMENTS, 2026-08-24. no amount stored"
+    }
+  ],
+  "declines": [
+    {
+      "name": "Adobe Creative Cloud",
+      "amount": 59.99,
+      "at": "2026-08-09T01:36:44-04:00",
+      "reason": "card expired",
+      "sample": true,
+      "source": "bank"
+    },
+    {
+      "name": "Turo host insurance",
+      "amount": 47.0,
+      "at": "2026-08-06T21:36:44-04:00",
+      "reason": "insufficient funds",
+      "sample": true,
+      "source": "bank"
+    },
+    {
+      "name": "iCloud+ 2TB",
+      "amount": 9.99,
+      "at": "2026-08-04T02:36:44-04:00",
+      "reason": "retried and went through",
+      "sample": true,
+      "source": "bank",
+      "resolved": true
+    }
+  ],
+  "subscriptions": [
+    {
+      "name": "Adobe Creative Cloud",
+      "amount": 59.99,
+      "renews": "2026-08-31",
+      "status": "failing",
+      "sample": true,
+      "source": "bank"
+    },
+    {
+      "name": "Claude Pro",
+      "amount": 20.0,
+      "renews": "2026-08-16",
+      "status": "paid",
+      "sample": true,
+      "source": "bank"
+    },
+    {
+      "name": "iCloud+ 2TB",
+      "amount": 9.99,
+      "renews": "2026-08-22",
+      "status": "paid",
+      "sample": true,
+      "source": "bank"
+    },
+    {
+      "name": "domain renewals",
+      "amount": null,
+      "renews": "2026-09-27",
+      "status": "unknown",
+      "sample": false,
+      "source": "bank"
+    },
+    {
+      "name": "Squarespace",
+      "amount": 23.0,
+      "renews": "2026-08-12",
+      "status": "due",
+      "sample": true,
+      "source": "bank"
+    }
+  ],
+  "money_in": [
+    {
+      "name": "Turo booking",
+      "amount": 68.0,
+      "on": "2026-08-31",
+      "sample": true,
+      "source": "turo",
+      "state": "blocked",
+      "why": "the car is unlisted, so nothing can book. this is what a booking would look like"
+    },
+    {
+      "name": "Karrina retainer",
+      "amount": null,
+      "on": "2026-08-30",
+      "sample": false,
+      "source": "money",
+      "state": "expected"
+    }
+  ],
+  "events": [
+    {
+      "title": "Turo cancellations webinar",
+      "start": "2026-08-09T14:00:00-04:00",
+      "end": "2026-08-09T15:30:00-04:00",
+      "kind": "money",
+      "source": "commitments",
+      "real": true,
+      "why": "COMMITMENTS.md, the car earns $0 until this is done"
+    },
+    {
+      "title": "Submit the review removal form",
+      "start": "2026-08-09T15:45:00-04:00",
+      "end": "2026-08-09T16:15:00-04:00",
+      "kind": "money",
+      "source": "commitments",
+      "real": true,
+      "why": "one submission only, and it is final. do it after the webinar"
+    },
+    {
+      "title": "deep work",
+      "start": "2026-08-10T09:00:00-04:00",
+      "end": "2026-08-10T12:00:00-04:00",
+      "kind": "work",
+      "source": "calendar",
+      "real": false
+    },
+    {
+      "title": "client call",
+      "start": "2026-08-10T14:00:00-04:00",
+      "end": "2026-08-10T15:00:00-04:00",
+      "kind": "client",
+      "source": "calendar",
+      "real": false
+    },
+    {
+      "title": "class",
+      "start": "2026-08-11T10:00:00-04:00",
+      "end": "2026-08-11T12:30:00-04:00",
+      "kind": "school",
+      "source": "calendar",
+      "real": false
+    },
+    {
+      "title": "edit pass",
+      "start": "2026-08-11T15:00:00-04:00",
+      "end": "2026-08-11T18:00:00-04:00",
+      "kind": "work",
+      "source": "calendar",
+      "real": false
+    },
+    {
+      "title": "shoot",
+      "start": "2026-08-12T11:00:00-04:00",
+      "end": "2026-08-12T16:00:00-04:00",
+      "kind": "client",
+      "source": "calendar",
+      "real": false
+    },
+    {
+      "title": "class",
+      "start": "2026-08-13T10:00:00-04:00",
+      "end": "2026-08-13T12:30:00-04:00",
+      "kind": "school",
+      "source": "calendar",
+      "real": false
+    },
+    {
+      "title": "Turo handover window",
+      "start": "2026-08-14T08:00:00-04:00",
+      "end": "2026-08-14T10:00:00-04:00",
+      "kind": "money",
+      "source": "calendar",
+      "real": false
+    },
+    {
+      "title": "gym",
+      "start": "2026-08-14T18:00:00-04:00",
+      "end": "2026-08-14T19:00:00-04:00",
+      "kind": "personal",
+      "source": "calendar",
+      "real": false
+    },
+    {
+      "title": "reset the week",
+      "start": "2026-08-15T10:00:00-04:00",
+      "end": "2026-08-15T11:30:00-04:00",
+      "kind": "personal",
+      "source": "calendar",
+      "real": false
+    }
+  ],
+  "deadlines": [
+    {
+      "name": "Turo cancellations webinar",
+      "on": "2026-08-09",
+      "source": "commitments",
+      "why": "the car is unlisted until this is done. every day it is unlisted is $0"
+    },
+    {
+      "name": "Cash App Borrow can reach the credit bureaus",
+      "on": "2026-08-29",
+      "source": "commitments",
+      "why": "30 days past due is the line that matters"
+    },
+    {
+      "name": "Turo renewal",
+      "on": "2026-08-24",
+      "source": "commitments",
+      "why": "check the account standing first, it sits close to the missed trip"
+    }
+  ],
+  "todos": [
+    {
+      "text": "Book and attend the Turo cancellations webinar",
+      "when": "today",
+      "area": "turo",
+      "source": "todo"
+    },
+    {
+      "text": "Pay Cash App Borrow plus the late fee",
+      "when": "today",
+      "area": "money",
+      "source": "todo"
+    },
+    {
+      "text": "Pick one calendar to rule them all",
+      "when": "this week",
+      "area": "systems",
+      "source": "todo"
+    },
+    {
+      "text": "Install the rise alarm app on the iPhone",
+      "when": "this week",
+      "area": "sleep",
+      "source": "todo"
+    },
+    {
+      "text": "Decide: move hq-tv off the public URL so it can carry real numbers",
+      "when": "this week",
+      "area": "systems",
+      "source": "todo"
+    }
+  ],
+  "reminders": [
+    {
+      "text": "Turo review removal form is one shot and final",
+      "at": "2026-08-10T09:00:00-04:00",
+      "source": "commitments",
+      "repeat": null
+    },
+    {
+      "text": "wind down, screens off",
+      "at": "2026-08-10T22:00:00-04:00",
+      "source": "todo",
+      "repeat": "every night"
+    },
+    {
+      "text": "pull the week's numbers into HQ",
+      "at": "2026-08-09T19:00:00-04:00",
+      "source": "todo",
+      "repeat": "every Sunday"
+    }
+  ],
+  "projects": [
+    {
+      "name": "turo",
+      "status": "unlisted, blocked on the webinar",
+      "tone": "warn",
+      "source": "turo"
+    },
+    {
+      "name": "karrina",
+      "status": "retainer live",
+      "tone": "live",
+      "source": "projects"
+    },
+    {
+      "name": "hq tv",
+      "status": "you are looking at it",
+      "tone": "live",
+      "source": "projects"
+    },
+    {
+      "name": "firststop",
+      "status": "design pass, not started",
+      "tone": "idle",
+      "source": "projects"
+    },
+    {
+      "name": "sonic sound",
+      "status": "government lane, leave behind built",
+      "tone": "idle",
+      "source": "projects"
+    },
+    {
+      "name": "samuel hq",
+      "status": "the brain, always on",
+      "tone": "live",
+      "source": "projects"
+    }
+  ],
+  "whiteboard": [
+    "what you actually owe each month",
+    "your Turo daily rate",
+    "your Turo delivery fee",
+    "which calendar is the real one",
+    "which subscriptions are still running",
+    "whether hq-tv moves behind Cloudflare Access"
+  ]
+}

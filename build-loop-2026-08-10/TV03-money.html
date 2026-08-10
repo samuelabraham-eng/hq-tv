@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e0d0b">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>TV03 · the money</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   TV03 · the money
+   He asked for two things by name: what declined recently, and what is coming up.
+   Point of view: both of those are the same question asked in two directions, so
+   the hero is ONE timeline with today in the middle. Behind you, red marks where
+   a card was refused. Ahead of you, the bills, plotted on the day they land.
+   Underneath, the receipt of declines and the subscription ledger.
+   No total is shown unless the source behind it is fresh. A total you cannot
+   trust is worse than no total, and he has already told us that once.
+   PUBLIC REPO: every figure here is invented. See NOTES.md.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root{
+  --ground:#0e0d0b; --panel:#171512; --panel2:#1e1b17; --line:#2a251e; --line2:#221e19;
+  --bone:#efe9de; --dim:#8b8275; --faint:#5b5449;
+  --gold:#c9a96a; --red:#d94f37; --green:#6fa38a; --blue:#7b95ad;
+  --safe:2vw; --gap:.85vw;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;max-width:100%}
+body{
+  background:radial-gradient(115% 80% at 50% 0%, #1a1713 0%, rgba(26,23,19,0) 58%), var(--ground);
+  color:var(--bone);
+  font-family:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.04;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/></filter><rect width='120' height='120' filter='url(%23n)'/></svg>")}
+.mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+
+#board{position:relative;z-index:2;height:100%;padding:var(--safe);
+  display:flex;flex-direction:column;gap:var(--gap)}
+.hq-sample #board{padding-bottom:calc(var(--safe) + 2.6em)}
+.eyebrow{font-size:clamp(8px,min(.8vw,1.5vh),12px);letter-spacing:.24em;font-weight:700;
+  color:var(--gold);text-transform:uppercase}
+
+/* ── SCN-01 · the head ───────────────────────────────────────────────────── */
+.head{display:grid;grid-template-columns:1fr auto;gap:1.4vw;align-items:end;
+  border-bottom:1px solid var(--line);padding-bottom:.55vw}
+.h1{font-size:clamp(18px,min(2.6vw,4.6vh),44px);font-weight:800;letter-spacing:-.04em;line-height:1}
+.h1 b{color:var(--red);font-weight:800}
+.h1 em{font-style:normal;color:var(--dim);font-weight:500}
+.refresh{font-size:clamp(8.5px,min(.92vw,1.7vh),13px);color:var(--faint);display:flex;
+  align-items:center;margin-top:.25vw}
+.headright{text-align:right;font-size:clamp(8.5px,min(.92vw,1.72vh),13px);color:var(--dim);
+  font-weight:600;line-height:1.4;max-width:36ch}
+
+/* ── SCN-02 · THE RUNWAY. the hero. one line, today in the middle. ───────── */
+.runway{position:relative;flex:0 0 auto;height:33vh;min-height:210px;
+  background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-radius:3px;padding:.9vw 1.4vw .7vw;
+  box-shadow:inset 0 1px 0 rgba(255,240,214,.05),0 18px 40px -30px #000;overflow:hidden}
+.plot{position:absolute;left:1.4vw;right:1.4vw;top:2.4vw;bottom:.7vw}
+.axis{position:absolute;left:0;right:0;top:50%;height:1px;background:var(--line)}
+.axis::before{content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(217,79,55,.45) 0%,rgba(217,79,55,.1) 38%,
+    rgba(201,169,106,.12) 45%,rgba(201,169,106,.4) 100%)}
+.ticks{position:absolute;left:0;right:0;top:50%;height:0}
+.ticks i{position:absolute;top:-3px;width:1px;height:6px;background:var(--line2)}
+.ticks i.wk{height:11px;top:-5px;background:#39322a}
+.ticks b{position:absolute;top:9px;transform:translateX(-50%);font-size:clamp(7px,min(.75vw,1.4vh),10px);
+  color:var(--faint);font-weight:600;white-space:nowrap}
+#todayMark{position:absolute;top:0;bottom:0;width:2px;background:var(--bone);opacity:.8}
+#todayMark span{position:absolute;left:50%;transform:translateX(-50%);top:0;
+  font-size:clamp(7.5px,min(.8vw,1.5vh),11px);letter-spacing:.18em;color:var(--bone);
+  font-weight:700;background:var(--panel2);padding:0 .3em}
+
+/* a bill sits above the line. a decline sits below it. */
+.pin{position:absolute;transform:translateX(-50%);text-align:center;width:max-content;
+  max-width:10vw}
+/* a small plate behind each label, so two pins that land close together read as
+   two labels stacked rather than one smear of text */
+.pin .lbl{background:rgba(23,21,18,.93);border-radius:2px;padding:.1em .35em;
+  box-shadow:0 0 0 1px rgba(255,255,255,.04)}
+.pin .stem{width:1px;margin:0 auto;background:currentColor;opacity:.4}
+.pin .dot{width:.5vw;height:.5vw;min-width:7px;min-height:7px;border-radius:50%;
+  margin:0 auto;background:currentColor}
+.pin .amt{font-size:clamp(9px,min(1vw,1.9vh),15px);font-weight:800;letter-spacing:-.02em;
+  line-height:1.1;font-variant-numeric:tabular-nums}
+.pin .nm{font-size:clamp(7.5px,min(.8vw,1.5vh),11px);color:var(--dim);font-weight:600;
+  line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:10vw}
+.pin.up{color:var(--gold)} .pin.up.soon{color:#e0b872}
+.pin.late{color:var(--red)}
+.pin.down{color:var(--red)}
+.pin.down.resolved{color:var(--faint)}
+
+/* ── the two ledgers ─────────────────────────────────────────────────────── */
+.two{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1.35fr;gap:var(--gap)}
+.card{min-height:0;display:flex;flex-direction:column;gap:.4vw;overflow:hidden;
+  background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-radius:3px;padding:.8vw 1vw;
+  box-shadow:inset 0 1px 0 rgba(255,240,214,.05),0 18px 40px -30px #000}
+.cardhead{display:flex;justify-content:space-between;align-items:baseline;gap:.8vw;flex-shrink:0}
+
+/* ── SCN-03 · declines, drawn as a receipt ───────────────────────────────── */
+.receipt{position:relative;flex:1;min-height:0;overflow:hidden;padding-top:.35vw}
+.receipt::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;
+  background:radial-gradient(circle at 3px 0, transparent 3px, var(--panel2) 3.5px);
+  background-size:8px 4px}
+.dec{display:grid;grid-template-columns:1fr auto;gap:.3vw .8vw;padding:.42vw 0;
+  border-bottom:1px dashed rgba(255,255,255,.07)}
+.dec:last-child{border-bottom:none}
+.dec .dn{font-size:clamp(10px,min(1.08vw,2vh),16px);font-weight:700;letter-spacing:-.015em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dec .da{font-size:clamp(10px,min(1.12vw,2.1vh),17px);font-weight:800;color:var(--red);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.dec .dw{grid-column:1/-1;font-size:clamp(8px,min(.86vw,1.6vh),12.5px);color:var(--dim);
+  font-weight:600;letter-spacing:.02em}
+.dec .dw u{text-decoration:none;color:var(--red)}
+.dec.resolved .da{color:var(--faint);text-decoration:line-through}
+.dec.resolved .dw u{color:var(--green)}
+.emptystate{font-size:clamp(9.5px,min(1vw,1.9vh),15px);color:#9b7a4e;font-weight:600;
+  line-height:1.45;border-left:2px solid #6b5228;padding-left:.7vw}
+
+/* ── SCN-04 · subscriptions, a dense ledger ──────────────────────────────── */
+.subs{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+.srow{display:grid;grid-template-columns:auto 1fr auto auto;gap:.7vw;align-items:baseline;
+  padding:.34vw 0;border-bottom:1px solid rgba(255,255,255,.045)}
+.srow:last-child{border-bottom:none}
+.srow .sd{width:.55vw;height:.55vw;min-width:7px;min-height:7px;border-radius:50%;
+  align-self:center;background:var(--faint)}
+.srow.paid .sd{background:var(--green)}
+.srow.due .sd{background:var(--gold)}
+.srow.failing .sd{background:var(--red);box-shadow:0 0 0 .2vw rgba(217,79,55,.18)}
+.srow .sn{font-size:clamp(9.5px,min(1.05vw,1.95vh),16px);font-weight:700;letter-spacing:-.015em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.srow .sw{font-size:clamp(8.5px,min(.92vw,1.72vh),13px);color:var(--dim);font-weight:600;
+  white-space:nowrap;text-align:right}
+.srow .sa{font-size:clamp(9.5px,min(1.05vw,1.95vh),16px);font-weight:800;
+  font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right;min-width:6ch}
+.srow.failing .sn{color:var(--red)}
+.totalrow{display:flex;justify-content:space-between;align-items:baseline;gap:.8vw;
+  border-top:1px solid var(--line);margin-top:.35vw;padding-top:.45vw;flex-shrink:0}
+.totalrow .tl{font-size:clamp(8px,min(.85vw,1.6vh),12px);letter-spacing:.16em;
+  color:var(--faint);font-weight:700;text-transform:uppercase}
+.totalrow .tv{font-size:clamp(13px,min(1.6vw,2.9vh),26px);font-weight:800;letter-spacing:-.03em;
+  font-variant-numeric:tabular-nums}
+.more{font-size:clamp(8.5px,min(.9vw,1.7vh),13px);color:var(--faint);font-weight:600;padding-top:.25vw}
+
+/* ── SCN-05 · the bottom line ────────────────────────────────────────────── */
+.foot{flex-shrink:0;display:flex;gap:1.6vw;align-items:baseline;flex-wrap:wrap;
+  border-top:1px solid var(--line);padding-top:.5vw;
+  font-size:clamp(9px,min(.98vw,1.85vh),15px);color:var(--dim);font-weight:600}
+.foot b{color:var(--bone);font-weight:800}
+.foot .red{color:var(--red)}
+
+@media (max-width:1000px){
+  :root{--safe:16px;--gap:12px}
+  html,body{overflow:auto;height:auto}
+  #board{height:auto;min-height:100%}
+  .head{grid-template-columns:1fr;gap:8px}
+  .headright{text-align:left;max-width:none}
+  .runway{height:auto;min-height:0;padding:14px}
+  .runway .axis,.runway .ticks,#todayMark,.pin{display:none}   /* a 35 day strip is not a phone graphic */
+  .runwayList{display:flex!important}
+  .two{grid-template-columns:1fr}
+  .card{padding:13px 14px}
+  .h1{font-size:22px}
+  .foot{flex-direction:column;gap:5px;font-size:13.5px}
+  .srow .sn,.dec .dn{font-size:14.5px} .srow .sa,.dec .da{font-size:14.5px}
+  .srow .sw{font-size:12px} .dec .dw{font-size:12px}
+  .srow{padding:7px 0} .dec{padding:8px 0}
+  .totalrow .tv{font-size:20px} .eyebrow{font-size:10px}
+  .hq-sample #board{padding-bottom:130px}
+  .pin .nm{max-width:none}
+}
+/* the phone version of the runway: the same data, read top to bottom */
+.runwayList{display:none;flex-direction:column;gap:6px}
+.runwayList .rl{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:baseline;
+  padding:7px 0;border-bottom:1px solid var(--line2);font-size:14px}
+.runwayList .rl:last-child{border-bottom:none}
+.runwayList .rw{font-size:11.5px;font-weight:700;min-width:9ch;color:var(--dim)}
+.runwayList .rl.late .rw,.runwayList .rl.late .ra{color:var(--red)}
+.runwayList .ra{font-weight:800;font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:reduce){ *{transition:none!important} }
+</style>
+</head>
+<body>
+
+<main id="board">
+
+  <!-- SCN-01 · HEAD -->
+  <header class="head">
+    <div>
+      <div class="eyebrow mono">the money</div>
+      <div class="h1" id="headline">&nbsp;</div>
+      <div class="refresh mono" id="refresh">&nbsp;</div>
+    </div>
+    <div class="headright" id="headRight">&nbsp;</div>
+  </header>
+
+  <!-- SCN-02 · THE RUNWAY -->
+  <section class="runway" id="runway">
+    <div class="eyebrow mono" style="position:absolute;top:.7vw;left:1.4vw;color:var(--faint)">
+      scn-02 · what already failed, and what lands next
+    </div>
+    <div class="plot">
+      <div class="axis"></div>
+      <div class="ticks" id="ticks"></div>
+      <div id="todayMark"><span class="mono">today</span></div>
+      <div id="pins"></div>
+    </div>
+    <div class="runwayList" id="runwayList"></div>
+  </section>
+
+  <div class="two">
+
+    <!-- SCN-03 · DECLINES -->
+    <section class="card">
+      <div class="cardhead">
+        <div class="eyebrow mono">scn-03 · declined recently</div>
+        <div class="eyebrow mono" id="decSrc" style="color:var(--faint)"></div>
+      </div>
+      <div class="receipt" id="declines"></div>
+    </section>
+
+    <!-- SCN-04 · SUBSCRIPTIONS -->
+    <section class="card">
+      <div class="cardhead">
+        <div class="eyebrow mono">scn-04 · subscriptions, and whether they went through</div>
+        <div class="eyebrow mono" id="subSrc" style="color:var(--faint)"></div>
+      </div>
+      <div class="subs" id="subs"></div>
+      <div class="totalrow">
+        <div class="tl mono" id="totalLabel">a month of subscriptions</div>
+        <div class="tv" id="totalVal">?</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- SCN-05 · THE BOTTOM LINE -->
+  <div class="foot" id="foot"></div>
+</main>
+
+<script src="data.js"></script>
+<script src="hq-core.js"></script>
+<script>
+"use strict";
+
+var BACK = 14, FWD = 25, SPAN = BACK + FWD;   // the runway, in days
+
+function pct(days){ return ((days + BACK) / SPAN) * 100; }
+
+function render(){
+  var D = HQ.data();
+  var bills = (D.bills || []).filter(function(b){ return !b.paid; });
+  var decs  = (D.declines || []).slice().sort(function(a,b){ return new Date(b.at) - new Date(a.at); });
+  var subs  = (D.subscriptions || []).slice().sort(function(a,b){
+    return HQ.daysFromToday(a.renews) - HQ.daysFromToday(b.renews); });
+
+  /* ── SCN-01 ──────────────────────────────────────────────────────────── */
+  var late = bills.filter(function(b){ return HQ.daysFromToday(b.due) < 0; });
+  var soon = bills.filter(function(b){ var d = HQ.daysFromToday(b.due); return d >= 0 && d <= 7; });
+  var recent = decs.filter(function(x){ return !x.resolved && HQ.ageMs(x.at) < 7*864e5; });
+
+  var h = [];
+  if (late.length) h.push('<b>' + late.length + (late.length===1?' bill is':' bills are') + ' late</b>');
+  if (recent.length) h.push('<b>' + recent.length + (recent.length===1?' card was':' cards were') + ' declined</b>');
+  if (!h.length) h.push('nothing late, nothing declined');
+  document.getElementById("headline").innerHTML =
+    h.join(' <em>and</em> ') + ' <em>· ' + soon.length + ' due inside a week</em>';
+
+  var bf = HQ.fresh("bank");
+  document.getElementById("headRight").innerHTML = bf.state === "unknown"
+    ? 'no bank is connected. declines and subscription status need either a bank ' +
+      'connection or a weekly export dropped into HQ. until then these are shapes.'
+    : 'bank · ' + HQ.esc(bf.age);
+  document.getElementById("decSrc").textContent = bf.state === "unknown" ? "no source" : bf.age;
+  document.getElementById("subSrc").textContent = bf.state === "unknown" ? "no source" : bf.age;
+
+  /* ── SCN-02 · the runway ─────────────────────────────────────────────── */
+  var tk = "";
+  for (var d = -BACK; d <= FWD; d++){
+    var isWk = ((d + BACK) % 7) === 0;
+    tk += '<i class="' + (isWk ? "wk" : "") + '" style="left:' + pct(d).toFixed(3) + '%"></i>';
+    if (isWk){
+      var dt = new Date(); dt.setDate(dt.getDate() + d);
+      tk += '<b class="mono" style="left:' + pct(d).toFixed(3) + '%">' +
+        dt.toLocaleDateString(undefined,{month:"short",day:"numeric"}).toLowerCase() + '</b>';
+    }
+  }
+  document.getElementById("ticks").innerHTML = tk;
+  document.getElementById("todayMark").style.left = pct(0).toFixed(3) + "%";
+
+  /* bills go up, declines go down, and the stems alternate length so labels
+     never sit on top of each other */
+  var pins = "";
+  var upIdx = 0;
+  var billsByDate = bills.slice().sort(function(a,b){
+    return HQ.daysFromToday(a.due) - HQ.daysFromToday(b.due); });
+  billsByDate.forEach(function(b){
+    var dd = HQ.daysFromToday(b.due);
+    if (dd === null || dd < -BACK || dd > FWD) return;
+    var tier = upIdx++ % 3;                        // 3 heights, walked in date order
+    var stem = [16, 44, 72][tier];
+    var cls = dd < 0 ? "late" : dd <= 2 ? "up soon" : "up";
+    var amt = HQ.money(b.amount);
+    pins += '<div class="pin ' + cls + '" style="left:' + pct(dd).toFixed(3) +
+      '%;bottom:50%;padding-bottom:2px">' +
+      '<div class="lbl"><div class="amt">' + (amt || "?") + '</div>' +
+      '<div class="nm">' + HQ.esc(b.name) + ' · ' + HQ.dueText(b.due) + '</div></div>' +
+      '<div class="stem" style="height:' + stem + 'px"></div>' +
+      '<div class="dot"></div></div>';
+  });
+  var dnIdx = 0;
+  decs.slice().sort(function(a,b){ return new Date(a.at) - new Date(b.at); }).forEach(function(x){
+    var dd = -Math.round(HQ.ageMs(x.at) / 864e5);
+    if (dd < -BACK || dd > 0) return;
+    var stem = [14, 40][dnIdx++ % 2];
+    pins += '<div class="pin down ' + (x.resolved ? "resolved" : "") +
+      '" style="left:' + pct(dd).toFixed(3) + '%;top:50%;padding-top:2px">' +
+      '<div class="dot"></div>' +
+      '<div class="stem" style="height:' + stem + 'px"></div>' +
+      '<div class="lbl"><div class="amt">' + (HQ.money(x.amount) || "?") + '</div>' +
+      '<div class="nm">' + HQ.esc(x.name) + '</div></div></div>';
+  });
+  document.getElementById("pins").innerHTML = pins;
+
+  /* the same runway as a list, for a phone */
+  var rl = bills.map(function(b){ return {w:HQ.dueText(b.due), n:b.name, a:HQ.money(b.amount),
+      d:HQ.daysFromToday(b.due), late:HQ.daysFromToday(b.due) < 0}; })
+    .sort(function(a,b){ return a.d - b.d; });
+  document.getElementById("runwayList").innerHTML = rl.map(function(x){
+    return '<div class="rl' + (x.late ? " late" : "") + '">' +
+      '<span class="rw mono">' + x.w + '</span><span>' + HQ.esc(x.n) + '</span>' +
+      '<span class="ra">' + (x.a || "?") + '</span></div>';
+  }).join("");
+
+  /* ── SCN-03 · the declines receipt ───────────────────────────────────── */
+  var dEl = document.getElementById("declines");
+  if (!decs.length){
+    dEl.innerHTML = '<div class="emptystate">Nothing has declined that HQ can see. ' +
+      'That is not the same as nothing declining. This needs a bank connection or a ' +
+      'weekly export before it can be trusted either way.</div>';
+  } else {
+    var dShow = decs.slice(0,5);
+    dEl.innerHTML = dShow.map(function(x){
+      var ms = HQ.ageMs(x.at);
+      var when = ms < 36e5 ? Math.round(ms/60000) + " minutes ago"
+        : ms < 864e5 ? Math.round(ms/36e5) + " hours ago"
+        : (function(){ var dd = Math.round(ms/864e5); return dd + (dd === 1 ? " day ago" : " days ago"); })();
+      return '<div class="dec' + (x.resolved ? " resolved" : "") + '">' +
+        '<div class="dn">' + HQ.esc(x.name) + '</div>' +
+        '<div class="da">' + (HQ.money(x.amount) || "?") + '</div>' +
+        '<div class="dw mono">' + when + ' · <u>' + HQ.esc(x.reason) + '</u>' +
+        (x.sample ? ' · sample' : '') + '</div></div>';
+    }).join("") + (decs.length > dShow.length
+      ? '<div class="more mono">and ' + (decs.length - dShow.length) + ' more</div>' : "");
+  }
+
+  /* ── SCN-04 · subscriptions ──────────────────────────────────────────── */
+  var sShow = subs.slice(0,7);
+  document.getElementById("subs").innerHTML = sShow.map(function(s){
+    var st = s.status || "unknown";
+    return '<div class="srow ' + st + '">' +
+      '<div class="sd"></div>' +
+      '<div class="sn">' + HQ.esc(s.name) + '</div>' +
+      '<div class="sw mono">' + (st === "failing" ? "card is failing" : HQ.dueText(s.renews)) + '</div>' +
+      '<div class="sa">' + (HQ.money(s.amount) || "?") + '</div></div>';
+  }).join("") + (subs.length > sShow.length
+    ? '<div class="more mono">and ' + (subs.length - sShow.length) + ' more in HQ</div>' : "");
+
+  /* the total is withheld unless every amount is known AND the source is fresh.
+     his standing rule: a question mark beats a number you cannot stand behind. */
+  var known = subs.filter(function(s){ return s.amount !== null && s.amount !== undefined; });
+  var tEl = document.getElementById("totalVal");
+  var tl = document.getElementById("totalLabel");
+  if (bf.state === "unknown" || known.length !== subs.length){
+    tEl.innerHTML = HQ.field("bank", null,
+      {needs: bf.state === "unknown"
+        ? "a bank connection, or a weekly export you drop into HQ"
+        : (subs.length - known.length) + " of these have no amount stored yet"});
+    tl.textContent = "a month of subscriptions · not all of it is known";
+  } else {
+    var sum = known.reduce(function(a,s){ return a + s.amount; }, 0);
+    tEl.textContent = HQ.money(sum);
+    tl.textContent = "a month of subscriptions";
+  }
+
+  /* ── SCN-05 ──────────────────────────────────────────────────────────── */
+  var nextIn = (D.money_in || []).slice().sort(function(a,b){
+    return HQ.daysFromToday(a.on) - HQ.daysFromToday(b.on); })[0];
+  var f = [];
+  if (late.length){
+    var worst = late.sort(function(a,b){ return HQ.daysFromToday(a.due) - HQ.daysFromToday(b.due); })[0];
+    f.push('<span class="red">' + HQ.esc(worst.name) + ' is ' + HQ.dueText(worst.due) + '</span>');
+    if (worst.hard_date) f.push('<b>' + HQ.daysFromToday(worst.hard_date) + ' days</b> until it ' +
+      HQ.esc(worst.hard_label || "counts"));
+  }
+  if (nextIn) f.push('next money in · <b>' + (HQ.money(nextIn.amount) || "?") + '</b> ' +
+    HQ.dueText(nextIn.on) + (nextIn.state === "blocked" ? ' <span class="red">(blocked)</span>' : ''));
+  f.push('the runway shows <b>' + BACK + ' days back</b> and <b>' + FWD + ' days ahead</b>');
+  document.getElementById("foot").innerHTML = f.join(" &nbsp;·&nbsp; ");
+}
+
+HQ.boot(render);
+HQ.refreshLine(document.getElementById("refresh"));
+setTimeout(function(){
+  var el = document.getElementById("headline");
+  if (el && el.textContent.trim() === "")
+    el.textContent = "data did not load. run python3 make-data.py in this folder.";
+}, 2500);
+</script>
+</body>
+</html>
