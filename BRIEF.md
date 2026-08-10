@@ -252,6 +252,18 @@ unguessable room path plus per-field `.validate`, never `{".read": true, ".write
 **Rejected: polling a gist or GitHub Pages** (CDN caches ~5 min, and a write token client-side).
 **Blocked on Samuel creating the Firebase project** — it is his account, ~5 minutes.
 
+## Monday, the voice layer — idea captured 2026-08-10, NOT built
+
+He wants a "Hey Monday" voice AI (his name; FRIDAY ends the week, Monday starts it) living
+ON this screen: dashboard as the idle state, wake-word overlay, instant canned actions
+("add to my to-do list" → `life/TODO.md` → tile flash), deep questions to a Claude agent
+that acks instantly and streams. Full capture, feasibility, phases and his 3 open decisions:
+`idea-lab` repo, `research/08-monday-voice-ai.md`. Two facts that live here because they
+bind THIS project: (1) the TV never listens — Fire TV Silk renders only, a Mac is the ears
+and pushes over the SAME Firebase channel planned in v7, so his pending Firebase step
+unlocks BOTH iPad control and Monday; (2) the overlay is a new layer — **noir stays locked,
+untouched.**
+
 ### Control-panel UX principles (from research, apply as this grows)
 The display owns CONTENT; the controller owns ACTIONS, AUTHORING and PROOF. Never restate a number
 that is already on the wall, except one deliberate duplication: the next-alarm line, which exists
