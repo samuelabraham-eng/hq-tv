@@ -115,11 +115,25 @@ body.privacy .privshow{display:block}
 /* the dim veil: sleep mode makes the room dark so the dawn has somewhere to grow from */
 #dim{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:6;transition:opacity 1.6s linear}
 
+#mark{
+  width:clamp(40px,min(5vw,9vh),96px); height:auto; flex:0 0 auto;
+  opacity:.9; pointer-events:none; margin-right:.4vw;
+  /* the mark is gold on transparent, so it sits on every theme except the
+     light ones, where a whisper of shadow keeps it off the background */
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.18));
+}
+[data-theme="cream"] #mark,[data-theme="oat"] #mark,[data-theme="sage"] #mark{
+  filter:drop-shadow(0 1px 3px rgba(0,0,0,.28));
+}
+body.sleeping #mark{opacity:.35;transition:opacity 1.6s linear}
 #board{height:100%;padding:var(--safe);display:flex;flex-direction:column;gap:var(--gap);position:relative;z-index:10}
 
 /* ── top band ── */
 .top{display:grid;grid-template-columns:1.55fr 1fr;gap:var(--gap)}
-.clockwrap{display:flex;flex-direction:column;justify-content:center}
+/* keep the alarm card's own text out from under the mark */
+
+.clockwrap{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:1.5vw;min-width:0}
+.clockstack{display:flex;flex-direction:column;justify-content:center;min-width:0}
 .clock{font-size:clamp(38px,min(7.4vw,12.5vh),120px);font-weight:800;letter-spacing:-.05em;line-height:.86}
 .clock .mer{font-size:.2em;font-weight:500;letter-spacing:.12em;color:var(--dim);margin-left:.12em;vertical-align:.9em}
 .dateline{font-size:clamp(11px,min(1.4vw,2.6vh),22px);color:var(--dim);margin-top:.35vw;font-weight:500}
@@ -307,6 +321,7 @@ input[type=time]{background:var(--tile2);border:1px solid var(--line);color:var(
 @media (max-width:1100px){
   :root{--safe:20px;--gap:10px}
   .top{grid-template-columns:1fr}
+  #mark{width:46px}
   .grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:minmax(92px,auto)}
   .t.w2{grid-column:span 2}
   html,body{overflow:auto}
@@ -330,8 +345,11 @@ input[type=time]{background:var(--tile2);border:1px solid var(--line);color:var(
 <main id="board">
   <section class="top">
     <div class="clockwrap">
-      <div class="clock" id="clock">--:--</div>
-      <div class="dateline" id="dateline">&nbsp;</div>
+      <div class="clockstack">
+        <div class="clock" id="clock">--:--</div>
+        <div class="dateline" id="dateline">&nbsp;</div>
+      </div>
+      <img id="mark" src="assets/sml-mark.png" alt="SML Media">
     </div>
     <div class="alarmcard">
       <div class="lab">NEXT ALARM</div>
