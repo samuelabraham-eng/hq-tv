@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0d16">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>TV11 · the sky</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   TV11 · the sky
+   Nobody asked for this one.
+
+   Everything else in this folder waits on a connection: the calendar is not
+   wired, the bank is not wired, the weather is not wired, so those screens spend
+   a lot of their surface saying what they still need. This screen needs nothing
+   and never will. The position of the sun over Arlington is a function of the
+   date and two numbers, and both numbers are already known. So it is drawn: the
+   real elevation curve for today, the real sunrise and sunset to the minute, the
+   real length of the day, how many minutes of light today lost or gained against
+   yesterday, and the real phase of the moon tonight.
+
+   It is different every single morning without anyone touching it, which is the
+   whole thing he complained about on 2026-08-09. It cannot go stale, cannot be
+   wrong about his money, and asks for nothing. He looks at this screen at 6:29am
+   with the sunrise ramp running, and it can be worth looking at.
+
+   HOW THE NUMBERS ARE MADE. NOAA's solar position equations, the standard set:
+   fractional year, equation of time, solar declination, hour angle, then solar
+   elevation. Accurate to about a minute at this latitude, which is far better
+   than the screen can draw. The moon is the synodic month counted from a known
+   new moon. There is no API, no key, no network call and no source to connect.
+   Everything on this page is arithmetic that runs in the browser.
+
+   NOT invented, and not a placeholder. This is the one screen in the loop where
+   every number is genuinely computed, so it carries no sample marks. Anything
+   that comes from HQ, like the alarm and the first thing today, is marked as
+   usual and can still be a question mark.
+
+   No web font. This is the 6am screen. A font fetch that stalls costs the paint.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root{
+  --sky1:#0a0d16; --sky2:#141a2b;
+  --bone:#f0ece4; --dim:#9aa2b4; --faint:#5f6779;
+  --gold:#e7c07a; --warm:#ff9e57; --cool:#7fa0d0;
+  --safe:2.2vw; --gap:1vw;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,
+    "Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;max-width:100%}
+body{background:var(--sky1);color:var(--bone);font-family:var(--sans);
+  -webkit-font-smoothing:antialiased}
+/* the ground under the sky. it takes its colour from the real sun elevation, so
+   the screen is a different colour at 6am, at noon and at 9pm. */
+#sky{position:fixed;inset:0;z-index:0;
+  background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 62%,var(--sky1) 100%);
+  transition:background 4s linear}
+#glow{position:fixed;left:0;right:0;bottom:0;height:62%;z-index:1;pointer-events:none;
+  opacity:0;transition:opacity 4s linear,background 4s linear}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:2;opacity:.04;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>")}
+.mono{font-family:var(--mono)}
+
+#board{position:relative;z-index:3;height:100%;padding:var(--safe);
+  display:flex;flex-direction:column;gap:var(--gap)}
+.hq-sample #board{padding-bottom:calc(var(--safe) + 2.6em)}
+.eyebrow{font-family:var(--mono);font-size:clamp(8px,min(.82vw,1.55vh),12px);
+  letter-spacing:.26em;font-weight:700;color:var(--gold);text-transform:uppercase}
+
+/* ── SCN-01 · the head ───────────────────────────────────────────────────── */
+.head{display:grid;grid-template-columns:auto 1fr auto;gap:1.6vw;align-items:end;
+  flex-shrink:0}
+.clock{font-size:clamp(38px,min(6.4vw,11vh),104px);font-weight:800;letter-spacing:-.055em;
+  line-height:.84;font-variant-numeric:tabular-nums}
+.clock .mer{font-size:.2em;font-weight:500;letter-spacing:.14em;color:var(--dim);
+  margin-left:.12em;vertical-align:.95em}
+.dateline{font-size:clamp(11px,min(1.25vw,2.3vh),20px);color:var(--dim);font-weight:500;
+  margin-bottom:.4vh}
+.dateline b{color:var(--bone);font-weight:700}
+.phrase{font-size:clamp(13px,min(1.5vw,2.8vh),26px);font-weight:700;letter-spacing:-.02em;
+  line-height:1.2;color:var(--gold);text-align:right;max-width:34ch}
+.phrase span{display:block;font-size:.62em;font-weight:500;color:var(--dim);
+  letter-spacing:0;margin-top:.25em}
+
+/* ── SCN-02 · the arc. the whole point of the page. ──────────────────────── */
+.arcwrap{flex:1;min-height:0;position:relative}
+svg#arc{position:absolute;inset:0;width:100%;height:100%;display:block}
+.markline{stroke:rgba(255,255,255,.14);stroke-width:1}
+.horizon{stroke:rgba(255,255,255,.3);stroke-width:1.25;stroke-dasharray:none}
+.curve{fill:none;stroke:var(--gold);stroke-width:2.4;stroke-linecap:round;opacity:.92}
+.curve.night{stroke:var(--faint);opacity:.5}
+.fillday{fill:url(#dayfill);opacity:.55}
+.tickt{fill:var(--faint);font-family:var(--mono);font-weight:700;letter-spacing:.08em}
+.mkt{fill:var(--bone);font-weight:800;letter-spacing:-.02em}
+.mks{fill:var(--dim);font-family:var(--mono);font-weight:600;letter-spacing:.06em}
+
+/* ── SCN-03 · the readouts ───────────────────────────────────────────────── */
+.reads{flex-shrink:0;display:grid;grid-template-columns:repeat(4,1fr);gap:1.6vw;
+  border-top:1px solid rgba(255,255,255,.12);padding-top:.7vw}
+.r{min-width:0}
+.r .rl{font-family:var(--mono);font-size:clamp(7.5px,min(.8vw,1.5vh),11px);
+  letter-spacing:.22em;font-weight:700;color:var(--faint);text-transform:uppercase}
+.r .rv{font-size:clamp(18px,min(2.4vw,4.4vh),44px);font-weight:800;letter-spacing:-.04em;
+  line-height:1.06;font-variant-numeric:tabular-nums;margin-top:.15vw}
+.r .rs{font-size:clamp(9.5px,min(1vw,1.9vh),15px);color:var(--dim);font-weight:500;
+  line-height:1.35;margin-top:.1vw}
+.r .rs b{color:var(--bone);font-weight:700}
+.r.moon{display:grid;grid-template-columns:auto 1fr;gap:.9vw;align-items:center}
+.moondisc{width:clamp(38px,min(4.6vw,8.4vh),86px);height:clamp(38px,min(4.6vw,8.4vh),86px)}
+.up{color:var(--warm)} .down{color:var(--cool)}
+
+/* ── SCN-04 · the honest footer ──────────────────────────────────────────── */
+.foot{flex-shrink:0;display:flex;gap:1.5vw;align-items:baseline;flex-wrap:wrap;
+  border-top:1px solid rgba(255,255,255,.1);padding-top:.5vw;
+  font-size:clamp(8.5px,min(.92vw,1.72vh),13.5px);color:var(--dim);font-weight:500}
+.foot b{color:var(--bone);font-weight:700}
+.foot .tag{font-family:var(--mono);font-size:.85em;letter-spacing:.14em;font-weight:700;
+  color:var(--gold);text-transform:uppercase}
+
+@media (max-width:1000px){
+  :root{--safe:16px;--gap:14px}
+  html,body{overflow:auto;height:auto}
+  #board{height:auto;min-height:100%}
+  .head{grid-template-columns:1fr;gap:8px;align-items:start}
+  .phrase{text-align:left;max-width:none;font-size:18px}
+  .arcwrap{min-height:44vh}
+  .reads{grid-template-columns:1fr 1fr;gap:14px 18px}
+  .clock{font-size:clamp(44px,15vw,88px)}
+  .r .rv{font-size:26px}
+  .foot{flex-direction:column;gap:5px}
+  .hq-sample #board{padding-bottom:130px}
+}
+@media (max-width:520px){ .reads{grid-template-columns:1fr} }
+@media (prefers-reduced-motion:reduce){ #sky,#glow{transition:none} }
+</style>
+</head>
+<body>
+
+<div id="sky"></div>
+<div id="glow"></div>
+
+<main id="board">
+
+  <!-- SCN-01 · HEAD -->
+  <header class="head">
+    <div class="clock" id="clock">--:--</div>
+    <div>
+      <div class="dateline" id="dateline">&nbsp;</div>
+      <div class="mono" id="refresh" style="font-size:clamp(8.5px,.9vw,13px);color:var(--faint);display:flex;align-items:center">&nbsp;</div>
+    </div>
+    <div class="phrase" id="phrase">&nbsp;</div>
+  </header>
+
+  <!-- SCN-02 · THE ARC -->
+  <div class="arcwrap">
+    <svg id="arc" preserveAspectRatio="none" aria-hidden="true"></svg>
+  </div>
+
+  <!-- SCN-03 · THE READOUTS -->
+  <section class="reads">
+    <div class="r">
+      <div class="rl">daylight left</div>
+      <div class="rv" id="leftV">&nbsp;</div>
+      <div class="rs" id="leftS"></div>
+    </div>
+    <div class="r">
+      <div class="rl">today is this long</div>
+      <div class="rv" id="lenV">&nbsp;</div>
+      <div class="rs" id="lenS"></div>
+    </div>
+    <div class="r moon">
+      <svg class="moondisc" id="moon" viewBox="0 0 100 100" aria-hidden="true"></svg>
+      <div>
+        <div class="rl">the moon tonight</div>
+        <div class="rv" id="moonV" style="font-size:clamp(13px,min(1.6vw,3vh),28px)">&nbsp;</div>
+        <div class="rs" id="moonS"></div>
+      </div>
+    </div>
+    <div class="r">
+      <div class="rl" id="nextL">next alarm</div>
+      <div class="rv" id="nextV">&nbsp;</div>
+      <div class="rs" id="nextS"></div>
+    </div>
+  </section>
+
+  <!-- SCN-04 · WHERE THIS COMES FROM -->
+  <div class="foot" id="foot"></div>
+</main>
+
+<script src="data.local.js"></script>
+<script src="data.js"></script>
+<script src="hq-core.js"></script>
+<script>
+"use strict";
+
+/* ── the solar arithmetic. NOAA's standard set. ─────────────────────────────
+   fractional year, equation of time, declination, hour angle, elevation.
+   Nothing here reaches the network, and nothing here can be stale. */
+var RAD = Math.PI/180, DEG = 180/Math.PI;
+
+function solarDay(date, lat, lon){
+  var start = new Date(date.getFullYear(), 0, 0);
+  var doy = Math.floor((date - start) / 864e5);
+  var g = 2*Math.PI/365 * (doy - 1 + 0.5);            // midday of the day in question
+  var eq = 229.18*(0.000075 + 0.001868*Math.cos(g) - 0.032077*Math.sin(g)
+         - 0.014615*Math.cos(2*g) - 0.040849*Math.sin(2*g));
+  var decl = 0.006918 - 0.399912*Math.cos(g) + 0.070257*Math.sin(g)
+           - 0.006758*Math.cos(2*g) + 0.000907*Math.sin(2*g)
+           - 0.002697*Math.cos(3*g) + 0.00148*Math.sin(3*g);
+  var tz = -date.getTimezoneOffset()/60;
+  var latR = lat*RAD;
+  var cosH = Math.cos(90.833*RAD)/(Math.cos(latR)*Math.cos(decl)) - Math.tan(latR)*Math.tan(decl);
+  var ha = cosH >= 1 ? 0 : cosH <= -1 ? Math.PI : Math.acos(cosH);
+  var haDeg = ha*DEG;
+  return {
+    decl: decl, eq: eq, tz: tz, lat: latR, lon: lon, doy: doy,
+    rise: 720 - 4*(lon + haDeg) - eq + tz*60,          // local minutes past midnight
+    set:  720 - 4*(lon - haDeg) - eq + tz*60,
+    noon: 720 - 4*lon - eq + tz*60,
+    polar: cosH >= 1 ? "never rises" : cosH <= -1 ? "never sets" : null
+  };
+}
+
+/* solar elevation in degrees at a local clock minute of that same day */
+function elevation(mins, s){
+  var tst = mins + s.eq + 4*s.lon - 60*s.tz;
+  var haRad = (tst/4 - 180) * RAD;
+  var cz = Math.sin(s.lat)*Math.sin(s.decl) + Math.cos(s.lat)*Math.cos(s.decl)*Math.cos(haRad);
+  return 90 - Math.acos(Math.max(-1, Math.min(1, cz)))*DEG;
+}
+
+function hm(mins){
+  var m = Math.round(mins);
+  var h = Math.floor(((m % 1440) + 1440) % 1440 / 60), mm = ((m % 60) + 60) % 60;
+  var mer = h >= 12 ? "pm" : "am";
+  return (h % 12 || 12) + ":" + String(mm).padStart(2,"0") + mer;
+}
+function dur(mins){
+  var m = Math.max(0, Math.round(mins));
+  return Math.floor(m/60) + "h " + String(m % 60).padStart(2,"0") + "m";
+}
+
+/* ── the moon. the synodic month counted from a known new moon. ─────────── */
+var NEW_MOON = Date.UTC(2000, 0, 6, 18, 14);          // 2000-01-06 18:14 UTC
+var SYNODIC = 29.530588853;
+function moon(date){
+  var age = (((date - NEW_MOON) / 864e5) % SYNODIC + SYNODIC) % SYNODIC;
+  var phase = age / SYNODIC;                           // 0 new, .5 full
+  var illum = (1 - Math.cos(2*Math.PI*phase)) / 2;
+  var names = [[.02,"new moon"],[.24,"waxing crescent"],[.26,"first quarter"],
+               [.49,"waxing gibbous"],[.51,"full moon"],[.74,"waning gibbous"],
+               [.76,"last quarter"],[.98,"waning crescent"],[1,"new moon"]];
+  var name = "new moon";
+  for (var i = 0; i < names.length; i++){ if (phase <= names[i][0]){ name = names[i][1]; break; } }
+  return { age: age, phase: phase, illum: illum, name: name, waxing: phase < 0.5 };
+}
+
+/* the lit limb, drawn as two arcs. northern hemisphere, so a waxing moon is lit
+   on the right. this is a drawing, and it is drawn the way it actually looks. */
+function drawMoon(m){
+  var el = document.getElementById("moon");
+  var r = 44, cx = 50, cy = 50;
+  var k = Math.abs(2*m.illum - 1);                     // terminator width, 0 to 1
+  var sweepOuter = m.waxing ? 1 : 0;
+  var sweepInner = m.illum > 0.5 ? (m.waxing ? 1 : 0) : (m.waxing ? 0 : 1);
+  var d = "M " + cx + " " + (cy-r) +
+    " A " + r + " " + r + " 0 0 " + sweepOuter + " " + cx + " " + (cy+r) +
+    " A " + (r*k).toFixed(2) + " " + r + " 0 0 " + sweepInner + " " + cx + " " + (cy-r) + " Z";
+  el.innerHTML =
+    '<circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="1.5"/>' +
+    '<path d="' + d + '" fill="#efe6cf" opacity="' + (0.28 + 0.72*m.illum).toFixed(3) + '"/>';
+}
+
+/* ── the sky colour, from the real elevation right now ─────────────────── */
+function paintSky(elev){
+  var stops;
+  if (elev > 25)      stops = ["#101827","#22314a","rgba(150,190,235,.16)"];
+  else if (elev > 8)  stops = ["#111624","#243149","rgba(190,190,225,.18)"];
+  else if (elev > -1) stops = ["#150f14","#3a2116","rgba(255,150,70,.30)"];
+  else if (elev > -8) stops = ["#0e0c16","#2a1626","rgba(255,120,70,.20)"];
+  else if (elev > -18)stops = ["#0a0b16","#161a33","rgba(90,110,180,.16)"];
+  else                stops = ["#080a11","#111527","rgba(70,90,150,.10)"];
+  var root = document.documentElement.style;
+  root.setProperty("--sky1", stops[0]);
+  root.setProperty("--sky2", stops[1]);
+  var glow = document.getElementById("glow");
+  glow.style.background = "radial-gradient(120% 100% at 50% 118%," + stops[2] +
+    " 0%, rgba(0,0,0,0) 72%)";
+  glow.style.opacity = 1;
+}
+
+/* ── the drawing ────────────────────────────────────────────────────────── */
+function drawArc(s, now){
+  var el = document.getElementById("arc");
+  var W = el.clientWidth || 1200, H = el.clientHeight || 380;
+  if (W < 10 || H < 10) return;
+  var padL = 8, padR = 8, padT = 14, padB = 26;
+  var x0 = padL, x1 = W - padR;
+
+  // the plot runs an hour either side of the light, so the horizon has air
+  var from = Math.max(0, s.rise - 75), to = Math.min(1440, s.set + 75);
+  var maxEl = elevation(s.noon, s);
+  var top = Math.max(10, maxEl) * 1.12, bottom = -14;
+  var X = function(m){ return x0 + (m - from)/(to - from) * (x1 - x0); };
+  var Y = function(e){ return padT + (top - e)/(top - bottom) * (H - padT - padB); };
+
+  var pts = [], fill = [];
+  for (var m = from; m <= to; m += 4){
+    var e = elevation(m, s);
+    pts.push(X(m).toFixed(1) + "," + Y(e).toFixed(1));
+    if (e >= 0) fill.push([X(m), Y(e)]);
+  }
+  var horizonY = Y(0);
+  var fillPath = "";
+  if (fill.length > 1){
+    fillPath = "M " + fill[0][0].toFixed(1) + " " + horizonY.toFixed(1) + " L " +
+      fill.map(function(p){ return p[0].toFixed(1) + " " + p[1].toFixed(1); }).join(" L ") +
+      " L " + fill[fill.length-1][0].toFixed(1) + " " + horizonY.toFixed(1) + " Z";
+  }
+
+  var nowM = now.getHours()*60 + now.getMinutes() + now.getSeconds()/60;
+  var nowE = elevation(nowM, s);
+  var inFrame = nowM >= from && nowM <= to;
+  var sx = X(Math.max(from, Math.min(to, nowM))), sy = Y(nowE);
+
+  // hour ticks, every two hours across the drawn window
+  var ticks = "";
+  for (var h = Math.ceil(from/120)*120; h <= to; h += 120){
+    ticks += '<line class="markline" x1="' + X(h).toFixed(1) + '" y1="' + padT +
+      '" x2="' + X(h).toFixed(1) + '" y2="' + (H - padB) + '"/>' +
+      '<text class="tickt" x="' + X(h).toFixed(1) + '" y="' + (H - padB + 15) +
+      '" text-anchor="middle" font-size="11">' + hm(h) + '</text>';
+  }
+
+  function marker(mins, label, sub, anchor){
+    var mx = X(mins);
+    return '<line class="markline" x1="' + mx.toFixed(1) + '" y1="' + Y(0).toFixed(1) +
+      '" x2="' + mx.toFixed(1) + '" y2="' + (Y(0) - 34).toFixed(1) + '"/>' +
+      '<text class="mkt" x="' + mx.toFixed(1) + '" y="' + (Y(0) - 42).toFixed(1) +
+      '" text-anchor="' + anchor + '" font-size="' + Math.max(13, Math.min(26, H*0.06)).toFixed(0) +
+      '">' + label + '</text>' +
+      '<text class="mks" x="' + mx.toFixed(1) + '" y="' + (Y(0) - 24).toFixed(1) +
+      '" text-anchor="' + anchor + '" font-size="' + Math.max(9, Math.min(14, H*0.032)).toFixed(0) +
+      '">' + sub + '</text>';
+  }
+
+  el.setAttribute("viewBox", "0 0 " + W + " " + H);
+  el.setAttribute("preserveAspectRatio", "none");
+  el.innerHTML =
+    '<defs><linearGradient id="dayfill" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0%" stop-color="#e7c07a" stop-opacity=".30"/>' +
+    '<stop offset="100%" stop-color="#e7c07a" stop-opacity="0"/></linearGradient>' +
+    '<radialGradient id="sunglow"><stop offset="0%" stop-color="#ffd79a" stop-opacity=".9"/>' +
+    '<stop offset="100%" stop-color="#ffd79a" stop-opacity="0"/></radialGradient></defs>' +
+    ticks +
+    (fillPath ? '<path class="fillday" d="' + fillPath + '"/>' : "") +
+    '<line class="horizon" x1="' + x0 + '" y1="' + horizonY.toFixed(1) +
+      '" x2="' + x1 + '" y2="' + horizonY.toFixed(1) + '"/>' +
+    '<text class="mks" x="' + x0 + '" y="' + (horizonY + 14).toFixed(1) +
+      '" font-size="10">the horizon</text>' +
+    '<polyline class="curve' + (nowE < 0 ? " night" : "") + '" points="' + pts.join(" ") + '"/>' +
+    marker(s.rise, hm(s.rise), "sunrise", "start") +
+    marker(s.noon, hm(s.noon), "the sun is highest", "middle") +
+    marker(s.set, hm(s.set), "sunset", "end") +
+    (inFrame
+      ? '<circle cx="' + sx.toFixed(1) + '" cy="' + sy.toFixed(1) + '" r="' +
+          Math.max(26, H*0.09).toFixed(0) + '" fill="url(#sunglow)"/>' +
+        '<circle cx="' + sx.toFixed(1) + '" cy="' + sy.toFixed(1) + '" r="' +
+          Math.max(6, H*0.02).toFixed(1) + '" fill="' + (nowE < 0 ? "#8d97ad" : "#ffd79a") + '"/>' +
+        '<text class="mks" x="' + sx.toFixed(1) + '" y="' + (sy - Math.max(14, H*0.035)).toFixed(1) +
+          '" text-anchor="middle" font-size="11">' +
+          (nowE >= 0 ? nowE.toFixed(0) + "&#176; up" : Math.abs(nowE).toFixed(0) + "&#176; below") +
+        '</text>'
+      : "");
+
+  return { nowE: nowE };
+}
+
+/* ── the page ───────────────────────────────────────────────────────────── */
+function render(){
+  var D = HQ.data();
+  var place = D.place || { name:"Arlington", lat:38.8816, lon:-77.0910 };
+  var now = new Date();
+
+  var s = solarDay(now, place.lat, place.lon);
+  var yest = new Date(now); yest.setDate(yest.getDate() - 1);
+  var sy = solarDay(yest, place.lat, place.lon);
+
+  var out = drawArc(s, now) || { nowE: elevation(now.getHours()*60 + now.getMinutes(), s) };
+  paintSky(out.nowE);
+
+  document.getElementById("dateline").innerHTML =
+    "<b>" + now.toLocaleDateString(undefined,{weekday:"long"}).toLowerCase() + "</b> · " +
+    now.toLocaleDateString(undefined,{month:"long",day:"numeric"}).toLowerCase() +
+    " · " + HQ.esc(place.name) + " · day " + s.doy + " of the year";
+
+  /* the one line at the top right. it changes with the actual sky. */
+  var nowM = now.getHours()*60 + now.getMinutes();
+  var p = document.getElementById("phrase");
+  if (nowM < s.rise - 30)
+    p.innerHTML = "the sun is still down<span>" + dur(s.rise - nowM) + " until it clears the horizon</span>";
+  else if (nowM < s.rise)
+    p.innerHTML = "first light<span>the sun clears the horizon at " + hm(s.rise) + "</span>";
+  else if (nowM < s.noon)
+    p.innerHTML = "climbing<span>highest at " + hm(s.noon) + ", " + dur(s.noon - nowM) + " from now</span>";
+  else if (nowM < s.set - 45)
+    p.innerHTML = "past the top<span>" + dur(s.set - nowM) + " of light left today</span>";
+  else if (nowM < s.set)
+    p.innerHTML = "the last of it<span>the sun goes at " + hm(s.set) + "</span>";
+  else
+    p.innerHTML = "down for the night<span>it comes back at " +
+      hm(solarDay(new Date(now.getTime() + 864e5), place.lat, place.lon).rise) + "</span>";
+
+  /* ── SCN-03 · the readouts ───────────────────────────────────────────── */
+  var lv = document.getElementById("leftV"), ls = document.getElementById("leftS");
+  if (nowM < s.rise){
+    lv.textContent = dur(s.set - s.rise);
+    ls.innerHTML = "all of it. the sun is up at <b>" + hm(s.rise) + "</b>";
+  } else if (nowM < s.set){
+    lv.textContent = dur(s.set - nowM);
+    ls.innerHTML = "the sun goes down at <b>" + hm(s.set) + "</b>";
+  } else {
+    lv.textContent = "0h 00m";
+    ls.innerHTML = "it is down. tomorrow starts at <b>" +
+      hm(solarDay(new Date(now.getTime() + 864e5), place.lat, place.lon).rise) + "</b>";
+  }
+
+  var len = s.set - s.rise, lenY = sy.set - sy.rise, delta = len - lenY;
+  document.getElementById("lenV").textContent = dur(len);
+  var dmin = Math.abs(delta), sec = Math.round(dmin * 60);
+  document.getElementById("lenS").innerHTML = Math.abs(delta) < 0.2
+    ? "the same as yesterday, to the second"
+    : '<b class="' + (delta > 0 ? "up" : "down") + '">' +
+      (delta > 0 ? "+" : "&#8722;") +
+      (dmin >= 1 ? Math.floor(dmin) + "m " + (sec % 60) + "s" : sec + "s") +
+      '</b> ' + (delta > 0 ? "longer" : "shorter") + " than yesterday";
+
+  var m = moon(now);
+  drawMoon(m);
+  document.getElementById("moonV").textContent = m.name;
+  /* the mean synodic month is an average, and a real lunation runs anywhere from
+     29.27 to 29.83 days, so the age can sit a few hours either side of the truth.
+     The percentage and the name survive that. A decimal day count would not, so it
+     is not printed as if it were exact. */
+  document.getElementById("moonS").innerHTML =
+    "<b>" + Math.round(m.illum*100) + "%</b> lit · from the average lunar month, " +
+    "so a few hours either way";
+
+  /* the alarm and the first thing are the only things here that come from HQ,
+     so they are the only things here that can be a question mark. */
+  var a = D.alarm || {hour:6, minute:30, sunrise_minutes:25};
+  var t = new Date(); t.setHours(a.hour, a.minute, 0, 0);
+  if (t <= now) t.setDate(t.getDate() + 1);
+  var mins = Math.round((t - now)/60000);
+  document.getElementById("nextV").textContent =
+    (a.hour % 12 || 12) + ":" + String(a.minute).padStart(2,"0") + (a.hour >= 12 ? "pm" : "am");
+  var alarmM = a.hour*60 + a.minute;
+  var vsSun = Math.round(alarmM - s.rise);
+  document.getElementById("nextS").innerHTML =
+    "in " + dur(mins) + " · " +
+    (Math.abs(vsSun) < 3 ? "the same minute the sun comes up"
+      : vsSun < 0 ? Math.abs(vsSun) + " minutes before the sun"
+      : vsSun + " minutes after the sun");
+
+  /* ── SCN-04 · where this comes from ──────────────────────────────────── */
+  var lead = (D.deadlines||[]).slice().sort(function(x,y){
+    return HQ.daysFromToday(x.on) - HQ.daysFromToday(y.on); })[0];
+  document.getElementById("foot").innerHTML =
+    '<span class="tag">nothing to connect</span>' +
+    '<span>every number above is computed here from the date and <b>' +
+      place.lat.toFixed(3) + ', ' + place.lon.toFixed(3) +
+      '</b>. no source, no network, nothing to go stale.</span>' +
+    (lead ? '<span>first thing today · <b>' + HQ.esc(lead.name) + '</b> ' +
+      HQ.dueText(lead.on) + '</span>' : "") +
+    '<span>the alarm and the first thing are the only two things here that come ' +
+    'from HQ, so they are the only two that follow the sample rules</span>';
+}
+
+/* the clock is the one thing that must never look frozen */
+HQ.everySecond(function(){
+  var n = new Date(), h = n.getHours();
+  document.getElementById("clock").innerHTML =
+    (h % 12 || 12) + ":" + String(n.getMinutes()).padStart(2,"0") +
+    '<span class="mer">' + (h >= 12 ? "pm" : "am") + '</span>';
+});
+
+HQ.boot(render);
+HQ.refreshLine(document.getElementById("refresh"));
+/* the sun moves, so redraw it on a slower beat than the clock */
+setInterval(render, 60000);
+window.addEventListener("resize", function(){ render(); });
+
+setTimeout(function(){
+  var el = document.getElementById("arc");
+  if (el && !el.innerHTML.trim()){
+    document.getElementById("phrase").textContent =
+      "the sky did not draw. this page needs no data, so this is a browser problem.";
+  }
+}, 2500);
+</script>
+</body>
+</html>

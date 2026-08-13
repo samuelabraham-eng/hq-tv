@@ -76,9 +76,16 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opac
   font-size:clamp(7.5px,min(.8vw,1.5vh),11px);letter-spacing:.18em;color:var(--bone);
   font-weight:700;background:var(--panel2);padding:0 .3em}
 
-/* a bill sits above the line. a decline sits below it. */
-.pin{position:absolute;transform:translateX(-50%);text-align:center;width:max-content;
-  max-width:10vw}
+/* a bill sits above the line. a decline sits below it.
+   Round 2: the label anchor is set per pin by the script, because a pin at 0% with
+   translateX(-50%) has half its label off the panel. The oldest item always landed
+   at 0% and was always clipped, which is a design, not an edge case. */
+.pin{position:absolute;text-align:center;width:max-content;max-width:12vw}
+.pin.aL{transform:translateX(0);text-align:left}
+.pin.aC{transform:translateX(-50%)}
+.pin.aR{transform:translateX(-100%);text-align:right}
+.pin.aL .stem,.pin.aL .dot{margin-left:0;margin-right:auto}
+.pin.aR .stem,.pin.aR .dot{margin-left:auto;margin-right:0}
 /* a small plate behind each label, so two pins that land close together read as
    two labels stacked rather than one smear of text */
 .pin .lbl{background:rgba(23,21,18,.93);border-radius:2px;padding:.1em .35em;
@@ -243,14 +250,51 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opac
   <div class="foot" id="foot"></div>
 </main>
 
+<!-- data.local.js is his real numbers. it is gitignored and is missing on a fresh
+     clone, where this tag 404s harmlessly and the committed sample below takes over. -->
+<script src="data.local.js"></script>
 <script src="data.js"></script>
 <script src="hq-core.js"></script>
 <script>
 "use strict";
 
-var BACK = 14, FWD = 25, SPAN = BACK + FWD;   // the runway, in days
+/* The runway window. Round 1 hard coded BACK = 14 and then plotted the oldest item
+   at exactly 0%, so its label hung off the left edge of the panel. Because BACK was
+   fixed, the oldest item ALWAYS landed at 0% and ALWAYS clipped. The window now sizes
+   itself to the data with three days of air on each end, and never shrinks below the
+   14 / 25 the footer used to promise. */
+var BACK = 14, FWD = 25, SPAN = 39;
+var LW = 13;                                  // a label, as a percentage of the plot
+var UP_TIERS = [14, 50, 86], DN_TIERS = [12, 46, 80];
 
 function pct(days){ return ((days + BACK) / SPAN) * 100; }
+
+function anchorOf(p){ return p < LW/2 + 1 ? "aL" : p > 99 - LW/2 ? "aR" : "aC"; }
+
+function leftEdge(p, anchor){
+  return anchor === "aL" ? p : anchor === "aR" ? p - LW : p - LW/2;
+}
+
+/* Greedy stacking. Walk the pins left to right and drop each one on the lowest
+   stem whose previous label has already finished. No collision avoidance existed
+   anywhere in round 1, so three declines nine days apart printed on top of each
+   other and buried an axis label underneath. */
+function stack(items, tiers){
+  var occupied = tiers.map(function(){ return -999; });
+  return items.map(function(it){
+    var anchor = anchorOf(it.p);
+    var l = leftEdge(it.p, anchor);
+    var tier = 0, best = 0;
+    for (var i = 0; i < tiers.length; i++){
+      if (occupied[i] <= l - 1){ tier = i; break; }
+      if (occupied[i] < occupied[best]) best = i;
+      if (i === tiers.length - 1) tier = best;
+    }
+    occupied[tier] = l + LW;
+    it.anchor = anchor; it.stem = tiers[tier];
+    return it;
+  });
+}
 
 function render(){
   var D = HQ.data();
@@ -276,10 +320,30 @@ function render(){
     ? 'no bank is connected. declines and subscription status need either a bank ' +
       'connection or a weekly export dropped into HQ. until then these are shapes.'
     : 'bank · ' + HQ.esc(bf.age);
-  document.getElementById("decSrc").textContent = bf.state === "unknown" ? "no source" : bf.age;
-  document.getElementById("subSrc").textContent = bf.state === "unknown" ? "no source" : bf.age;
+  /* Round 2: these headers used to say NO SOURCE while the rows underneath printed
+     five exact dollar figures at full confidence weight. The gate was applied to the
+     header and skipped on the values. Now every figure carries its own tag, and the
+     header says which kind of nothing this is. */
+  var srcNote = bf.state === "unknown"
+    ? "no bank · figures invented"
+    : "bank · " + bf.age;
+  document.getElementById("decSrc").textContent = srcNote;
+  document.getElementById("subSrc").textContent = srcNote;
 
-  /* ── SCN-02 · the runway ─────────────────────────────────────────────── */
+  /* ── SCN-02 · the runway. size the window to the data first. ─────────── */
+  var backNeeded = 14, fwdNeeded = 25;
+  bills.forEach(function(b){
+    var d = HQ.daysFromToday(b.due);
+    if (d === null) return;
+    if (d < 0) backNeeded = Math.max(backNeeded, -d + 3);
+    else fwdNeeded = Math.max(fwdNeeded, Math.min(d, 60));
+  });
+  decs.forEach(function(x){
+    var d = Math.round(HQ.ageMs(x.at) / 864e5);
+    backNeeded = Math.max(backNeeded, d + 3);
+  });
+  BACK = backNeeded; FWD = fwdNeeded; SPAN = BACK + FWD;
+
   var tk = "";
   for (var d = -BACK; d <= FWD; d++){
     var isWk = ((d + BACK) % 7) === 0;
@@ -293,36 +357,40 @@ function render(){
   document.getElementById("ticks").innerHTML = tk;
   document.getElementById("todayMark").style.left = pct(0).toFixed(3) + "%";
 
-  /* bills go up, declines go down, and the stems alternate length so labels
-     never sit on top of each other */
+  /* bills go up, declines go down. both are stacked and edge anchored so no label
+     is ever clipped by the panel and no two labels sit on top of each other. */
   var pins = "";
-  var upIdx = 0;
-  var billsByDate = bills.slice().sort(function(a,b){
-    return HQ.daysFromToday(a.due) - HQ.daysFromToday(b.due); });
-  billsByDate.forEach(function(b){
-    var dd = HQ.daysFromToday(b.due);
-    if (dd === null || dd < -BACK || dd > FWD) return;
-    var tier = upIdx++ % 3;                        // 3 heights, walked in date order
-    var stem = [16, 44, 72][tier];
-    var cls = dd < 0 ? "late" : dd <= 2 ? "up soon" : "up";
+  var ups = bills.map(function(b){
+      var dd = HQ.daysFromToday(b.due);
+      return dd === null || dd < -BACK || dd > FWD ? null
+        : {d:dd, p:pct(dd), name:b.name, amount:b.amount, sample:b.sample, due:b.due};
+    }).filter(Boolean).sort(function(a,b){ return a.p - b.p; });
+
+  stack(ups, UP_TIERS).forEach(function(b){
+    var cls = b.d < 0 ? "late" : b.d <= 2 ? "up soon" : "up";
     var amt = HQ.money(b.amount);
-    pins += '<div class="pin ' + cls + '" style="left:' + pct(dd).toFixed(3) +
+    pins += '<div class="pin ' + cls + ' ' + b.anchor + '" style="left:' + b.p.toFixed(3) +
       '%;bottom:50%;padding-bottom:2px">' +
-      '<div class="lbl"><div class="amt">' + (amt || "?") + '</div>' +
+      '<div class="lbl"><div class="amt">' + (amt || "?") +
+      (amt && b.sample ? '<i class="hq-inv">invented</i>' : "") + '</div>' +
       '<div class="nm">' + HQ.esc(b.name) + ' · ' + HQ.dueText(b.due) + '</div></div>' +
-      '<div class="stem" style="height:' + stem + 'px"></div>' +
+      '<div class="stem" style="height:' + b.stem + 'px"></div>' +
       '<div class="dot"></div></div>';
   });
-  var dnIdx = 0;
-  decs.slice().sort(function(a,b){ return new Date(a.at) - new Date(b.at); }).forEach(function(x){
-    var dd = -Math.round(HQ.ageMs(x.at) / 864e5);
-    if (dd < -BACK || dd > 0) return;
-    var stem = [14, 40][dnIdx++ % 2];
-    pins += '<div class="pin down ' + (x.resolved ? "resolved" : "") +
-      '" style="left:' + pct(dd).toFixed(3) + '%;top:50%;padding-top:2px">' +
+
+  var downs = decs.map(function(x){
+      var dd = -Math.round(HQ.ageMs(x.at) / 864e5);
+      return dd < -BACK || dd > 0 ? null
+        : {p:pct(dd), name:x.name, amount:x.amount, sample:x.sample, resolved:x.resolved};
+    }).filter(Boolean).sort(function(a,b){ return a.p - b.p; });
+
+  stack(downs, DN_TIERS).forEach(function(x){
+    pins += '<div class="pin down ' + (x.resolved ? "resolved " : "") + x.anchor +
+      '" style="left:' + x.p.toFixed(3) + '%;top:50%;padding-top:2px">' +
       '<div class="dot"></div>' +
-      '<div class="stem" style="height:' + stem + 'px"></div>' +
-      '<div class="lbl"><div class="amt">' + (HQ.money(x.amount) || "?") + '</div>' +
+      '<div class="stem" style="height:' + x.stem + 'px"></div>' +
+      '<div class="lbl"><div class="amt">' + (HQ.money(x.amount) || "?") +
+      (x.sample ? '<i class="hq-inv">invented</i>' : "") + '</div>' +
       '<div class="nm">' + HQ.esc(x.name) + '</div></div></div>';
   });
   document.getElementById("pins").innerHTML = pins;
@@ -352,9 +420,8 @@ function render(){
         : (function(){ var dd = Math.round(ms/864e5); return dd + (dd === 1 ? " day ago" : " days ago"); })();
       return '<div class="dec' + (x.resolved ? " resolved" : "") + '">' +
         '<div class="dn">' + HQ.esc(x.name) + '</div>' +
-        '<div class="da">' + (HQ.money(x.amount) || "?") + '</div>' +
-        '<div class="dw mono">' + when + ' · <u>' + HQ.esc(x.reason) + '</u>' +
-        (x.sample ? ' · sample' : '') + '</div></div>';
+        '<div class="da">' + HQ.amt(x.amount, x.sample, "bank", "no bank connected") + '</div>' +
+        '<div class="dw mono">' + when + ' · <u>' + HQ.esc(x.reason) + '</u></div></div>';
     }).join("") + (decs.length > dShow.length
       ? '<div class="more mono">and ' + (decs.length - dShow.length) + ' more</div>' : "");
   }
@@ -367,7 +434,7 @@ function render(){
       '<div class="sd"></div>' +
       '<div class="sn">' + HQ.esc(s.name) + '</div>' +
       '<div class="sw mono">' + (st === "failing" ? "card is failing" : HQ.dueText(s.renews)) + '</div>' +
-      '<div class="sa">' + (HQ.money(s.amount) || "?") + '</div></div>';
+      '<div class="sa">' + HQ.amt(s.amount, s.sample, "bank", "no amount stored") + '</div></div>';
   }).join("") + (subs.length > sShow.length
     ? '<div class="more mono">and ' + (subs.length - sShow.length) + ' more in HQ</div>' : "");
 
@@ -398,9 +465,11 @@ function render(){
     if (worst.hard_date) f.push('<b>' + HQ.daysFromToday(worst.hard_date) + ' days</b> until it ' +
       HQ.esc(worst.hard_label || "counts"));
   }
-  if (nextIn) f.push('next money in · <b>' + (HQ.money(nextIn.amount) || "?") + '</b> ' +
+  if (nextIn) f.push('next money in · <b>' + HQ.amt(nextIn.amount, nextIn.sample, nextIn.source,
+    "nothing is scheduled to land that HQ knows about") + '</b> ' +
     HQ.dueText(nextIn.on) + (nextIn.state === "blocked" ? ' <span class="red">(blocked)</span>' : ''));
-  f.push('the runway shows <b>' + BACK + ' days back</b> and <b>' + FWD + ' days ahead</b>');
+  // the axis already prints its own dates, so the span does not need saying twice
+  // and it was the line that pushed this footer onto two rows.
   document.getElementById("foot").innerHTML = f.join(" &nbsp;·&nbsp; ");
 }
 

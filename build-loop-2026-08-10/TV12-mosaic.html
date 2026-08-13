@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14101a">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>TV12 · the mosaic</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   TV12 · the mosaic
+   Two things are being answered here.
+
+   ONE, an honest correction. Round 1's launcher card for TV06 said "a denser
+   mosaic that pushes the Metro idea further than the current metro theme does".
+   TV06 is a cream editorial page with three columns of text rows. There is no
+   mosaic in it and no Metro treatment of any kind. Metro is a look he sent actual
+   reference for, the Windows 8 Start screen, so promising it and not building it
+   is worse than never mentioning it. This is the page that card described.
+
+   TWO, a structural correction. Five of round 1's six screens were the same
+   component underneath: a row of name left, status right, hairline divider,
+   recoloured six ways. That is one idea in six palettes. Nothing on this page is
+   a row. It is solid colour blocks of three sizes on a deep plum ground, white
+   text, no borders, exactly the treatment BRIEF.md records him sending. A tile
+   holds ONE fact at a size readable from the far side of a room, and the tiles
+   that have a second fact to tell FLIP to it on their own, which is what a live
+   tile is for and what makes this readable from further away than any list.
+
+   Nothing here is tapped. The flips are on a timer and they are staggered so the
+   whole wall never turns over at once.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root{
+  --ground:#14101a;
+  --ink:#f4f0ea;
+  --dim:rgba(244,240,234,.72);
+  --faint:rgba(244,240,234,.46);
+  /* a warm, restrained Metro set. five hues at one saturation, not a rainbow. */
+  --c1:#a8412c;   /* clay, for the thing that costs money */
+  --c2:#b5822c;   /* ochre, for the thing that is next */
+  --c3:#5f6f37;   /* olive, for what is running */
+  --c4:#2f5f66;   /* slate teal, for the week */
+  --c5:#5a3560;   /* plum, for the questions */
+  --c6:#2c2730;   /* graphite, for the quiet ones */
+  --safe:1.6vw; --gap:.55vw;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,
+    "Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;max-width:100%}
+body{background:var(--ground);color:var(--ink);font-family:var(--sans);
+  -webkit-font-smoothing:antialiased}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.04;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>")}
+.mono{font-family:var(--mono)}
+
+#board{height:100%;padding:var(--safe);display:flex;flex-direction:column;gap:var(--gap)}
+.hq-sample #board{padding-bottom:calc(var(--safe) + 2.6em)}
+
+/* ── SCN-01 · the strip above the wall ───────────────────────────────────── */
+.top{display:flex;align-items:baseline;gap:1.2vw;flex-shrink:0;flex-wrap:wrap}
+.top .brand{font-family:var(--mono);font-size:clamp(8px,min(.82vw,1.55vh),12px);
+  letter-spacing:.32em;font-weight:700;color:var(--faint);text-transform:uppercase}
+.top .date{font-size:clamp(11px,min(1.2vw,2.2vh),19px);color:var(--dim);font-weight:600}
+.top .date b{color:var(--ink);font-weight:800}
+.top .refresh{font-family:var(--mono);font-size:clamp(8px,min(.86vw,1.6vh),12.5px);
+  color:var(--faint);display:flex;align-items:center;margin-left:auto}
+
+/* ── SCN-02 · the wall ───────────────────────────────────────────────────── */
+.wall{flex:1;min-height:0;display:grid;gap:var(--gap);
+  grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(4,1fr)}
+.t{position:relative;overflow:hidden;padding:.75vw .9vw;display:flex;flex-direction:column;
+  background:var(--c6);
+  /* depth, so a solid block is a surface and not a swatch. a flat fill with a
+     word on it is exactly the vibe-coded look he has rejected twice. */
+  background-image:linear-gradient(157deg,rgba(255,255,255,.10) 0%,rgba(255,255,255,0) 44%,
+    rgba(0,0,0,.22) 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.13), 0 14px 26px -22px #000}
+.t.w2{grid-column:span 2} .t.w3{grid-column:span 3}
+.t.h2{grid-row:span 2}
+.c1{background-color:var(--c1)} .c2{background-color:var(--c2)}
+.c3{background-color:var(--c3)} .c4{background-color:var(--c4)}
+.c5{background-color:var(--c5)} .c6{background-color:var(--c6)}
+
+.lab{font-family:var(--mono);font-size:clamp(7.5px,min(.78vw,1.45vh),11px);
+  letter-spacing:.24em;font-weight:700;color:rgba(255,255,255,.62);text-transform:uppercase;
+  flex-shrink:0;display:flex;justify-content:space-between;gap:.6em}
+.lab .age{color:rgba(255,255,255,.42);letter-spacing:.1em;white-space:nowrap}
+
+/* the faces. one tile, two things to say, flipped on a timer. */
+.faces{position:relative;flex:1;min-height:0}
+.face{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;
+  gap:.25vw;opacity:0;transform:translateY(38%);
+  transition:opacity .55s ease,transform .55s cubic-bezier(.2,.8,.3,1)}
+.face.on{opacity:1;transform:none}
+.face.out{opacity:0;transform:translateY(-38%)}
+
+.big{font-size:clamp(24px,min(4vw,7.2vh),76px);font-weight:800;letter-spacing:-.05em;
+  line-height:.92;font-variant-numeric:tabular-nums}
+.mid{font-size:clamp(15px,min(2vw,3.7vh),36px);font-weight:800;letter-spacing:-.038em;
+  line-height:1.02}
+.sml{font-size:clamp(11px,min(1.15vw,2.15vh),18px);font-weight:700;letter-spacing:-.015em;
+  line-height:1.18}
+.say{font-size:clamp(9.5px,min(1vw,1.9vh),15px);color:rgba(255,255,255,.78);font-weight:500;
+  line-height:1.32}
+.unit{font-size:.34em;font-weight:700;letter-spacing:0;margin-left:.15em}
+
+/* the one list shape allowed on this page, and it is a stack of facts, not rows */
+.stack{display:flex;flex-direction:column;gap:.18vw;justify-content:flex-end;min-height:0;
+  overflow:hidden}
+.li{display:flex;justify-content:space-between;gap:.6vw;align-items:baseline;
+  font-size:clamp(9.5px,min(1.02vw,1.9vh),15.5px);font-weight:600;
+  color:rgba(255,255,255,.88);padding:.1vw 0}
+.li em{font-style:normal;color:rgba(255,255,255,.6);font-weight:700;font-family:var(--mono);
+  font-size:.86em;white-space:nowrap;flex-shrink:0}
+.li span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.more{font-family:var(--mono);font-size:clamp(8px,min(.84vw,1.55vh),12px);
+  color:rgba(255,255,255,.5);font-weight:700;padding-top:.15vw}
+
+/* the flip pips, so it is obvious the wall is alive and not stuck */
+.pips{position:absolute;right:.7vw;top:.7vw;display:flex;gap:.28vw}
+.pips i{width:.32vw;height:.32vw;min-width:4px;min-height:4px;border-radius:50%;
+  background:rgba(255,255,255,.3)}
+.pips i.on{background:rgba(255,255,255,.85)}
+
+/* the clock tile carries the only very large type on the wall */
+.clockv{font-size:clamp(34px,min(5.4vw,9.6vh),104px);font-weight:800;letter-spacing:-.06em;
+  line-height:.86;font-variant-numeric:tabular-nums}
+.clockv .mer{font-size:.22em;font-weight:600;letter-spacing:.12em;
+  color:rgba(255,255,255,.6);margin-left:.12em;vertical-align:.9em}
+
+/* ── SCN-03 · the base line ──────────────────────────────────────────────── */
+.base{flex-shrink:0;display:flex;gap:1.3vw;align-items:baseline;flex-wrap:wrap;
+  font-size:clamp(8.5px,min(.9vw,1.7vh),13px);color:var(--faint);font-weight:600}
+.base b{color:var(--dim);font-weight:700}
+
+@media (max-width:1100px){
+  :root{--safe:14px;--gap:8px}
+  html,body{overflow:auto;height:auto}
+  #board{height:auto;min-height:100%}
+  .wall{grid-template-columns:repeat(2,1fr);grid-template-rows:none;
+    grid-auto-rows:minmax(23vw,auto)}
+  .t.w3{grid-column:span 2} .t.w2{grid-column:span 2} .t.h2{grid-row:span 1}
+  .t{padding:14px 15px;min-height:150px}
+  .big{font-size:38px} .mid{font-size:24px} .clockv{font-size:52px}
+  .li{font-size:14.5px}
+  .top .refresh{margin-left:0;width:100%}
+  .hq-sample #board{padding-bottom:130px}
+}
+@media (max-width:520px){ .wall{grid-template-columns:1fr} .t.w2,.t.w3{grid-column:span 1} }
+@media (prefers-reduced-motion:reduce){ .face{transition:none} }
+</style>
+</head>
+<body>
+
+<main id="board">
+
+  <!-- SCN-01 · THE STRIP -->
+  <div class="top">
+    <span class="brand">samuel hq · the mosaic</span>
+    <span class="date" id="dateline">&nbsp;</span>
+    <span class="refresh mono" id="refresh">&nbsp;</span>
+  </div>
+
+  <!-- SCN-02 · THE WALL -->
+  <div class="wall" id="wall"></div>
+
+  <!-- SCN-03 · THE BASE LINE -->
+  <div class="base" id="base"></div>
+</main>
+
+<script src="data.local.js"></script>
+<script src="data.js"></script>
+<script src="hq-core.js"></script>
+<script>
+"use strict";
+
+var FLIP = 9000;            // a tile holds a face this long before turning over
+var DOW = ["sun","mon","tue","wed","thu","fri","sat"];
+
+function esc(x){ return HQ.esc(x); }
+function two(n){ return String(n).padStart(2,"0"); }
+
+/* a tile is a colour, a size, a label, and one or two faces. that is the whole
+   component. there is no row primitive on this page. */
+function tile(o){
+  var faces = o.faces.filter(Boolean);
+  return '<div class="t ' + o.c + ' ' + (o.size || "") + '" data-flip="' + faces.length + '">' +
+    (faces.length > 1
+      ? '<div class="pips">' + faces.map(function(_,i){
+          return '<i' + (i === 0 ? ' class="on"' : '') + '></i>'; }).join("") + '</div>'
+      : "") +
+    '<div class="lab"><span>' + esc(o.label) + '</span>' +
+      (o.age ? '<span class="age">' + esc(o.age) + '</span>' : '') + '</div>' +
+    '<div class="faces">' + faces.map(function(f,i){
+      return '<div class="face' + (i === 0 ? " on" : "") + '">' + f + '</div>';
+    }).join("") + '</div></div>';
+}
+
+function stack(items, n, noun){
+  var show = items.slice(0, n);
+  return '<div class="stack">' + show.join("") +
+    (items.length > show.length
+      ? '<div class="more">and ' + (items.length - show.length) + ' more ' + (noun || "") + '</div>'
+      : "") + '</div>';
+}
+
+function li(name, right){
+  return '<div class="li"><span>' + esc(name) + '</span><em>' + right + '</em></div>';
+}
+
+function render(){
+  var D = HQ.data();
+  var now = new Date();
+
+  document.getElementById("dateline").innerHTML =
+    "<b>" + now.toLocaleDateString(undefined,{weekday:"long"}).toLowerCase() + "</b> " +
+    now.toLocaleDateString(undefined,{month:"long",day:"numeric"}).toLowerCase();
+
+  var bills = (D.bills||[]).filter(function(b){ return !b.paid; })
+    .sort(function(a,b){ return HQ.daysFromToday(a.due) - HQ.daysFromToday(b.due); });
+  var late = bills.filter(function(b){ return HQ.daysFromToday(b.due) < 0; });
+  var deadlines = (D.deadlines||[]).slice()
+    .sort(function(a,b){ return HQ.daysFromToday(a.on) - HQ.daysFromToday(b.on); });
+  var lead = deadlines[0];
+  var todos = D.todos || [];
+  var evs = (D.events||[]).map(function(e){
+      return {t:e.title, s:new Date(e.start), e:new Date(e.end), real:!!e.real}; })
+    .filter(function(e){ return !isNaN(e.s); }).sort(function(a,b){ return a.s - b.s; });
+  var todayEvs = evs.filter(function(e){ return e.s.toDateString() === now.toDateString(); });
+  var future = evs.filter(function(e){ return e.s > now; });
+  var running = evs.find(function(e){ return e.s <= now && e.e > now; });
+  var srcs = Object.keys(D.sources||{}).map(HQ.fresh);
+  var missing = srcs.filter(function(s){ return s.state === "unknown"; });
+  var moneyIn = (D.money_in||[]).slice()
+    .sort(function(a,b){ return HQ.daysFromToday(a.on) - HQ.daysFromToday(b.on); })[0];
+
+  var a = D.alarm || {hour:6, minute:30, sunrise_minutes:25};
+  var at = new Date(); at.setHours(a.hour, a.minute, 0, 0);
+  if (at <= now) at.setDate(at.getDate() + 1);
+
+  var tiles = [];
+
+  /* the clock, and under it the alarm. the only very large type on the wall. */
+  tiles.push(tile({
+    c:"c6", size:"w2", label:"now",
+    faces:[
+      '<div class="clockv" id="clockv">' + (now.getHours()%12 || 12) + ":" + two(now.getMinutes()) +
+        '<span class="mer">' + (now.getHours() >= 12 ? "pm" : "am") + '</span></div>' +
+      '<div class="say">' + DOW[now.getDay()] + ' · alarm ' + (a.hour%12 || 12) + ":" +
+        two(a.minute) + (a.hour >= 12 ? "pm" : "am") + '</div>',
+      '<div class="mid">' + HQ.gapText(at - now).replace("in ","") + '</div>' +
+      '<div class="say">until the alarm · sunrise starts ' + (a.sunrise_minutes||25) +
+        ' minutes before it</div>'
+    ]
+  }));
+
+  /* the thing that costs money. clay, biggest tile on the wall. */
+  if (late.length){
+    var w = late[0];
+    var d = -HQ.daysFromToday(w.due);
+    tiles.push(tile({
+      c:"c1", size:"w2 h2", label:"a bill is late", age:HQ.fresh(w.source).age,
+      faces:[
+        '<div class="big">' + d + '<span class="unit">days late</span></div>' +
+        '<div class="mid" style="font-size:clamp(13px,min(1.5vw,2.8vh),26px)">' +
+          esc(w.name) + '</div>' +
+        '<div class="say">amount ' + HQ.amt(w.amount, w.sample, w.source,
+          "no amount for this is stored in HQ") + '</div>',
+        w.hard_date
+          ? '<div class="big">' + HQ.daysFromToday(w.hard_date) +
+            '<span class="unit">days</span></div>' +
+            '<div class="say">until it ' + esc(w.hard_label || "counts") + '. ' +
+            esc(w.why || "") + '</div>'
+          : '<div class="mid">' + esc(w.why || "") + '</div>'
+      ]
+    }));
+  }
+
+  /* do this next */
+  if (lead){
+    tiles.push(tile({
+      c:"c2", size:"w2 h2", label:"do this next", age:HQ.fresh(lead.source||"commitments").age,
+      faces:[
+        '<div class="mid">' + esc(lead.name) + '</div>' +
+        '<div class="say">' + HQ.dueText(lead.on) + ' · ' + esc(lead.why || "") + '</div>',
+        stack(todos.filter(function(t){ return t.when === "today"; })
+          .map(function(t){ return li(t.text, t.area || "today"); }), 4, "marked today") +
+        '<div class="say" style="margin-top:.3vw">the rest of today</div>'
+      ]
+    }));
+  }
+
+  /* what is running, or what is next */
+  tiles.push(tile({
+    c:"c3", size:"w2", label:running ? "running now" : "next on the books",
+    age:HQ.fresh("calendar").state === "unknown" ? "no calendar" : HQ.fresh("calendar").age,
+    faces:[
+      running
+        ? '<div class="mid">' + esc(running.t) + '</div><div class="say">' +
+          Math.round((running.e - now)/60000) + ' minutes left</div>'
+        : (future.length
+            ? '<div class="mid">' + esc(future[0].t) + '</div><div class="say">' +
+              HQ.gapText(future[0].s - now) + ' · ' + HQ.clockOf(future[0].s) + ' ' +
+              DOW[future[0].s.getDay()] + (future[0].real ? '' : ' · a shape only') + '</div>'
+            : '<div class="mid">nothing ahead</div><div class="say">no calendar is connected</div>'),
+      stack(todayEvs.map(function(e){
+        return li(e.t, e.e < now ? "done" : HQ.clockOf(e.s)); }), 4, "today") +
+      '<div class="say" style="margin-top:.3vw">today, ' + todayEvs.length + ' on the books</div>'
+    ]
+  }));
+
+  /* money out, and money in */
+  tiles.push(tile({
+    c:"c6", size:"w2 h2", label:"money out",
+    faces:[
+      stack(bills.map(function(b){
+        return li(b.name, (HQ.money(b.amount) || "?") + " · " + HQ.dueText(b.due)); }), 6, "this month"),
+      moneyIn
+        ? '<div class="mid">' + HQ.amt(moneyIn.amount, moneyIn.sample, moneyIn.source,
+            "nothing scheduled that HQ knows about") + '</div>' +
+          '<div class="say">next money in · ' + esc(moneyIn.name) + ' ' +
+          HQ.dueText(moneyIn.on) +
+          (moneyIn.state === "blocked" ? '. blocked, the car is unlisted so nothing can book' : '') +
+          '</div>'
+        : null
+    ]
+  }));
+
+  /* the week, as a shape */
+  var band = [];
+  for (var i = 0; i < 5; i++){
+    var dd = new Date(); dd.setDate(dd.getDate() + i);
+    var k = dd.toDateString();
+    var n1 = evs.filter(function(e){ return e.s.toDateString() === k; }).length;
+    var n2 = bills.filter(function(b){ return HQ.daysFromToday(b.due) === i; }).length;
+    band.push(li(DOW[dd.getDay()] + " " + dd.getDate(),
+      (n1 ? n1 + " on the books" : "clear") + (n2 ? " · " + n2 + " due" : "")));
+  }
+  tiles.push(tile({
+    c:"c4", size:"w2", label:"the next five days",
+    faces:[ stack(band, 5) ]
+  }));
+
+  /* the questions, and what is not connected */
+  tiles.push(tile({
+    c:"c5", size:"w2", label:"still unanswered",
+    faces:[
+      stack((D.whiteboard||[]).map(function(w){ return li(w, "?"); }), 4, "in HQ"),
+      stack(missing.map(function(s){ return li(s.label, "not connected"); }), 4, "") +
+      '<div class="say" style="margin-top:.3vw">' +
+        (missing.length ? esc(missing[0].needs) : "every source is connected") + '</div>'
+    ]
+  }));
+
+  /* projects */
+  tiles.push(tile({
+    c:"c6", size:"w2", label:"projects", age:HQ.fresh("projects").age,
+    faces:[ stack((D.projects||[]).map(function(p){ return li(p.name, p.status); }), 5, "in HQ") ]
+  }));
+
+  /* where all of it came from. the wall is 6 by 4 and this is the last two cells. */
+  tiles.push(tile({
+    c:"c6", size:"w2", label:"where this came from",
+    faces:[
+      stack(srcs.filter(function(x){ return x.state !== "unknown"; })
+        .map(function(x){ return li(x.label, x.age); }), 5, "connected"),
+      stack(missing.map(function(x){ return li(x.label, "?"); }), 4, "not connected") +
+      '<div class="say" style="margin-top:.3vw">a question mark is a gap, never a zero</div>'
+    ]
+  }));
+
+  document.getElementById("wall").innerHTML = tiles.join("");
+  wireFlips();
+
+  document.getElementById("base").innerHTML =
+    '<span>nothing on this wall is tapped. the tiles with dots turn over by ' +
+      'themselves every <b>' + (FLIP/1000) + ' seconds</b>.</span>' +
+    '<span>' + missing.length + ' of ' + srcs.length + ' sources are <b>not connected</b>, ' +
+      'and every tile says so where it matters</span>';
+}
+
+/* ── the flips. staggered, so the wall never turns over all at once. ─────── */
+var timers = [];
+function wireFlips(){
+  timers.forEach(clearInterval); timers = [];
+  document.querySelectorAll(".t").forEach(function(t, idx){
+    var faces = t.querySelectorAll(".face");
+    if (faces.length < 2) return;
+    var pips = t.querySelectorAll(".pips i");
+    var cur = 0;
+    var step = function(){
+      var next = (cur + 1) % faces.length;
+      faces[cur].classList.remove("on"); faces[cur].classList.add("out");
+      faces[next].classList.remove("out"); faces[next].classList.add("on");
+      if (pips.length){
+        pips[cur] && pips[cur].classList.remove("on");
+        pips[next] && pips[next].classList.add("on");
+      }
+      cur = next;
+    };
+    setTimeout(function(){
+      step();
+      timers.push(setInterval(step, FLIP));
+    }, FLIP + idx * 1700);
+  });
+}
+
+HQ.everySecond(function(){
+  var el = document.getElementById("clockv");
+  if (!el) return;
+  var n = new Date(), h = n.getHours();
+  el.innerHTML = (h % 12 || 12) + ":" + two(n.getMinutes()) +
+    '<span class="mer">' + (h >= 12 ? "pm" : "am") + '</span>';
+});
+
+HQ.boot(render);
+HQ.refreshLine(document.getElementById("refresh"));
+
+setTimeout(function(){
+  var w = document.getElementById("wall");
+  if (w && !w.innerHTML.trim())
+    w.innerHTML = '<div class="t c1"><div class="mid">data did not load. run ' +
+      'python3 make-data.py in this folder.</div></div>';
+}, 2500);
+</script>
+</body>
+</html>

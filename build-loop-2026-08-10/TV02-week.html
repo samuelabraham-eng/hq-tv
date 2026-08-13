@@ -86,11 +86,15 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opac
 .hr{position:absolute;left:0;right:0;font-size:clamp(7.5px,min(.8vw,1.5vh),11px);
   color:var(--faint);text-align:right;padding-right:.35vw;transform:translateY(-.5em);
   font-weight:600;letter-spacing:.02em}
-.col{position:relative;border-left:1px solid var(--line2);min-width:0}
+.col{position:relative;border-left:1px solid var(--line2);min-width:0;z-index:2}
 .col.today{background:rgba(224,163,74,.045)}
 .col.weekend{background:rgba(255,255,255,.012)}
-/* the hour rules, drawn once across the whole grid */
-.rules{position:absolute;inset:0;pointer-events:none;grid-column:2/-1}
+/* The hour rules, drawn once across the whole grid, UNDER the blocks.
+   Round 1 inserted the columns before this node, so every rule painted on top and
+   struck a line through the event titles. A line through a calendar entry means
+   cancelled. This is a meaning inversion, not a cosmetic bug. z-index fixes it
+   without depending on DOM order. */
+.rules{position:absolute;inset:0;pointer-events:none;grid-column:2/-1;z-index:0}
 .rules i{position:absolute;left:0;right:0;height:1px;background:var(--line2)}
 
 /* explicit rgba rather than color-mix: Fire TV browsers run behind desktop Chrome
@@ -111,15 +115,23 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opac
   border-left-style:dashed;opacity:.72}
 .ev.real::after{content:"";position:absolute;top:.2vw;right:.25vw;width:.35vw;height:.35vw;
   min-width:4px;min-height:4px;border-radius:50%;background:var(--k)}
+/* A real block is OPAQUE. Round 1 filled it with a 22% alpha wash, so the hour
+   rules and the now line showed straight through it and read as a line struck
+   through the title. A hatched shape stays translucent on purpose: a shape is not
+   a commitment, and it is allowed to have the grid visible behind it. */
+.ev:not(.shape){background-color:#1a262d;background-image:linear-gradient(var(--kbg),var(--kbg))}
 .ev.past{opacity:.34}
 
-/* the now line. it moves. it is the only thing on this page that is red. */
+/* The now line. It moves. It is the only thing on this page that is red.
+   It sits UNDER the blocks for the same reason the hour rules do, and its dot and
+   label ride above everything in the gutter so it is never lost. */
 #now{position:absolute;left:0;right:0;height:0;border-top:1.5px solid var(--alert);
-  z-index:6;pointer-events:none;grid-column:2/-1}
+  z-index:1;pointer-events:none;grid-column:2/-1;opacity:.85}
 #now::before{content:"";position:absolute;left:-3px;top:-4px;width:7px;height:7px;
-  border-radius:50%;background:var(--alert)}
-#nowlab{position:absolute;right:.3vw;top:-1.1em;font-size:clamp(7.5px,min(.8vw,1.5vh),11px);
-  color:var(--alert);font-weight:700;letter-spacing:.06em}
+  border-radius:50%;background:var(--alert);z-index:7}
+#nowlab{position:absolute;left:-3.2vw;top:-.62em;font-size:clamp(7.5px,min(.8vw,1.5vh),11px);
+  color:var(--alert);font-weight:700;letter-spacing:.06em;z-index:7;
+  background:var(--panel);padding:0 .25em;border-radius:2px}
 
 /* ── SCN-03 · what is next. a spine, not a list of cards. ────────────────── */
 .rail{min-height:0;display:flex;flex-direction:column;gap:.5vw;
@@ -140,6 +152,17 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opac
 .node .nw{font-size:clamp(8.5px,min(.92vw,1.72vh),13px);color:var(--dim);font-weight:600;margin-top:.1vw}
 .node .nw b{color:var(--amber);font-weight:700}
 .node.first .nt{font-size:clamp(12px,min(1.35vw,2.5vh),22px)}
+/* The rail is the part a glance actually reads at ten feet, so the real / shape
+   distinction has to live HERE too, not only in the grid legend. Round 1 set its
+   number one item largest and gold while that item was invented. */
+.node.shape .nt{opacity:.78}
+.node.shape::before{border-style:dashed;background:transparent}
+.node.first.shape::before{background:transparent;box-shadow:none}
+.tag{display:inline-block;margin-left:.45em;padding:0 .4em;border-radius:2px;
+  font-size:clamp(7.5px,min(.72vw,1.35vh),10.5px);font-weight:800;letter-spacing:.14em;
+  text-transform:uppercase;vertical-align:.14em;white-space:nowrap}
+.tag.shape{border:1px dashed var(--faint);color:var(--dim)}
+.tag.real{border:1px solid rgba(127,176,142,.5);color:var(--ok)}
 .more{font-size:clamp(8.5px,min(.9vw,1.7vh),13px);color:var(--faint);font-weight:600;padding-top:.3vw}
 
 .kinds{display:flex;gap:.7vw;flex-wrap:wrap;font-size:clamp(7.5px,min(.8vw,1.5vh),11px);
@@ -238,6 +261,9 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opac
   <div class="daylist" id="dayList"></div>
 </main>
 
+<!-- data.local.js is his real numbers. it is gitignored and is missing on a fresh
+     clone, where this tag 404s harmlessly and the committed sample below takes over. -->
+<script src="data.local.js"></script>
 <script src="data.js"></script>
 <script src="hq-core.js"></script>
 <script>
@@ -379,12 +405,12 @@ function render(){
   queue.sort(function(a,b){ return a.s - b.s; });
   var show = queue.slice(0,7);
   document.getElementById("spine").innerHTML = show.map(function(e,i){
-    var mm = Math.round((e.s - now)/60000);
-    var when = mm < 60 ? "in " + mm + " min"
-      : mm < 60*24 ? "in " + Math.floor(mm/60) + "h " + (mm%60) + "m"
-      : HQ.dueText(e.s.toISOString().slice(0,10));
-    return '<div class="node' + (i===0 ? " first" : "") + '" style="' + kvars(e.k) + '">' +
-      '<div class="nt">' + HQ.esc(e.t) + '</div>' +
+    var when = HQ.gapText(e.s - now);
+    return '<div class="node' + (i===0 ? " first" : "") + (e.real ? "" : " shape") +
+      '" style="' + kvars(e.k) + '">' +
+      '<div class="nt">' + HQ.esc(e.t) +
+      '<span class="tag ' + (e.real ? "real" : "shape") + '">' +
+      (e.real ? "HQ knows this" : "a shape only") + '</span></div>' +
       '<div class="nw mono"><b>' + when + '</b> · ' +
       (e.deadline ? "a dated commitment" : HQ.clockOf(e.s) + " " + DOW[e.s.getDay()]) + '</div></div>';
   }).join("") + (queue.length > show.length
@@ -409,7 +435,9 @@ function render(){
       (mine.length ? mine.map(function(e){
         return '<div class="dr ' + (e.real ? "real" : "shape") + '" style="' + kvars(e.k) + '">' +
           '<span class="dt mono">' + HQ.clockOf(e.s) + '</span>' +
-          '<span>' + HQ.esc(e.t) + '</span></div>';
+          '<span>' + HQ.esc(e.t) +
+          '<span class="tag ' + (e.real ? "real" : "shape") + '">' +
+          (e.real ? "HQ knows this" : "a shape only") + '</span></span></div>';
       }).join("") : '<div class="empty">nothing on the books</div>') + '</div>';
   }).join("");
 }

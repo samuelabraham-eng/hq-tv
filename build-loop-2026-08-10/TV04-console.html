@@ -133,6 +133,11 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opac
   font-variant-numeric:tabular-nums;white-space:nowrap}
 .lad .li.late .lw,.lad .li.late .la,.lad .li.late .ln{color:var(--red)}
 .lad .li.soon .la{color:var(--amber)}
+/* this column is about 90px wide. the word "invented" beside every figure eats the
+   names, so here the tag becomes a dotted rule under the number and the column
+   says so once at its foot. the tag itself stays spelled out everywhere it fits. */
+.lad .hq-inv{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.lad .la .hq-v{border-bottom:1px dotted currentColor}
 
 /* col 3 · the rail. today, drawn as a vertical clock. */
 .rail{position:relative;flex:1;min-height:0;overflow:hidden;padding-left:1.3vw;margin-top:.2vw}
@@ -259,6 +264,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opac
       <div class="ch"><span class="cn mono">money out</span><span class="cc mono" id="ladCount"></span></div>
       <div class="lad" id="ladder"></div>
       <div class="more mono" id="ladMore"></div>
+      <div class="more mono" id="ladLegend" style="color:#5f6a70"></div>
     </section>
 
     <!-- SCN-05 · TODAY -->
@@ -293,6 +299,9 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opac
   </div>
 </main>
 
+<!-- data.local.js is his real numbers. it is gitignored and is missing on a fresh
+     clone, where this tag 404s harmlessly and the committed sample below takes over. -->
+<script src="data.local.js"></script>
 <script src="data.js"></script>
 <script src="hq-core.js"></script>
 <script>
@@ -355,9 +364,9 @@ function render(){
 
   /* ── SCN-04 · money out ──────────────────────────────────────────────── */
   var out = (D.bills||[]).filter(function(b){ return !b.paid; })
-    .map(function(b){ return {n:b.name, w:b.due, a:b.amount, src:b.source}; })
+    .map(function(b){ return {n:b.name, w:b.due, a:b.amount, src:b.source, sample:b.sample}; })
     .concat((D.subscriptions||[]).map(function(s){
-      return {n:s.name, w:s.renews, a:s.amount, src:s.source, sub:true}; }))
+      return {n:s.name, w:s.renews, a:s.amount, src:s.source, sample:s.sample, sub:true}; }))
     .sort(function(a,b){ return HQ.daysFromToday(a.w) - HQ.daysFromToday(b.w); });
   document.getElementById("ladCount").textContent = out.length;
   document.getElementById("ladder").innerHTML = cap(out, 9, function(x){
@@ -366,9 +375,10 @@ function render(){
     var w = d < 0 ? (-d) + "d late" : d === 0 ? "today" : "+" + d + "d";
     return '<div class="li ' + cls + '"><span class="lw">' + w + '</span>' +
       '<span class="ln">' + HQ.esc(x.n) + (x.sub ? " ·" : "") + '</span>' +
-      '<span class="la">' + (HQ.money(x.a) || HQ.field(x.src, null,
-        {needs:"no amount for this is stored in HQ yet"})) + '</span></div>';
+      '<span class="la">' + HQ.amt(x.a, x.sample, x.src, null) + '</span></div>';
   }, document.getElementById("ladMore"), "this month");
+  document.getElementById("ladLegend").textContent =
+    "dotted = invented · ? = no amount stored";
 
   /* ── SCN-05 · today ──────────────────────────────────────────────────── */
   var today = (D.events||[]).map(function(e){
@@ -437,8 +447,12 @@ function render(){
   document.getElementById("open").innerHTML =
     '<div class="cn mono" style="font-size:clamp(7px,.74vw,10px);letter-spacing:.2em;' +
     'color:var(--faint);text-transform:uppercase;margin-bottom:.2vw">still unanswered</div>' +
-    (D.whiteboard||[]).slice(0,4).map(function(w){
-      return '<div class="oi">' + HQ.esc(w) + '</div>'; }).join("");
+    (function(){
+      var all = D.whiteboard || [], show = all.slice(0,4);
+      return show.map(function(w){ return '<div class="oi">' + HQ.esc(w) + '</div>'; }).join("") +
+        (all.length > show.length
+          ? '<div class="more mono">and ' + (all.length - show.length) + ' more in HQ</div>' : "");
+    })();
 
   /* ── SCN-08 · seven days. events and money, side by side, per day. ───── */
   var DOWN = ["sun","mon","tue","wed","thu","fri","sat"];

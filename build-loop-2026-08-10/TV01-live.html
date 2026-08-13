@@ -99,7 +99,7 @@ body::after{
 .p .lab .from{color:#4b4238;letter-spacing:.12em}
 
 /* ── SCN-02 the lead. one thing, said at size, with the reason underneath ── */
-.lead{grid-row:span 2;justify-content:space-between;
+.lead{grid-row:span 2;justify-content:flex-start;
   background:linear-gradient(170deg,#241c12 0%,#1b150f 60%,#141009 100%);
   border-color:#3a2d1b}
 .lead .kick{font-size:clamp(9px,min(1vw,1.9vh),15px);color:var(--gold);font-weight:700;
@@ -111,19 +111,26 @@ body::after{
 .lead .count{font-size:clamp(13px,min(1.5vw,2.8vh),24px);font-weight:800;color:var(--alert);
   letter-spacing:-.02em}
 .lead .rule{height:1px;background:linear-gradient(90deg,var(--gold),transparent);opacity:.4}
-/* the days count, set enormous and almost invisible. it fills the head of the
-   panel with the one fact the panel is about, instead of leaving a hole. */
-.lead .ghost{position:absolute;top:.06em;right:.08em;line-height:.78;pointer-events:none;
-  font-size:clamp(70px,min(11.5vw,21vh),210px);font-weight:800;letter-spacing:-.07em;
-  color:var(--gold);opacity:.08;font-variant-numeric:tabular-nums}
-.lead .inner{display:flex;flex-direction:column;justify-content:flex-end;gap:.55vw;
-  position:relative;z-index:2}
-/* the queue behind the lead. it is not a card grid, it is a numbered order of play. */
+/* the days count, set enormous and almost invisible. it sits in the lower right,
+   BEHIND the count line and nothing else, so it never collides with a queue row. */
+.lead .ghost{position:absolute;right:.06em;bottom:-.1em;line-height:.72;pointer-events:none;
+  font-size:clamp(60px,min(9.5vw,17vh),170px);font-weight:800;letter-spacing:-.07em;
+  color:var(--gold);opacity:.07;font-variant-numeric:tabular-nums;z-index:0}
+/* the headline is item 01 of the order of play, and it says so. a numbered list
+   that starts at 02 reads as broken, which is what round 1 shipped. */
+.lead .inner{display:flex;flex-direction:column;gap:.4vw;position:relative;z-index:2;
+  flex-shrink:0}
+.lead .ord{font-family:"JetBrains Mono",monospace;font-size:clamp(10px,min(1.1vw,2.05vh),17px);
+  font-weight:800;color:var(--gold);letter-spacing:.1em}
+/* the queue under the lead. it is not a card grid, it is a numbered order of play. */
 .lead .then{flex:1;min-height:0;position:relative;z-index:2;display:flex;
-  flex-direction:column;gap:.3vw;overflow:hidden;padding-top:.4vw}
-.lead .then .row{border-bottom:1px solid rgba(255,255,255,.05);opacity:.62}
+  flex-direction:column;gap:.25vw;overflow:hidden;padding-top:.5vw;margin-top:.5vw;
+  border-top:1px solid rgba(255,255,255,.07)}
+.lead .then .rows{flex:1;justify-content:flex-start;gap:.05vw}
+.lead .then .row{border-bottom:1px solid rgba(255,255,255,.05);opacity:.72;
+  padding:.3vw 0}
 .lead .then .row .nm::before{content:attr(data-n) "  ";color:var(--gold);font-weight:800;
-  font-family:"JetBrains Mono",monospace;font-size:.85em}
+  font-family:"JetBrains Mono",monospace;font-size:.85em;opacity:.75}
 
 /* in the stack, the eyebrow pins to the top and the value takes the middle */
 .stack .p{justify-content:center;padding-top:2.1vw}
@@ -240,18 +247,18 @@ body::after{
     <!-- SCN-02 · THE LEAD -->
     <section class="p lead" id="lead">
       <div class="ghost mono" id="leadGhost"></div>
-      <div class="lab"><span>scn-02 · do this next</span><span class="from mono" id="leadFrom"></span></div>
-      <div class="then">
-        <div class="eyebrow mono" style="color:var(--faint)">then, in order</div>
-        <div class="rows" id="thenRows"></div>
-      </div>
+      <div class="lab"><span>scn-02 · the order of play</span><span class="from mono" id="leadFrom"></span></div>
       <div class="inner">
+        <div class="ord">01</div>
         <div class="kick mono" id="leadKick"></div>
         <div class="say" id="leadSay">&nbsp;</div>
         <div class="rule"></div>
         <div class="why" id="leadWhy"></div>
+        <div class="count mono" id="leadCount"></div>
       </div>
-      <div class="count mono" id="leadCount" style="position:relative;z-index:2"></div>
+      <div class="then">
+        <div class="rows" id="thenRows"></div>
+      </div>
     </section>
 
     <!-- SCN-03 · THE STACK -->
@@ -297,6 +304,9 @@ body::after{
   </div>
 </main>
 
+<!-- data.local.js is his real numbers. it is gitignored and is missing on a fresh
+     clone, where this tag 404s harmlessly and the committed sample below takes over. -->
+<script src="data.local.js"></script>
 <script src="data.js"></script>
 <script src="hq-core.js"></script>
 <script>
@@ -358,10 +368,10 @@ function render(){
       .concat((D.todos||[]).filter(function(t){ return t.when === "this week"; })
         .map(function(t){ return {nm:t.text, st:"this week"}; }))
       .filter(function(x){ return x.nm.toLowerCase().indexOf("webinar") === -1; });
-    var qShow = queue.slice(0,4);
+    var qShow = queue.slice(0,6);
     document.getElementById("thenRows").innerHTML = qShow.map(function(x,i){
-      return '<div class="row"><span class="nm" data-n="' + (i+2) + '">' + HQ.esc(x.nm) +
-        '</span><span class="st">' + HQ.esc(x.st) + '</span></div>';
+      return '<div class="row"><span class="nm" data-n="' + String(i+2).padStart(2,"0") + '">' +
+        HQ.esc(x.nm) + '</span><span class="st">' + HQ.esc(x.st) + '</span></div>';
     }).join("") + (queue.length > qShow.length
       ? '<div class="more mono">and ' + (queue.length - qShow.length) + ' more on the list</div>' : "");
   }
@@ -376,8 +386,8 @@ function render(){
         : d + "<span style='font-size:.4em;font-weight:700;letter-spacing:0'>&nbsp;days late</span>";
     var hard = late.hard_date ? HQ.daysFromToday(late.hard_date) : null;
     document.getElementById("billSub").innerHTML =
-      HQ.esc(late.name) + " · amount " + HQ.field("money", HQ.money(late.amount),
-        {needs:"no amount for this is stored in HQ. tell Claude the figure and it lands here"}) +
+      HQ.esc(late.name) + " · amount " + HQ.amt(late.amount, late.sample, "money",
+        "no amount for this is stored in HQ. tell Claude the figure and it lands here") +
       (hard !== null ? "<br>" + hard + " days until it " + HQ.esc(late.hard_label||"counts") : "");
     document.getElementById("billFrom").textContent = f.age;
   }
@@ -398,12 +408,11 @@ function render(){
     return HQ.daysFromToday(x.on) - HQ.daysFromToday(y.on); })[0];
   if (mi){
     var mf = HQ.mark(document.getElementById("pIn"), mi.source);
-    document.getElementById("inAmt").innerHTML = HQ.field(mi.source, HQ.money(mi.amount),
-      {needs:"nothing is scheduled to land that HQ knows about"});
+    document.getElementById("inAmt").innerHTML = HQ.amt(mi.amount, mi.sample, mi.source,
+      "nothing is scheduled to land that HQ knows about");
     document.getElementById("inSub").innerHTML =
       HQ.esc(mi.name) + " · " + HQ.dueText(mi.on) +
-      (mi.state === "blocked" ? "<br><span style='color:var(--alert)'>blocked. the car is unlisted, so nothing can book</span>" : "") +
-      (mi.sample ? "<br>sample figure" : "");
+      (mi.state === "blocked" ? "<br><span style='color:var(--alert)'>blocked. the car is unlisted, so nothing can book</span>" : "");
     document.getElementById("inFrom").textContent = mf.age;
   }
 
@@ -444,7 +453,7 @@ function render(){
         return '<div class="lrow unknown">' +
           '<div><div class="lname">' + HQ.esc(s.label) + '</div></div>' +
           '<div class="lage mono unknown">?</div>' +
-          '<div class="needs">needs ' + HQ.esc(s.needs) + '</div></div>';
+          '<div class="needs">' + HQ.esc(s.needs) + '</div></div>';
       }).join("") +
       (missing.length > shown.length
         ? '<div class="more mono">and ' + (missing.length - shown.length) + ' more: ' +
@@ -454,8 +463,11 @@ function render(){
   document.getElementById("ledgerRows").innerHTML = html;
 
   /* ── SCN-05 ──────────────────────────────────────────────────────────── */
+  var wbAll = D.whiteboard || [], wbShow = wbAll.slice(0,4);
   document.getElementById("wb").innerHTML =
-    (D.whiteboard||[]).slice(0,5).map(function(w){ return "<i>" + HQ.esc(w) + "</i>"; }).join("");
+    wbShow.map(function(w){ return "<i>" + HQ.esc(w) + "</i>"; }).join("") +
+    (wbAll.length > wbShow.length
+      ? '<i style="opacity:.6">and ' + (wbAll.length - wbShow.length) + ' more in HQ</i>' : "");
 }
 
 HQ.boot(render);

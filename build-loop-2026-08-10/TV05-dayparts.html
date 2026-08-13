@@ -104,12 +104,16 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:3;opac
 .dawn .why{font-size:clamp(11px,min(1.25vw,2.3vh),19px);color:var(--dim);font-weight:500;
   line-height:1.4}
 
-/* DAY and EVENING: a three panel working screen with different content each */
-/* panels hug their content and sit at the top. a calm screen is allowed to have
-   ground under it; stretching three panels to fill 1080px just makes three holes. */
-.work{flex:1;min-height:0;display:none;grid-template-columns:1.5fr 1fr 1fr;gap:var(--gap);
-  align-items:start;align-content:start}
-.work .p{max-height:100%}
+/* DAY and EVENING: a working screen that actually fills the wall.
+   Round 1 top-aligned three short panels inside a full height flex with no
+   distribution, so at `day` the bottom 55% was empty black and at `evening` about
+   65% was. On a 65 inch screen that does not read as calm, it reads as a page that
+   failed to load, and he has said repeatedly he wants MORE on screen. Two rows now,
+   six panels, all stretched, with different content per daypart. */
+.work{flex:1;min-height:0;display:none;grid-template-columns:1.5fr 1fr 1fr;
+  grid-template-rows:1.25fr .9fr;gap:var(--gap);align-items:stretch;align-content:stretch}
+.work .p{max-height:100%;min-height:0}
+.work .wide{grid-column:span 2}
 .p{min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:.35vw;
   background:linear-gradient(178deg,var(--panel),rgba(0,0,0,.25));
   border:1px solid var(--line);border-radius:3px;padding:.8vw 1vw;
@@ -132,19 +136,42 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:3;opac
 .row .st.late{color:var(--alert)} .row .st.now{color:var(--accent)}
 .more{font-size:clamp(8.5px,min(.9vw,1.7vh),13px);color:var(--faint);font-weight:700;padding-top:.2vw}
 
-/* ── SCN-05 · the review bar. not for the TV. ────────────────────────────── */
-#bar{position:fixed;bottom:0;left:0;right:0;z-index:600;display:flex;gap:.5vw;
-  justify-content:center;align-items:center;padding:.5vw;opacity:.22;transition:opacity .25s;
-  flex-wrap:wrap}
+/* the five day band that fills the lower half */
+.band{flex:1;min-height:0;display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:.3vw}
+.bd{min-width:0;overflow:hidden;padding:.2vw .6vw;border-left:1px solid var(--line)}
+.bd:first-child{border-left:none;padding-left:0}
+.bd .bh{display:flex;align-items:baseline;gap:.4em;border-bottom:1px solid var(--line);
+  padding-bottom:.12vw;margin-bottom:.18vw}
+.bd .bdow{font-size:clamp(7.5px,min(.78vw,1.45vh),11px);letter-spacing:.18em;font-weight:700;
+  color:var(--faint);text-transform:uppercase}
+.bd.today .bdow{color:var(--accent)}
+.bd .bnum{font-size:clamp(12px,min(1.3vw,2.4vh),22px);font-weight:800;letter-spacing:-.03em}
+.bd .bi{font-size:clamp(8.5px,min(.9vw,1.7vh),13px);color:var(--dim);font-weight:600;
+  line-height:1.3;padding:.06vw 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bd .bi b{color:var(--bone);font-weight:700}
+.bd .bi.money{color:var(--accent)}
+.bd .bi.shape{font-style:italic;opacity:.7}
+.bd .bi.none{color:var(--faint);font-style:italic}
+
+/* ── SCN-05 · the review bar. not for the TV, and off unless asked for. ─────
+   Round 1 shipped it visible on the deliverable, with its only disclaimer set at
+   roughly 9px in near-background grey. On the night screen it was one of the two
+   brightest things on a page whose whole point is dimness. It now appears only
+   when the address carries ?review=1 or ?part=, and it says what it is at a size
+   that can be read. */
+#bar{display:none}
+html[data-review] #bar{position:fixed;bottom:0;left:0;right:0;z-index:600;display:flex;
+  gap:.5vw;justify-content:center;align-items:center;padding:.5vw;opacity:.3;
+  transition:opacity .25s;flex-wrap:wrap;background:rgba(0,0,0,.55)}
 .hq-sample #bar{bottom:2.6em}
-#bar:hover,#bar:focus-within{opacity:1}
+#bar:hover,#bar:focus-within{opacity:1!important}
 #bar button{background:var(--panel);color:var(--dim);border:1px solid var(--line);
   padding:.4vw .9vw;font-family:inherit;font-size:clamp(9px,min(.95vw,1.8vh),14px);
   font-weight:600;cursor:pointer;border-radius:3px}
 #bar button:hover,#bar button:focus-visible{color:var(--bone);border-color:var(--accent);outline:none}
 #bar button.on{background:var(--accent);border-color:var(--accent);color:#241b06}
-#bar .note{font-size:clamp(8px,min(.85vw,1.6vh),12px);color:var(--faint);font-weight:600;
-  margin-left:.6vw}
+#bar .note{font-size:clamp(11px,min(1vw,1.9vh),16px);color:var(--bone);font-weight:600;
+  margin-left:.6vw;opacity:.85}
 
 @media (max-width:1000px){
   :root{--safe:16px;--gap:12px}
@@ -152,7 +179,11 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:3;opac
   #board{height:auto;min-height:100%}
   .head{grid-template-columns:1fr;gap:8px}
   .headright{align-items:flex-start;text-align:left}
-  .work{grid-template-columns:1fr}
+  .work{grid-template-columns:1fr;grid-template-rows:none}
+  .work .wide{grid-column:auto}
+  .band{grid-template-columns:repeat(2,1fr);gap:10px}
+  .bd{border-left:none;border-top:1px solid var(--line);padding:8px 0;overflow:visible}
+  .bd .bi{white-space:normal}
   .clock{font-size:clamp(44px,15vw,90px)!important}
   .dawn .say{font-size:30px} .lead{font-size:26px}
   .row,.leadwhy{font-size:14.5px}
@@ -218,6 +249,16 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:3;opac
         <div class="lab"><span id="wRightLab">money out</span><span id="wRightCount"></span></div>
         <div class="rows" id="wRight"></div>
       </div>
+
+      <!-- second band: the shape of the days around this one -->
+      <div class="p wide">
+        <div class="lab"><span id="wBandLab">the next five days</span><span id="wBandNote"></span></div>
+        <div class="band" id="wBand"></div>
+      </div>
+      <div class="p">
+        <div class="lab"><span id="wLastLab">still unanswered</span><span id="wLastCount"></span></div>
+        <div class="rows" id="wLast"></div>
+      </div>
     </section>
   </div>
 </main>
@@ -233,6 +274,9 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:3;opac
   <span class="note">for review only. the TV follows the real clock and is never tapped.</span>
 </div>
 
+<!-- data.local.js is his real numbers. it is gitignored and is missing on a fresh
+     clone, where this tag 404s harmlessly and the committed sample below takes over. -->
+<script src="data.local.js"></script>
 <script src="data.js"></script>
 <script src="hq-core.js"></script>
 <script>
@@ -243,8 +287,11 @@ var forced = null;                       // review override, null means follow t
 /* ?part=night|dawn|day|evening forces one, so a screenshot or a review can see
    a daypart without waiting twelve hours for it. */
 try{
-  var qp = new URLSearchParams(location.search).get("part");
+  var sp = new URLSearchParams(location.search);
+  var qp = sp.get("part");
   if (["night","dawn","day","evening"].indexOf(qp) >= 0) forced = qp;
+  // the review bar exists only when it is asked for. it is not part of the TV.
+  if (qp || sp.get("review")) document.documentElement.setAttribute("data-review","1");
 }catch(e){}
 
 /* ── which daypart is it ────────────────────────────────────────────────────
@@ -381,7 +428,10 @@ function render(){
         var w = running ? "now" : mm < 0 ? "done"
           : mm < 60 ? "in " + mm + "m" : HQ.clockOf(e.s);
         return '<div class="row"><span class="nm">' + HQ.esc(e.t) + '</span>' +
-          '<span class="st ' + (running ? "now" : "") + '">' + w + '</span></div>'; })
+          '<span class="st ' + (running ? "now" : "") + '">' + w + '</span></div>'; }) +
+      (HQ.fresh("calendar").state === "unknown"
+        ? '<div class="more mono">no calendar is connected, so only what HQ already ' +
+          'knows reaches this panel. that is why it is short.</div>' : "")
     : '<div class="more mono">nothing on the books. no calendar is connected yet.</div>';
 
   /* right panel: money out by day, or in the evening, what is left to pay today */
@@ -391,12 +441,68 @@ function render(){
     : out;
   document.getElementById("wRightCount").textContent = rightList.length;
   document.getElementById("wRight").innerHTML = rightList.length
-    ? rows(rightList, 7, function(b){
+    ? rows(rightList, 8, function(b){
         var d = HQ.daysFromToday(b.due);
         return '<div class="row"><span class="nm">' + HQ.esc(b.name) + '</span>' +
           '<span class="st ' + (d < 0 ? "late" : d <= 3 ? "now" : "") + '">' +
           (HQ.money(b.amount) || "?") + " · " + HQ.dueText(b.due) + '</span></div>'; })
     : '<div class="more mono">nothing due in the next three days</div>';
+
+  /* ── SCN-06 · the lower band. five days of shape, so the wall is not empty. ── */
+  var DOW = ["sun","mon","tue","wed","thu","fri","sat"];
+  var evReal = (D.events||[]).map(function(e){
+      return {t:e.title, s:new Date(e.start), real:!!e.real}; })
+    .filter(function(e){ return !isNaN(e.s); });
+  var moneyAll = (D.bills||[]).filter(function(b){ return !b.paid; });
+  var from = evening ? 1 : 0;                 // in the evening the band starts tomorrow
+  var anyShape = false, bandHtml = "";
+  for (var i = from; i < from + 5; i++){
+    var dt = new Date(); dt.setDate(dt.getDate() + i);
+    var key = dt.toDateString();
+    var de = evReal.filter(function(e){ return e.s.toDateString() === key; })
+                   .sort(function(x,y){ return x.s - y.s; });
+    var dm = moneyAll.filter(function(b){ return HQ.daysFromToday(b.due) === i; });
+    var items = de.slice(0,2).map(function(e){
+      if (!e.real) anyShape = true;
+      return '<div class="bi' + (e.real ? "" : " shape") + '"><b>' + HQ.clockOf(e.s) +
+        '</b> ' + HQ.esc(e.t) + '</div>'; });
+    items = items.concat(dm.slice(0,2).map(function(b){
+      return '<div class="bi money">' + (HQ.money(b.amount) || "?") + ' ' +
+        HQ.esc(b.name) + '</div>'; }));
+    var hid = (de.length + dm.length) - items.length;
+    if (!items.length) items = ['<div class="bi none">clear</div>'];
+    else if (hid > 0) items.push('<div class="bi none">and ' + hid + ' more</div>');
+    bandHtml += '<div class="bd' + (i === 0 ? " today" : "") + '">' +
+      '<div class="bh"><span class="bdow">' + DOW[dt.getDay()] + '</span>' +
+      '<span class="bnum">' + dt.getDate() + '</span></div>' + items.join("") + '</div>';
+  }
+  document.getElementById("wBandLab").textContent =
+    evening ? "the five days after tonight" : "the next five days";
+  document.getElementById("wBandNote").textContent =
+    anyShape ? "italic is a shape, no calendar" : "";
+  document.getElementById("wBand").innerHTML = bandHtml;
+
+  /* ── SCN-07 · the last panel. open questions by day, projects by evening. ── */
+  var lastList, lastLab;
+  if (evening){
+    lastLab = "projects";
+    lastList = (D.projects||[]).map(function(p){
+      return '<div class="row"><span class="nm">' + HQ.esc(p.name) + '</span>' +
+        '<span class="st' + (p.tone === "warn" ? " late" : "") + '">' +
+        HQ.esc(p.status) + '</span></div>'; });
+  } else {
+    lastLab = "still unanswered";
+    lastList = (D.whiteboard||[]).map(function(w){
+      return '<div class="row"><span class="nm">' + HQ.esc(w) + '</span>' +
+        '<span class="st">?</span></div>'; });
+  }
+  document.getElementById("wLastLab").textContent = lastLab;
+  document.getElementById("wLastCount").textContent = lastList.length;
+  var lastShow = lastList.slice(0,6);
+  document.getElementById("wLast").innerHTML = lastShow.join("") +
+    (lastList.length > lastShow.length
+      ? '<div class="more mono">and ' + (lastList.length - lastShow.length) + ' more in HQ</div>'
+      : "");
 }
 
 HQ.boot(render);

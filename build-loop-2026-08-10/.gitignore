@@ -1,0 +1,10 @@
+# hq-tv is a PUBLIC repository. Real numbers never leave the machine they are on.
+#
+# make-data.py --live writes these two, and every page in this folder prefers them
+# over the committed sample. On any other clone they are simply absent, the script
+# tag 404s harmlessly, and the sample takes over. See refresh.md.
+data.local.json
+data.local.js
+
+# review captures, regenerated on demand, not worth carrying in git history
+_shots/

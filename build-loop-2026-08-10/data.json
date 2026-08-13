@@ -1,70 +1,85 @@
 {
-  "schema": 1,
+  "schema": 2,
   "mode": "sample",
-  "generated_at": "2026-08-10T04:36:44-04:00",
+  "self_dating": true,
+  "generated_at": "2026-08-13T15:16:27-04:00",
   "generator": "make-data.py",
-  "sample_note": "Every amount in this file is invented. hq-tv is a public repo, so no real figure is ever committed to it. Dates that HQ genuinely knows are real, because a date is not a secret.",
+  "sample_note": "Every amount in this file is invented, and every one of them carries an invented tag on screen. hq-tv is a public repo, so no real figure is ever committed to it. Dates that HQ genuinely knows are real, because a date is not a secret. The staged ages resolve at page load, so this file does not go stale sitting on disk.",
   "todo_note": "the real to do list is not read by default, because this repo is public. run with --todos-from-hq to pull it in",
   "sources": {
     "money": {
       "label": "money",
       "kind": "typed by hand into HQ",
-      "as_of": "2026-08-10T02:36:44-04:00",
-      "needs": null
+      "needs": null,
+      "as_of": "2026-08-13T13:16:27-04:00",
+      "as_of_rel_min": 120
     },
     "turo": {
       "label": "turo",
       "kind": "typed by hand into HQ",
-      "as_of": "2026-08-08T22:36:44-04:00",
-      "needs": null
+      "needs": null,
+      "as_of": "2026-08-12T09:16:27-04:00",
+      "as_of_rel_min": 1800
     },
     "todo": {
       "label": "to do list",
       "kind": "sample, TODO.md not found",
-      "as_of": "2026-08-09T19:36:44-04:00",
-      "needs": null
+      "needs": null,
+      "as_of": "2026-08-13T06:16:27-04:00",
+      "as_of_rel_min": 540
     },
     "commitments": {
       "label": "commitments",
       "kind": "life/COMMITMENTS.md",
-      "as_of": "2026-08-09T17:36:44-04:00",
-      "needs": null
+      "needs": null,
+      "as_of": "2026-08-13T04:16:27-04:00",
+      "as_of_rel_min": 660
     },
     "projects": {
       "label": "projects",
-      "kind": "typed by hand into HQ",
-      "as_of": "2026-08-09T08:36:44-04:00",
-      "needs": null
+      "kind": "each project CURRENT.md",
+      "needs": null,
+      "as_of": "2026-08-12T19:16:27-04:00",
+      "as_of_rel_min": 1200
     },
     "calendar": {
       "label": "calendar",
       "kind": "not connected",
+      "needs": "pick one calendar as the hub, then publish a read only feed to it",
       "as_of": null,
-      "needs": "pick one calendar as the hub, then publish a read only feed to it"
+      "as_of_rel_min": null
     },
     "bank": {
       "label": "bank and cards",
       "kind": "not connected",
+      "needs": "a bank connection, or a weekly export you drop into HQ",
       "as_of": null,
-      "needs": "a bank connection, or a weekly export you drop into HQ"
+      "as_of_rel_min": null
     },
     "health": {
       "label": "sleep and health",
       "kind": "typed by hand into HQ",
-      "as_of": "2026-08-05T04:36:44-04:00",
-      "needs": "nothing is writing this. it is old enough that the screen hides it"
+      "needs": "nothing is writing this. it is old enough that the screen hides it",
+      "as_of": "2026-08-08T15:16:27-04:00",
+      "as_of_rel_min": 7200
     },
     "weather": {
       "label": "weather",
       "kind": "not connected",
+      "needs": "one free forecast call for Arlington, once an hour",
       "as_of": null,
-      "needs": "one free forecast call for Arlington, once an hour"
+      "as_of_rel_min": null
     }
   },
   "alarm": {
     "hour": 6,
     "minute": 30,
     "sunrise_minutes": 25
+  },
+  "place": {
+    "name": "Arlington",
+    "lat": 38.8816,
+    "lon": -77.091
   },
   "weather": {
     "place": "Arlington",
@@ -77,11 +92,17 @@
       "name": "Cash App Borrow",
       "amount": null,
       "sample": false,
-      "due": "2026-07-30",
+      "due": "2026-08-02",
+      "due_rel": {
+        "d": -11
+      },
       "paid": false,
       "source": "money",
       "why": "late fees started already. the date that costs real money is the 30 day mark, when it can reach the credit bureaus",
-      "hard_date": "2026-08-29",
+      "hard_date": "2026-09-01",
+      "hard_date_rel": {
+        "d": 19
+      },
       "hard_label": "can reach the credit bureaus"
     },
     {
@@ -89,7 +110,10 @@
       "name": "rent",
       "amount": null,
       "sample": false,
-      "due": "2026-09-01",
+      "due": "2026-09-04",
+      "due_rel": {
+        "d": 22
+      },
       "paid": false,
       "source": "money",
       "why": "no amount is stored in HQ for this yet"
@@ -99,7 +123,10 @@
       "name": "phone bill",
       "amount": 84.0,
       "sample": true,
-      "due": "2026-08-14",
+      "due": "2026-08-17",
+      "due_rel": {
+        "d": 4
+      },
       "paid": false,
       "source": "money",
       "why": ""
@@ -109,7 +136,10 @@
       "name": "credit card minimum",
       "amount": 35.0,
       "sample": true,
-      "due": "2026-08-19",
+      "due": "2026-08-22",
+      "due_rel": {
+        "d": 9
+      },
       "paid": false,
       "source": "money",
       "why": ""
@@ -119,7 +149,10 @@
       "name": "car insurance",
       "amount": 162.0,
       "sample": true,
-      "due": "2026-08-26",
+      "due": "2026-08-29",
+      "due_rel": {
+        "d": 16
+      },
       "paid": false,
       "source": "money",
       "why": ""
@@ -129,33 +162,39 @@
       "name": "Turo listing renewal",
       "amount": null,
       "sample": false,
-      "due": "2026-08-24",
+      "due": "2026-08-27",
+      "due_rel": {
+        "d": 14
+      },
       "paid": false,
       "source": "turo",
-      "why": "from COMMITMENTS, 2026-08-24. no amount stored"
+      "why": "from COMMITMENTS. no amount stored"
     }
   ],
   "declines": [
     {
-      "name": "Adobe Creative Cloud",
+      "name": "a design subscription",
       "amount": 59.99,
-      "at": "2026-08-09T01:36:44-04:00",
+      "at": "2026-08-12T12:16:27-04:00",
+      "at_rel_min": 1620,
       "reason": "card expired",
       "sample": true,
       "source": "bank"
     },
     {
-      "name": "Turo host insurance",
+      "name": "a car expense on autopay",
       "amount": 47.0,
-      "at": "2026-08-06T21:36:44-04:00",
-      "reason": "insufficient funds",
+      "at": "2026-08-10T08:16:27-04:00",
+      "at_rel_min": 4740,
+      "reason": "not enough in the account",
       "sample": true,
       "source": "bank"
     },
     {
-      "name": "iCloud+ 2TB",
+      "name": "cloud storage",
       "amount": 9.99,
-      "at": "2026-08-04T02:36:44-04:00",
+      "at": "2026-08-07T13:16:27-04:00",
+      "at_rel_min": 8760,
       "reason": "retried and went through",
       "sample": true,
       "source": "bank",
@@ -164,25 +203,34 @@
   ],
   "subscriptions": [
     {
-      "name": "Adobe Creative Cloud",
+      "name": "design software",
       "amount": 59.99,
-      "renews": "2026-08-31",
+      "renews": "2026-09-03",
+      "renews_rel": {
+        "d": 21
+      },
       "status": "failing",
       "sample": true,
       "source": "bank"
     },
     {
-      "name": "Claude Pro",
-      "amount": 20.0,
-      "renews": "2026-08-16",
+      "name": "AI plan",
+      "amount": null,
+      "renews": "2026-08-19",
+      "renews_rel": {
+        "d": 6
+      },
       "status": "paid",
-      "sample": true,
+      "sample": false,
       "source": "bank"
     },
     {
-      "name": "iCloud+ 2TB",
+      "name": "cloud storage",
       "amount": 9.99,
-      "renews": "2026-08-22",
+      "renews": "2026-08-25",
+      "renews_rel": {
+        "d": 12
+      },
       "status": "paid",
       "sample": true,
       "source": "bank"
@@ -190,15 +238,21 @@
     {
       "name": "domain renewals",
       "amount": null,
-      "renews": "2026-09-27",
+      "renews": "2026-09-30",
+      "renews_rel": {
+        "d": 48
+      },
       "status": "unknown",
       "sample": false,
       "source": "bank"
     },
     {
-      "name": "Squarespace",
+      "name": "site hosting",
       "amount": 23.0,
-      "renews": "2026-08-12",
+      "renews": "2026-08-15",
+      "renews_rel": {
+        "d": 2
+      },
       "status": "due",
       "sample": true,
       "source": "bank"
@@ -208,16 +262,22 @@
     {
       "name": "Turo booking",
       "amount": 68.0,
-      "on": "2026-08-31",
+      "on": "2026-09-03",
+      "on_rel": {
+        "d": 21
+      },
       "sample": true,
       "source": "turo",
       "state": "blocked",
       "why": "the car is unlisted, so nothing can book. this is what a booking would look like"
     },
     {
-      "name": "Karrina retainer",
+      "name": "client retainer",
       "amount": null,
-      "on": "2026-08-30",
+      "on": "2026-09-02",
+      "on_rel": {
+        "d": 20
+      },
       "sample": false,
       "source": "money",
       "state": "expected"
@@ -228,15 +288,35 @@
       "title": "Turo cancellations webinar",
       "start": "2026-08-09T14:00:00-04:00",
       "end": "2026-08-09T15:30:00-04:00",
+      "start_rel": {
+        "wd": 0,
+        "h": 14,
+        "m": 0
+      },
+      "end_rel": {
+        "wd": 0,
+        "h": 15,
+        "m": 30
+      },
       "kind": "money",
       "source": "commitments",
       "real": true,
-      "why": "COMMITMENTS.md, the car earns $0 until this is done"
+      "why": "COMMITMENTS.md, the car earns nothing until this is done"
     },
     {
       "title": "Submit the review removal form",
       "start": "2026-08-09T15:45:00-04:00",
       "end": "2026-08-09T16:15:00-04:00",
+      "start_rel": {
+        "wd": 0,
+        "h": 15,
+        "m": 45
+      },
+      "end_rel": {
+        "wd": 0,
+        "h": 16,
+        "m": 15
+      },
       "kind": "money",
       "source": "commitments",
       "real": true,
@@ -246,91 +326,199 @@
       "title": "deep work",
       "start": "2026-08-10T09:00:00-04:00",
       "end": "2026-08-10T12:00:00-04:00",
+      "start_rel": {
+        "wd": 1,
+        "h": 9,
+        "m": 0
+      },
+      "end_rel": {
+        "wd": 1,
+        "h": 12,
+        "m": 0
+      },
       "kind": "work",
       "source": "calendar",
-      "real": false
+      "real": false,
+      "why": ""
     },
     {
       "title": "client call",
       "start": "2026-08-10T14:00:00-04:00",
       "end": "2026-08-10T15:00:00-04:00",
+      "start_rel": {
+        "wd": 1,
+        "h": 14,
+        "m": 0
+      },
+      "end_rel": {
+        "wd": 1,
+        "h": 15,
+        "m": 0
+      },
       "kind": "client",
       "source": "calendar",
-      "real": false
+      "real": false,
+      "why": ""
     },
     {
       "title": "class",
       "start": "2026-08-11T10:00:00-04:00",
       "end": "2026-08-11T12:30:00-04:00",
+      "start_rel": {
+        "wd": 2,
+        "h": 10,
+        "m": 0
+      },
+      "end_rel": {
+        "wd": 2,
+        "h": 12,
+        "m": 30
+      },
       "kind": "school",
       "source": "calendar",
-      "real": false
+      "real": false,
+      "why": ""
     },
     {
       "title": "edit pass",
       "start": "2026-08-11T15:00:00-04:00",
       "end": "2026-08-11T18:00:00-04:00",
+      "start_rel": {
+        "wd": 2,
+        "h": 15,
+        "m": 0
+      },
+      "end_rel": {
+        "wd": 2,
+        "h": 18,
+        "m": 0
+      },
       "kind": "work",
       "source": "calendar",
-      "real": false
+      "real": false,
+      "why": ""
     },
     {
       "title": "shoot",
       "start": "2026-08-12T11:00:00-04:00",
       "end": "2026-08-12T16:00:00-04:00",
+      "start_rel": {
+        "wd": 3,
+        "h": 11,
+        "m": 0
+      },
+      "end_rel": {
+        "wd": 3,
+        "h": 16,
+        "m": 0
+      },
       "kind": "client",
       "source": "calendar",
-      "real": false
+      "real": false,
+      "why": ""
     },
     {
       "title": "class",
       "start": "2026-08-13T10:00:00-04:00",
       "end": "2026-08-13T12:30:00-04:00",
+      "start_rel": {
+        "wd": 4,
+        "h": 10,
+        "m": 0
+      },
+      "end_rel": {
+        "wd": 4,
+        "h": 12,
+        "m": 30
+      },
       "kind": "school",
       "source": "calendar",
-      "real": false
+      "real": false,
+      "why": ""
     },
     {
       "title": "Turo handover window",
       "start": "2026-08-14T08:00:00-04:00",
       "end": "2026-08-14T10:00:00-04:00",
+      "start_rel": {
+        "wd": 5,
+        "h": 8,
+        "m": 0
+      },
+      "end_rel": {
+        "wd": 5,
+        "h": 10,
+        "m": 0
+      },
       "kind": "money",
       "source": "calendar",
-      "real": false
+      "real": false,
+      "why": ""
     },
     {
       "title": "gym",
       "start": "2026-08-14T18:00:00-04:00",
       "end": "2026-08-14T19:00:00-04:00",
+      "start_rel": {
+        "wd": 5,
+        "h": 18,
+        "m": 0
+      },
+      "end_rel": {
+        "wd": 5,
+        "h": 19,
+        "m": 0
+      },
       "kind": "personal",
       "source": "calendar",
-      "real": false
+      "real": false,
+      "why": ""
     },
     {
       "title": "reset the week",
       "start": "2026-08-15T10:00:00-04:00",
       "end": "2026-08-15T11:30:00-04:00",
+      "start_rel": {
+        "wd": 6,
+        "h": 10,
+        "m": 0
+      },
+      "end_rel": {
+        "wd": 6,
+        "h": 11,
+        "m": 30
+      },
       "kind": "personal",
       "source": "calendar",
-      "real": false
+      "real": false,
+      "why": ""
     }
   ],
   "deadlines": [
     {
       "name": "Turo cancellations webinar",
-      "on": "2026-08-09",
+      "on": "2026-08-12",
+      "on_rel": {
+        "d": -1
+      },
       "source": "commitments",
-      "why": "the car is unlisted until this is done. every day it is unlisted is $0"
+      "why": "the car is unlisted until this is done. every day it is unlisted earns nothing"
     },
     {
       "name": "Cash App Borrow can reach the credit bureaus",
-      "on": "2026-08-29",
+      "on": "2026-09-01",
+      "on_rel": {
+        "d": 19
+      },
       "source": "commitments",
       "why": "30 days past due is the line that matters"
     },
     {
       "name": "Turo renewal",
-      "on": "2026-08-24",
+      "on": "2026-08-27",
+      "on_rel": {
+        "d": 14
+      },
       "source": "commitments",
       "why": "check the account standing first, it sits close to the missed trip"
     }
@@ -370,19 +558,34 @@
   "reminders": [
     {
       "text": "Turo review removal form is one shot and final",
-      "at": "2026-08-10T09:00:00-04:00",
+      "at": "2026-08-13T09:00:00-04:00",
+      "at_rel": {
+        "d": 0,
+        "h": 9,
+        "m": 0
+      },
       "source": "commitments",
       "repeat": null
     },
     {
       "text": "wind down, screens off",
-      "at": "2026-08-10T22:00:00-04:00",
+      "at": "2026-08-13T22:00:00-04:00",
+      "at_rel": {
+        "d": 0,
+        "h": 22,
+        "m": 0
+      },
       "source": "todo",
       "repeat": "every night"
     },
     {
       "text": "pull the week's numbers into HQ",
       "at": "2026-08-09T19:00:00-04:00",
+      "at_rel": {
+        "wd": 0,
+        "h": 19,
+        "m": 0
+      },
       "source": "todo",
       "repeat": "every Sunday"
     }

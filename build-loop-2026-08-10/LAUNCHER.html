@@ -1,133 +1,405 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8">
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>hq-tv · build loop 2026-08-10</title><style>
+<title>hq-tv · build loop 2026-08-10</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   The loop launcher for hq-tv. Rebuilt in round 2.
+   Round 1's version was a three-across card grid with a thumbnail, a chip, a
+   title and two lines of description, and nothing about it was specific to this
+   project or to Samuel. It also made three claims the work did not support:
+   that he had asked for declines (the word appears nowhere in BRIEF.md or
+   README.md), that he had asked for the week grid "months ago" (BRIEF.md dates
+   it to 2026-08-08, two days before the loop ran), and that TV06 was a Metro
+   mosaic (it is a cream editorial page). All three are corrected below, and the
+   Metro one is corrected by building the page instead of by deleting the claim.
+   Every term that needs one carries a ? popover that opens on click as well as
+   hover, because this is the one page he actually opens first.
+   ═══════════════════════════════════════════════════════════════════════════ */
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --ink:#0c0b0a; --ink2:#141210; --line:#252119; --line2:#332c21;
+  --ink:#0c0b0a; --ink2:#141210; --ink3:#191613; --line:#252119; --line2:#332c21;
   --cream:#f1ebdf; --dim:#a09585; --dim2:#6f6759;
   --gold:#c9a96a; --red:#d0402e; --green:#7fa66a;
-  --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   --sans:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;
 }
-body{background:var(--ink);color:var(--cream);font-family:var(--sans);
-  -webkit-font-smoothing:antialiased;line-height:1.5;padding:0 0 80px}
-.wrap{max-width:1240px;margin:0 auto;padding:0 28px}
-header{padding:56px 0 34px;border-bottom:1px solid var(--line)}
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+body{background:
+    radial-gradient(120% 60% at 12% 0%, #171310 0%, rgba(23,19,16,0) 60%),
+    var(--ink);
+  color:var(--cream);font-family:var(--sans);-webkit-font-smoothing:antialiased;
+  line-height:1.5;padding:0 0 80px}
+.wrap{max-width:1280px;margin:0 auto;padding:0 28px}
+a{color:inherit;text-decoration:none}
+
+header{padding:52px 0 30px;border-bottom:1px solid var(--line)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
 .chip{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
-  border:1px solid var(--line2);color:var(--dim);padding:5px 10px;border-radius:3px;white-space:nowrap}
+  border:1px solid var(--line2);color:var(--dim);padding:5px 10px;border-radius:3px;
+  white-space:nowrap}
 .chip.on{border-color:var(--gold);color:var(--gold)}
 .chip.warn{border-color:var(--red);color:var(--red)}
-h1{font-size:clamp(34px,5.2vw,58px);font-weight:800;letter-spacing:-.03em;line-height:1.02;
-  text-transform:lowercase;margin-bottom:16px}
-.lede{max-width:74ch;color:var(--dim);font-size:16.5px}
+h1{font-size:clamp(32px,5vw,56px);font-weight:800;letter-spacing:-.035em;line-height:1.02;
+  text-transform:lowercase;margin-bottom:14px}
+.lede{max-width:76ch;color:var(--dim);font-size:16.5px}
 .lede strong{color:var(--cream);font-weight:600}
-h2{font-size:13px;font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;
-  color:var(--dim2);margin:52px 0 18px;display:flex;align-items:center;gap:14px}
+
+h2{font-size:12.5px;font-family:var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--dim2);margin:48px 0 16px;display:flex;align-items:center;gap:14px}
 h2::after{content:"";flex:1;height:1px;background:var(--line)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:20px}
+
+/* ── the ? popover. click as well as hover, because a phone has no hover ──── */
+.q{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;
+  border-radius:50%;border:1px solid var(--line2);color:var(--gold);background:var(--ink3);
+  font-family:var(--mono);font-size:10px;font-weight:700;cursor:help;vertical-align:.12em;
+  margin-left:.25em;position:relative;flex-shrink:0}
+.q:hover,.q.open{border-color:var(--gold)}
+.q .pop{position:absolute;left:50%;bottom:150%;transform:translateX(-50%);width:max-content;
+  max-width:34ch;padding:10px 12px;border-radius:6px;background:#0a0908;
+  border:1px solid var(--line2);color:var(--dim);font-family:var(--sans);font-size:13px;
+  font-weight:400;letter-spacing:0;line-height:1.45;text-align:left;text-transform:none;
+  opacity:0;pointer-events:none;transition:opacity .16s;z-index:40;
+  box-shadow:0 18px 40px -20px #000}
+.q:hover .pop,.q.open .pop{opacity:1}
+.q .pop b{color:var(--cream);font-weight:600}
+
+/* ── the cards. two per row at desktop so the screenshot is big enough to
+      actually judge, since judging them is the entire job of this page. ───── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:22px}
 .card{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--ink2);
   display:flex;flex-direction:column;transition:border-color .18s,transform .18s}
 .card:hover{border-color:var(--line2);transform:translateY(-2px)}
-.card a.shot{display:block;aspect-ratio:16/10;overflow:hidden;background:#000;border-bottom:1px solid var(--line)}
-.card a.shot img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
+.card .shot{display:block;aspect-ratio:16/10;overflow:hidden;background:#000;
+  border-bottom:1px solid var(--line)}
+.card .shot img{width:100%;height:100%;object-fit:cover;object-position:top center;
+  display:block}
 .noshot{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
-  font-family:var(--mono);font-size:11px;color:var(--dim2);letter-spacing:.1em;background:#100e0c}
-.body{padding:16px 17px 18px;display:flex;flex-direction:column;gap:9px;flex:1}
+  font-family:var(--mono);font-size:11px;color:var(--dim2);letter-spacing:.1em;
+  background:#100e0c}
+.body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:10px;flex:1}
+.top{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
 .code{font-family:var(--mono);font-size:11px;letter-spacing:.09em;color:var(--gold);
-  border:1px solid var(--gold);padding:3px 8px;border-radius:3px;align-self:flex-start}
+  border:1px solid var(--gold);padding:3px 8px;border-radius:3px}
 .code.grey{color:var(--dim2);border-color:var(--line2)}
-.name{font-size:17px;font-weight:650;letter-spacing:-.01em}
-.desc{font-size:14px;color:var(--dim);flex:1}
-.meta{font-family:var(--mono);font-size:10.5px;color:var(--dim2);letter-spacing:.06em;
-  padding-top:9px;border-top:1px solid var(--line)}
+.tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--dim2);border:1px solid var(--line);padding:3px 7px;border-radius:3px}
+.tag.new{color:var(--green);border-color:#3f5c33}
+.tag.fix{color:var(--gold);border-color:#54462c}
+.name{font-size:18px;font-weight:700;letter-spacing:-.015em}
+.desc{font-size:14.2px;color:var(--dim);flex:1}
+.desc strong{color:var(--cream);font-weight:600}
+.meta{font-family:var(--mono);font-size:10.5px;color:var(--dim2);letter-spacing:.05em;
+  padding-top:10px;border-top:1px solid var(--line);line-height:1.7}
 .card.current{border-color:#3a3123;background:#100e0b}
 .card.current .code{color:var(--green);border-color:#3f5c33}
-a{color:inherit;text-decoration:none}
-.note{border-left:2px solid var(--gold);padding:14px 18px;background:#12100d;margin:26px 0;
-  font-size:14.5px;color:var(--dim);max-width:88ch;border-radius:0 6px 6px 0}
+
+.note{border-left:2px solid var(--gold);padding:15px 18px;background:#12100d;margin:24px 0;
+  font-size:14.5px;color:var(--dim);max-width:92ch;border-radius:0 6px 6px 0}
 .note strong{color:var(--cream)}
 .note.warn{border-left-color:var(--red)}
-footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--line);
-  font-family:var(--mono);font-size:11px;color:var(--dim2);letter-spacing:.06em;line-height:1.9}
-@media (max-width:640px){.wrap{padding:0 18px}header{padding:36px 0 26px}.grid{grid-template-columns:1fr}}
-</style></head><body>
+.note + .note{margin-top:-8px}
+.note ul{margin:8px 0 0 18px} .note li{margin:4px 0}
+
+.was{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;
+  margin:18px 0 0}
+.wasit{border:1px solid var(--line);border-radius:6px;padding:13px 15px;background:var(--ink2)}
+.wasit .wt{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--red);margin-bottom:5px}
+.wasit .wb{font-size:13.5px;color:var(--dim);line-height:1.45}
+.wasit .wb b{color:var(--cream);font-weight:600}
+
+footer{margin-top:60px;padding-top:22px;border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:11px;color:var(--dim2);letter-spacing:.05em;line-height:1.9}
+@media (max-width:700px){
+  .wrap{padding:0 18px} header{padding:34px 0 24px}
+  .grid{grid-template-columns:1fr}
+  /* on a phone the popover becomes a sheet pinned to the viewport. anchored to
+     the button it pushed the page 89px wider than the screen. */
+  .q .pop{position:fixed;left:12px;right:12px;bottom:16px;top:auto;transform:none;
+    width:auto;max-width:none;font-size:14px}
+}
+</style>
+</head>
+<body>
 <div class="wrap">
+
 <header>
-  <div class="chips"><span class="chip on">2026-08-10</span><span class="chip ">6 new builds</span><span class="chip ">TV01 to TV06</span><span class="chip ">noir untouched</span></div>
+  <div class="chips">
+    <span class="chip on">2026-08-10 · round 1</span>
+    <span class="chip on">2026-08-13 · round 2</span>
+    <span class="chip">9 builds</span>
+    <span class="chip">TV01 to TV06 · TV10 to TV12</span>
+    <span class="chip">noir untouched</span>
+  </div>
   <h1>hq-tv build loop</h1>
-  <p class="lede">You said it was displaying things but not updating, that a bill had been eight days late for more than a day, and that you wanted declines, upcoming bills and a way to see your schedule. <strong>TV01 is the fix.</strong> The other five push the design further. Your current dashboard is untouched and sits at the bottom for comparison.</p>
+  <p class="lede">
+    You said the TV was displaying things but not updating, and that a bill had said eight
+    days late for more than a day. <strong>Every screen here computes that number from the
+    due date at the moment it draws</strong>, so it moves on its own. Round 2 fixed what an
+    outside reviewer found wrong with round 1, built the calendar view toggle you asked for
+    on 2026-08-08, and added one screen nobody asked for. Your current dashboard is
+    untouched and sits at the bottom for comparison.
+  </p>
 </header>
-<div class="note warn"><strong>Read this before you trust a number on any of these.</strong> They all ship with sample data, marked as sample on screen. hq-tv is a public repository, so real amounts must never be committed to it. The build folder includes a data file and a generator script so real numbers can live on your machine only. What has to happen for the sample ribbon to disappear is written on TV01 itself.</div>
-<h2>tonight&#x27;s builds</h2>
-    <div class="grid">
-      <div class="card">
-        <a class="shot" href="TV01-live.html"><img src="_thumbs/TV01-live.png" alt="" loading="lazy"></a>
-        <div class="body">
-          <span class="code">TV01</span>
-          <a href="TV01-live.html"><div class="name">the live one</div></a>
-          <div class="desc">Fixes the thing you actually complained about. Nothing on this screen is a stored string. <strong>&quot;8 days late&quot; is now computed from the due date every time the page loads</strong>, so it moves on its own. Every tile carries the age of its own data and fades as it gets stale. A SAMPLE DATA ribbon sits at the bottom and only disappears when the data file says it is live.</div>
-          <div class="meta">built 2026-08-10 · overnight loop</div>
-        </div>
-      </div>
-      <div class="card">
-        <a class="shot" href="TV02-week.html"><img src="_thumbs/TV02-week.png" alt="" loading="lazy"></a>
-        <div class="body">
-          <span class="code">TV02</span>
-          <a href="TV02-week.html"><div class="name">the week</div></a>
-          <div class="desc">The Toggl style week grid you asked for months ago and never got. Readable at ten feet, collapses to a day list on a phone. No taps anywhere.</div>
-          <div class="meta">built 2026-08-10 · overnight loop</div>
-        </div>
-      </div>
-      <div class="card">
-        <a class="shot" href="TV03-money.html"><img src="_thumbs/TV03-money.png" alt="" loading="lazy"></a>
-        <div class="body">
-          <span class="code">TV03</span>
-          <a href="TV03-money.html"><div class="name">the money</div></a>
-          <div class="desc">Upcoming bills, recent declines, subscriptions and whether they are covered. Anything with no source yet asks a question instead of showing a zero.</div>
-          <div class="meta">built 2026-08-10 · overnight loop</div>
-        </div>
-      </div>
-      <div class="card">
-        <a class="shot" href="TV04-console.html"><img src="_thumbs/TV04-console.png" alt="" loading="lazy"></a>
-        <div class="body">
-          <span class="code">TV04</span>
-          <a href="TV04-console.html"><div class="name">the console</div></a>
-          <div class="desc">The creative swing. A mission control layout that fits far more on a 1920 screen without becoming a wall of text.</div>
-          <div class="meta">built 2026-08-10 · overnight loop</div>
-        </div>
-      </div>
-      <div class="card">
-        <a class="shot" href="TV05-dayparts.html"><img src="_thumbs/TV05-dayparts.png" alt="" loading="lazy"></a>
-        <div class="body">
-          <span class="code">TV05</span>
-          <a href="TV05-dayparts.html"><div class="name">dayparts</div></a>
-          <div class="desc">The screen changes what it shows by time of day. Morning is different from evening, and night hands over to sleep mode.</div>
-          <div class="meta">built 2026-08-10 · overnight loop</div>
-        </div>
-      </div>
-      <div class="card">
-        <a class="shot" href="TV06-board.html"><img src="_thumbs/TV06-board.png" alt="" loading="lazy"></a>
-        <div class="body">
-          <span class="code">TV06</span>
-          <a href="TV06-board.html"><div class="name">the board</div></a>
-          <div class="desc">A denser mosaic that pushes the Metro idea further than the current metro theme does.</div>
-          <div class="meta">built 2026-08-10 · overnight loop</div>
-        </div>
-      </div>
+
+<div class="note warn">
+  <strong>Read this before you trust a number on any of these.</strong>
+  They all open with invented figures, and every invented figure carries the word
+  <b>invented</b> next to it, not in a footnote. hq-tv is a
+  <span class="q" tabindex="0">?<span class="pop"><b>Public repository.</b> The folder these
+  files live in is copied to GitHub, where anyone with the address can read it. So a real
+  amount must never be typed into a file inside it.</span></span>
+  public repository, so your real amounts live in a separate file on your own machine that
+  is excluded from GitHub. Every page here looks for that file first and quietly uses the
+  invented one when it is not there. Nothing has to change on the page for the real numbers
+  to appear.
+</div>
+
+<h2>round 2 · what an outside reviewer found, and what happened to it</h2>
+<div class="was">
+  <div class="wasit">
+    <div class="wt">was broken</div>
+    <div class="wb"><b>Every screen was a wall of question marks.</b> The sample file stored
+    fixed timestamps, so three days after it was written every source looked older than the
+    three day cutoff and every value hid itself. Now the sample dates itself against the
+    clock when the page opens.</div>
+  </div>
+  <div class="wasit">
+    <div class="wt">was broken</div>
+    <div class="wb"><b>TV06 printed <i>NaN</i> three times</b> on every reminder. One line of
+    arithmetic ran in the wrong order. Every countdown on every page now runs through one
+    shared function instead of five hand written copies.</div>
+  </div>
+  <div class="wasit">
+    <div class="wt">was broken</div>
+    <div class="wb"><b>TV05 was two thirds empty black</b> at two of its four times of day,
+    and <b>TV03 clipped its own headline</b> off the left edge of the chart. Both rebuilt.</div>
+  </div>
+  <div class="wasit">
+    <div class="wt">was wrong</div>
+    <div class="wb"><b>This page made three claims the work did not support</b>, including
+    promising a Metro screen that did not exist. The claims are corrected, and the Metro one
+    is corrected by building it: <b>TV12</b>.</div>
+  </div>
+  <div class="wasit">
+    <div class="wt">was wrong</div>
+    <div class="wb"><b>A question mark only explained itself on hover.</b> There is no hover
+    on a TV and none on a remote. Every gap now prints what it needs, in words, on screen.</div>
+  </div>
+  <div class="wasit">
+    <div class="wt">was wrong</div>
+    <div class="wb"><b>The sample invented that named companies had declined your card</b> on
+    specific dates. A false fact about your money that looks exactly like a true one. Those
+    rows now name a category, never a company.</div>
+  </div>
+</div>
+
+<h2>round 2 builds</h2>
+<div class="grid">
+
+  <div class="card">
+    <a class="shot" href="TV10-views.html"><img src="_thumbs/TV10-views.png" alt="" loading="lazy"></a>
+    <div class="body">
+      <div class="top"><span class="code">TV10</span><span class="tag new">new</span>
+        <span class="tag">the thing you asked for</span></div>
+      <a href="TV10-views.html"><div class="name">the view toggle</div></a>
+      <div class="desc">The calendar view toggle from your 2026-08-08 review, built at last:
+        <strong>week, month, day and agenda</strong>. The week is the Toggl grid you sent.
+        Because nothing on the TV is ever tapped, the four views take the stage in turn on a
+        timer and the pips show which one is up. Left and right on the remote steers it if
+        you ever want to.</div>
+      <div class="meta">built 2026-08-13 · round 2<br>four genuinely different layouts, not four palettes</div>
     </div>
+  </div>
+
+  <div class="card">
+    <a class="shot" href="TV11-sky.html"><img src="_thumbs/TV11-sky.png" alt="" loading="lazy"></a>
+    <div class="body">
+      <div class="top"><span class="code">TV11</span><span class="tag new">new</span>
+        <span class="tag">nobody asked for this</span></div>
+      <a href="TV11-sky.html"><div class="name">the sky</div></a>
+      <div class="desc">The one screen here that needs nothing connected, ever. It draws the
+        real path of the sun over Arlington today, the real sunrise and sunset,
+        <strong>how many minutes of daylight today lost against yesterday</strong>, and
+        tonight's moon. The background colour follows the actual height of the sun, so it is
+        a different screen at 6am and at 9pm. All of it is arithmetic done in the page. No
+        source, no network, nothing that can go stale or be wrong about your money.</div>
+      <div class="meta">built 2026-08-13 · round 2<br>different every morning without anyone touching it</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <a class="shot" href="TV12-mosaic.html"><img src="_thumbs/TV12-mosaic.png" alt="" loading="lazy"></a>
+    <div class="body">
+      <div class="top"><span class="code">TV12</span><span class="tag new">new</span>
+        <span class="tag fix">fixes a broken promise</span></div>
+      <a href="TV12-mosaic.html"><div class="name">the mosaic</div></a>
+      <div class="desc">The actual Metro treatment, from the Windows 8 Start screen you sent
+        as reference. Solid colour blocks, no borders, white text, deep plum ground. Round 1
+        promised this on the TV06 card and delivered a cream list instead. The tiles with dots
+        <strong>turn over by themselves</strong> to show a second fact, which is what a live
+        tile is for and what makes it readable from further back than a list.</div>
+      <div class="meta">built 2026-08-13 · round 2<br>nothing on it is a row, which is the point</div>
+    </div>
+  </div>
+
+</div>
+
+<h2>round 1 builds, all repaired</h2>
+<div class="grid">
+
+  <div class="card">
+    <a class="shot" href="TV01-live.html"><img src="_thumbs/TV01-live.png" alt="" loading="lazy"></a>
+    <div class="body">
+      <div class="top"><span class="code">TV01</span><span class="tag fix">repaired</span></div>
+      <a href="TV01-live.html"><div class="name">the live one</div></a>
+      <div class="desc">Fixes the thing you actually complained about. Nothing on this screen
+        is a stored piece of text. <strong>Eleven days late is subtracted from the due date
+        every time it draws</strong>, so leave it open overnight and it becomes twelve on its
+        own. Every tile carries the age of its own data and fades as that ages.
+        <em>Round 2:</em> the numbered list starts at 01 now instead of 02, the ledger says
+        what each gap needs in plain words, and it no longer renders as question marks.</div>
+      <div class="meta">built 2026-08-10 · repaired 2026-08-13</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <a class="shot" href="TV02-week.html"><img src="_thumbs/TV02-week.png" alt="" loading="lazy"></a>
+    <div class="body">
+      <div class="top"><span class="code">TV02</span><span class="tag fix">repaired</span></div>
+      <a href="TV02-week.html"><div class="name">the week</div></a>
+      <div class="desc">A week grid built for a room rather than a laptop, drawn only across
+        the hours that hold something. <em>Round 2:</em> the hour lines used to paint on top
+        of the event titles, which read as a line struck through them, and on a calendar that
+        means cancelled. Fixed. The rail on the right now also says which blocks HQ actually
+        knows about and which are only shapes.</div>
+      <div class="meta">built 2026-08-10 · repaired 2026-08-13<br>the Toggl grid you sent on 2026-08-08</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <a class="shot" href="TV03-money.html"><img src="_thumbs/TV03-money.png" alt="" loading="lazy"></a>
+    <div class="body">
+      <div class="top"><span class="code">TV03</span><span class="tag fix">repaired</span></div>
+      <a href="TV03-money.html"><div class="name">the money</div></a>
+      <div class="desc">One timeline with today in the middle: behind you what was refused,
+        ahead of you what lands and when. Under it, the subscriptions and whether they went
+        through. <em>Round 2:</em> the chart sized itself to fourteen days, so the oldest
+        item always sat at the far left edge and always had its label cut off. The window now
+        sizes to the data and the labels stack instead of colliding.</div>
+      <div class="meta">built 2026-08-10 · repaired 2026-08-13<br>every figure carries its own invented tag</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <a class="shot" href="TV04-console.html"><img src="_thumbs/TV04-console.png" alt="" loading="lazy"></a>
+    <div class="body">
+      <div class="top"><span class="code">TV04</span><span class="tag fix">repaired</span></div>
+      <a href="TV04-console.html"><div class="name">the console</div></a>
+      <div class="desc">The most on one screen of anything here. Hairline rules and column
+        gutters instead of boxes, because a box costs padding on four sides and a rule costs
+        one pixel. Five columns each with a different rhythm, a seven day band underneath.
+        <em>Round 2:</em> its top band was nine identical red <b>no source</b> labels when
+        opened three days later. It reads correctly now on any day.</div>
+      <div class="meta">built 2026-08-10 · repaired 2026-08-13</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <a class="shot" href="TV05-dayparts.html"><img src="_thumbs/TV05-dayparts.png" alt="" loading="lazy"></a>
+    <div class="body">
+      <div class="top"><span class="code">TV05</span><span class="tag fix">rebuilt</span></div>
+      <a href="TV05-dayparts.html"><div class="name">dayparts</div></a>
+      <div class="desc">The screen changes with the hour rather than staying the same for
+        twenty four of them. Night is a dim amber clock and nothing else, dawn is one thing
+        to do, day and evening are working screens. <em>Round 2:</em> day and evening were
+        mostly empty black, so both now run two full bands including the next five days.
+        The daypart preview buttons are gone from the screen unless you ask for them by
+        adding <b>?review=1</b> to the address.</div>
+      <div class="meta">built 2026-08-10 · rebuilt 2026-08-13<br>preview a state with ?part=night, dawn, day, evening</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <a class="shot" href="TV06-board.html"><img src="_thumbs/TV06-board.png" alt="" loading="lazy"></a>
+    <div class="body">
+      <div class="top"><span class="code">TV06</span><span class="tag fix">repaired</span></div>
+      <a href="TV06-board.html"><div class="name">the board</div></a>
+      <div class="desc">The to do list and the reminders as a printed agenda page. The only
+        light screen here, on paper cream rather than black. <em>Round 2:</em> the reminders
+        printed <b>NaN</b> on every row, the empty checkboxes promised a tap that does not
+        exist on a TV, and the bottom half of the page was blank. All three fixed, and the
+        next seven days now fill the lower band.</div>
+      <div class="meta">built 2026-08-10 · repaired 2026-08-13<br>this is NOT the Metro one. that is TV12.</div>
+    </div>
+  </div>
+
+</div>
+
 <h2>what you already had</h2>
-    <div class="grid">
-      <div class="card current">
-        <a class="shot" href="../index.html"><div class="noshot">the current build</div></a>
-        <div class="body">
-          <span class="code grey">CURRENT</span>
-          <a href="../index.html"><div class="name">the live TV dashboard</div></a>
-          <div class="desc">What is on your TV right now. The noir theme is locked and this loop did not touch this file.</div>
-          <div class="meta">approved · do not change</div>
-        </div>
-      </div>
+<div class="grid">
+  <div class="card current">
+    <a class="shot" href="../index.html"><img src="_thumbs/prior-CURRENT.png" alt="" loading="lazy"></a>
+    <div class="body">
+      <div class="top"><span class="code grey">CURRENT</span><span class="tag">approved</span></div>
+      <a href="../index.html"><div class="name">the live TV dashboard</div></a>
+      <div class="desc">What is on your TV right now, with the alarm, the sunrise ramp, sleep
+        mode and the eight themes. The noir theme is locked and this loop did not touch one
+        byte of this file. The picture is what it shows on a first open: it asks which device
+        it is on before it shows anything, which is why the screenshot is a question and two
+        buttons rather than a dashboard.</div>
+      <div class="meta">approved · do not change</div>
     </div>
-<footer>built overnight 2026-08-10 by a creative build loop · exploration only, nothing here is approved<br>launcher generated 2026-08-10 13:23 local time · nothing outside this folder was modified<br>the loop contract lives in the brain repo at hub/build-loop-2026-08-10/LOOP-BRIEF.md</footer>
-</div></body></html>
+  </div>
+</div>
+
+<div class="note">
+  <strong>How the real numbers get in.</strong> A scheduled Claude session runs a
+  <span class="q" tabindex="0">?<span class="pop"><b>Generator script.</b> A short program
+  that reads your files and writes one small data file the screens read. You never run it.
+  It runs on a schedule, or a Claude session runs it.</span></span>
+  generator once a day and writes the file that only lives on your machine. What it reads:
+  <ul>
+    <li>your to do list, from the one file in HQ, already working</li>
+    <li>your dated commitments, from the one file in HQ, already working</li>
+    <li>your schedule, from Google Calendar, needs the connector</li>
+    <li>bills and declines, from receipts in Gmail, until a bank is connected</li>
+    <li>project status, from each project's own status file, already working</li>
+  </ul>
+  Anything it cannot read that day becomes a question mark that says what it needs.
+  <strong>It never becomes a zero.</strong> The full instruction set is written down for the
+  scheduled session in the folder, so this does not depend on anyone remembering it.
+</div>
+
+<footer>
+  round 1 built overnight 2026-08-10 · round 2 built 2026-08-13 after an outside review<br>
+  exploration only. nothing here is approved and nothing here replaces the live build.<br>
+  nothing outside this folder was created, modified, moved or deleted in either round.<br>
+  the loop contract lives in the brain repo at hub/build-loop-2026-08-10/LOOP-BRIEF.md
+</footer>
+
+</div>
+<script>
+/* a popover has to open on a tap too. this page gets opened on a phone. */
+document.querySelectorAll(".q").forEach(function(q){
+  var toggle = function(e){
+    e.preventDefault(); e.stopPropagation();
+    var was = q.classList.contains("open");
+    document.querySelectorAll(".q.open").forEach(function(o){ o.classList.remove("open"); });
+    if (!was) q.classList.add("open");
+  };
+  q.addEventListener("click", toggle);
+  q.addEventListener("keydown", function(e){
+    if (e.key === "Enter" || e.key === " ") toggle(e);
+    if (e.key === "Escape") q.classList.remove("open");
+  });
+});
+document.addEventListener("click", function(){
+  document.querySelectorAll(".q.open").forEach(function(o){ o.classList.remove("open"); });
+});
+</script>
+</body>
+</html>

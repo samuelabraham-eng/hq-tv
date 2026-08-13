@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c0a08">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>TV10 · the view toggle</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   TV10 · the view toggle
+   BRIEF.md, v4 review, 2026-08-08: "He also wants a calendar VIEW toggle on the
+   dashboard, modelled on the Toggl week grid he sent. Not built yet." It is still
+   listed under Still open in v5. This is it.
+
+   THE PROBLEM WITH A TOGGLE ON A TV. A toggle is a control, and his rule is that
+   nothing on the TV is ever tapped: "realistically on a TV, I'm not tapping
+   anything. I'm just looking at it." So the toggle here is a CYCLE. The four views
+   take the stage in turn on a slow timer, the pips show which one is up and how
+   long it has, and the same four are reachable by ?view= for a review and by the
+   left and right keys of a Fire TV remote for the one case where he does want to
+   steer. Nothing needs a tap and nothing is hidden behind one.
+
+   FOUR VIEWS, four different shapes, not four skins:
+     WEEK    the Toggl grid. seven columns, real minutes, a live now line.
+     MONTH   a calendar month. density per day, not detail.
+     DAY     one column, hours at size, plus what is running right now.
+     AGENDA  a chronological list with the gaps between things named.
+
+   No web font is loaded. This page is on the wall at 6am and a font fetch that
+   stalls costs a first paint. The system stack renders instantly and offline.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root{
+  --ground:#0c0a08; --panel:#161210; --panel2:#1d1815; --line:#2b241c; --line2:#211b15;
+  --bone:#f1ebdf; --dim:#948976; --faint:#5f5648;
+  --gold:#c9a96a; --alert:#d0402e; --ok:#7fa66a;
+  --k-money:#c9903c; --k-client:#7ba3c4; --k-school:#7fa66a; --k-work:#a892c9;
+  --k-personal:#948976;
+  --safe:1.9vw; --gap:.8vw;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,
+    "Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;max-width:100%}
+body{background:radial-gradient(120% 85% at 20% 0%, #1a1511 0%, rgba(26,21,17,0) 60%),
+  var(--ground);color:var(--bone);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.035;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>")}
+.mono{font-family:var(--mono)}
+
+#board{position:relative;z-index:2;height:100%;padding:var(--safe);
+  display:flex;flex-direction:column;gap:var(--gap)}
+.hq-sample #board{padding-bottom:calc(var(--safe) + 2.6em)}
+.eyebrow{font-size:clamp(8px,min(.8vw,1.5vh),12px);letter-spacing:.24em;font-weight:700;
+  color:var(--gold);text-transform:uppercase}
+
+/* ── SCN-01 · the head, which carries the switcher ───────────────────────── */
+.head{display:grid;grid-template-columns:auto 1fr auto;gap:1.4vw;align-items:end;
+  border-bottom:1px solid var(--line);padding-bottom:.55vw;flex-shrink:0}
+.h1{font-size:clamp(20px,min(2.9vw,5.2vh),50px);font-weight:800;letter-spacing:-.042em;
+  line-height:.98}
+.h1 span{color:var(--dim);font-weight:500}
+.nowtext{font-size:clamp(10px,min(1.05vw,1.95vh),16px);color:var(--dim);font-weight:500}
+.nowtext b{color:var(--bone);font-weight:700}
+.refresh{font-size:clamp(8.5px,min(.9vw,1.7vh),13px);color:var(--faint);display:flex;
+  align-items:center;margin-top:.15vw}
+
+/* the switcher. four pips, the live one filling as its turn runs out. */
+.switch{display:flex;gap:.5vw;align-items:flex-end}
+.pip{position:relative;min-width:5.2vw;padding:.3vw .55vw .42vw;border:1px solid var(--line);
+  border-radius:3px;background:linear-gradient(180deg,var(--panel2),var(--panel));
+  overflow:hidden}
+.pip .pn{font-family:var(--mono);font-size:clamp(8px,min(.84vw,1.55vh),12px);
+  letter-spacing:.18em;font-weight:700;color:var(--faint);text-transform:uppercase;
+  position:relative;z-index:2}
+.pip.on{border-color:var(--gold)}
+.pip.on .pn{color:var(--gold)}
+.pip .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(201,169,106,.16);
+  z-index:1;transition:width .95s linear}
+.pip.on .fill{background:rgba(201,169,106,.2)}
+
+/* ── the stage and the rail ──────────────────────────────────────────────── */
+.body{flex:1;min-height:0;display:grid;grid-template-columns:1fr 19.5vw;gap:var(--gap)}
+.stage{position:relative;min-height:0;display:flex;flex-direction:column;
+  background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-radius:3px;overflow:hidden;
+  box-shadow:inset 0 1px 0 rgba(255,240,214,.05),0 18px 40px -30px #000}
+.view{display:none;flex:1;min-height:0;flex-direction:column}
+.view.on{display:flex}
+
+/* ── SCN-02 · WEEK. the Toggl grid. ──────────────────────────────────────── */
+.days{display:grid;grid-template-columns:3.2vw repeat(7,1fr);border-bottom:1px solid var(--line);
+  flex-shrink:0}
+.dh{padding:.35vw .4vw;text-align:center;border-left:1px solid var(--line2);min-width:0}
+.dh:first-child{border-left:none}
+.dh .dow{font-family:var(--mono);font-size:clamp(7.5px,min(.78vw,1.45vh),11px);
+  letter-spacing:.16em;font-weight:700;color:var(--faint);text-transform:uppercase}
+.dh .dnum{font-size:clamp(12px,min(1.45vw,2.7vh),24px);font-weight:800;letter-spacing:-.03em;
+  line-height:1.1}
+.dh.today{background:linear-gradient(180deg,rgba(201,169,106,.16),rgba(201,169,106,0))}
+.dh.today .dow{color:var(--gold)}
+.dh.past .dnum,.dh.past .dow{opacity:.4}
+.gw{flex:1;min-height:0;position:relative;display:grid;grid-template-columns:3.2vw repeat(7,1fr)}
+.hours{position:relative;border-right:1px solid var(--line2)}
+.hr{position:absolute;left:0;right:0;font-family:var(--mono);
+  font-size:clamp(7px,min(.76vw,1.4vh),10.5px);color:var(--faint);text-align:right;
+  padding-right:.3vw;transform:translateY(-.5em);font-weight:600}
+.rules{position:absolute;inset:0;pointer-events:none;grid-column:2/-1;z-index:0}
+.rules i{position:absolute;left:0;right:0;height:1px;background:var(--line2)}
+.col{position:relative;border-left:1px solid var(--line2);min-width:0;z-index:2}
+.col.today{background:rgba(201,169,106,.05)}
+.ev{position:absolute;left:2%;right:2%;border-radius:2px;overflow:hidden;padding:.22vw .38vw;
+  border-left:3px solid var(--k);background-color:#1b1611;
+  background-image:linear-gradient(var(--kbg),var(--kbg));min-height:3.2vh}
+.ev.shape{background-color:transparent;
+  background-image:repeating-linear-gradient(135deg,var(--kbg) 0 6px,transparent 6px 12px);
+  border-left-style:dashed;opacity:.74}
+.ev .et{font-size:clamp(8px,min(.86vw,1.6vh),13px);font-weight:700;line-height:1.14;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.ev .eh{font-family:var(--mono);font-size:clamp(6.5px,min(.72vw,1.35vh),10px);color:var(--dim);
+  font-weight:600;white-space:nowrap;overflow:hidden}
+.ev.tight .eh{display:none}
+.ev.past{opacity:.34}
+#now{position:absolute;left:0;right:0;height:0;border-top:1.5px solid var(--alert);
+  z-index:1;pointer-events:none;grid-column:2/-1;opacity:.85}
+#nowlab{position:absolute;left:-3vw;top:-.6em;font-family:var(--mono);
+  font-size:clamp(7px,min(.76vw,1.4vh),10.5px);color:var(--alert);font-weight:700;
+  background:var(--panel);padding:0 .2em;border-radius:2px;z-index:7}
+
+/* ── SCN-03 · MONTH. density, not detail. ────────────────────────────────── */
+.mhead{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--line);
+  flex-shrink:0}
+.mhead div{padding:.3vw 0;text-align:center;font-family:var(--mono);
+  font-size:clamp(7.5px,min(.78vw,1.45vh),11px);letter-spacing:.18em;font-weight:700;
+  color:var(--faint);text-transform:uppercase}
+.mgrid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(7,1fr)}
+.mc{border-left:1px solid var(--line2);border-top:1px solid var(--line2);min-width:0;
+  overflow:hidden;padding:.25vw .45vw;display:flex;flex-direction:column;gap:.1vw}
+.mc:nth-child(7n+1){border-left:none}
+.mc.out{opacity:.3}
+.mc.today{background:linear-gradient(180deg,rgba(201,169,106,.14),rgba(201,169,106,.02))}
+.mc .mn{font-size:clamp(10px,min(1.15vw,2.1vh),19px);font-weight:800;letter-spacing:-.03em;
+  line-height:1.05}
+.mc.today .mn{color:var(--gold)}
+.mc .mi{font-size:clamp(7.5px,min(.8vw,1.5vh),12px);font-weight:600;color:var(--dim);
+  line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mc .mi.shape{font-style:italic;opacity:.7}
+.mc .mi.money{color:var(--k-money)}
+.mc .mi.more{color:var(--faint);font-family:var(--mono);font-size:clamp(7px,.72vw,10px)}
+.mc .bars{display:flex;gap:2px;margin-top:auto;padding-top:.15vw}
+.mc .bars i{height:3px;flex:1;border-radius:1px;background:var(--k)}
+
+/* ── SCN-04 · DAY. one column, at size. ──────────────────────────────────── */
+.dayv{flex:1;min-height:0;display:grid;grid-template-columns:.85fr 1fr;gap:0}
+.dcol{position:relative;min-height:0;overflow:hidden;padding:.5vw .8vw;
+  border-right:1px solid var(--line)}
+.dline{position:relative;height:100%;padding-left:4.2vw}
+.dline::before{content:"";position:absolute;left:3.6vw;top:0;bottom:0;width:1px;
+  background:linear-gradient(180deg,var(--gold),rgba(201,169,106,.06))}
+.dhr{position:absolute;left:0;font-family:var(--mono);
+  font-size:clamp(7.5px,min(.8vw,1.5vh),11px);color:var(--faint);font-weight:700;
+  transform:translateY(-.5em)}
+.dev{position:absolute;left:4.2vw;right:.4vw;border-left:3px solid var(--k);
+  background-color:#1b1611;background-image:linear-gradient(var(--kbg),var(--kbg));
+  border-radius:2px;padding:.25vw .5vw;overflow:hidden}
+.dev.shape{background-color:transparent;
+  background-image:repeating-linear-gradient(135deg,var(--kbg) 0 6px,transparent 6px 12px);
+  border-left-style:dashed}
+.dev .t{font-size:clamp(10px,min(1.15vw,2.1vh),18px);font-weight:700;line-height:1.15;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.dev .w{font-family:var(--mono);font-size:clamp(8px,min(.84vw,1.55vh),12px);color:var(--dim);
+  font-weight:600}
+#dnow{position:absolute;left:3.2vw;right:0;height:0;border-top:1.5px solid var(--alert);z-index:5}
+.dside{padding:.7vw 1vw;display:flex;flex-direction:column;gap:.5vw;min-height:0;overflow:hidden}
+.rightnow{font-size:clamp(16px,min(2.1vw,3.9vh),38px);font-weight:800;letter-spacing:-.04em;
+  line-height:1.04}
+.rightwhy{font-size:clamp(10px,min(1.05vw,1.95vh),16px);color:var(--dim);font-weight:500;
+  line-height:1.4;border-left:2px solid var(--gold);padding-left:.6vw}
+
+/* ── SCN-05 · AGENDA. the gaps are named. ────────────────────────────────── */
+.agenda{flex:1;min-height:0;overflow:hidden;padding:.6vw 1vw;column-count:2;column-gap:2vw;
+  column-rule:1px solid var(--line2)}
+.ag{break-inside:avoid;padding:.3vw 0 .3vw .8vw;border-left:3px solid var(--k);
+  margin-bottom:.28vw}
+.ag .at{font-size:clamp(10px,min(1.05vw,1.95vh),16px);font-weight:700;line-height:1.2;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.ag.shape .at{font-style:italic;opacity:.76}
+.ag .aw{font-family:var(--mono);font-size:clamp(8px,min(.86vw,1.6vh),12.5px);color:var(--dim);
+  font-weight:700}
+.ag .aw b{color:var(--gold);font-weight:700}
+.agday{break-inside:avoid;font-family:var(--mono);
+  font-size:clamp(8px,min(.84vw,1.55vh),12px);letter-spacing:.2em;font-weight:700;
+  color:var(--faint);text-transform:uppercase;border-bottom:1px solid var(--line);
+  padding-bottom:.15vw;margin:.55vw 0 .3vw}
+.agday:first-child{margin-top:0}
+.aggap{break-inside:avoid;font-size:clamp(8px,min(.86vw,1.6vh),12.5px);color:var(--faint);
+  font-weight:600;padding:.1vw 0 .22vw .8vw}
+
+/* ── SCN-06 · the rail ───────────────────────────────────────────────────── */
+.rail{min-height:0;display:flex;flex-direction:column;gap:.5vw;
+  background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-radius:3px;padding:.75vw .85vw;overflow:hidden}
+.railsec{display:flex;flex-direction:column;min-height:0}
+.railsec + .railsec{margin-top:.5vw;border-top:1px solid var(--line);padding-top:.45vw}
+.row{display:flex;justify-content:space-between;gap:.6vw;align-items:baseline;
+  padding:.22vw 0;border-bottom:1px solid rgba(255,255,255,.045);
+  font-size:clamp(9px,min(.98vw,1.85vh),15px);font-weight:500}
+.row:last-child{border-bottom:none}
+.row .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .st{flex-shrink:0;color:var(--dim);font-weight:700;font-family:var(--mono);font-size:.85em}
+.row .st.late{color:var(--alert)} .row .st.now{color:var(--gold)}
+.more{font-family:var(--mono);font-size:clamp(8px,min(.86vw,1.6vh),12px);color:var(--faint);
+  font-weight:700;padding-top:.2vw}
+.kinds{display:flex;gap:.6vw;flex-wrap:wrap;font-family:var(--mono);
+  font-size:clamp(7px,min(.76vw,1.4vh),10.5px);color:var(--faint);font-weight:700;
+  letter-spacing:.05em;flex-shrink:0;border-top:1px solid var(--line);padding-top:.35vw;
+  margin-top:auto}
+.kinds i{font-style:normal;display:inline-flex;align-items:center;gap:.3em}
+.kinds b{width:.5em;height:.5em;border-radius:1px;display:inline-block}
+
+/* ── SCN-07 · the foot ───────────────────────────────────────────────────── */
+.foot{flex-shrink:0;border-top:1px solid var(--line);padding-top:.4vw;display:flex;
+  gap:1.4vw;align-items:baseline;flex-wrap:wrap;
+  font-size:clamp(8.5px,min(.92vw,1.72vh),13.5px);color:var(--dim);font-weight:600}
+.foot b{color:var(--bone);font-weight:800}
+
+@media (max-width:1100px){
+  :root{--safe:16px;--gap:12px}
+  html,body{overflow:auto;height:auto}
+  #board{height:auto;min-height:100%}
+  .head{grid-template-columns:1fr;gap:10px;align-items:start}
+  .switch{flex-wrap:wrap}
+  .pip{min-width:0;flex:1;padding:8px 10px}
+  .body{grid-template-columns:1fr}
+  .stage{min-height:62vh}
+  .dayv{grid-template-columns:1fr;grid-template-rows:auto auto}
+  .dcol{border-right:none;border-bottom:1px solid var(--line);min-height:52vh}
+  .agenda{column-count:1}
+  .h1{font-size:26px}
+  .row,.ag .at{font-size:14.5px}
+  .rail{padding:14px}
+  .hq-sample #board{padding-bottom:130px}
+  .mc .mi{display:none}
+  .mc{min-height:9vh}
+}
+@media (max-width:620px){
+  .days{grid-template-columns:22px repeat(7,1fr)}
+  .dh .dnum{font-size:14px}
+  .ev .et{font-size:8.5px}
+}
+@media (prefers-reduced-motion:reduce){ .pip .fill{transition:none} }
+</style>
+</head>
+<body>
+
+<main id="board">
+
+  <!-- SCN-01 · HEAD AND THE SWITCHER -->
+  <header class="head">
+    <div>
+      <div class="eyebrow mono">the calendar, four ways</div>
+      <div class="h1" id="title">&nbsp;</div>
+    </div>
+    <div>
+      <div class="nowtext" id="nowText">&nbsp;</div>
+      <div class="refresh mono" id="refresh">&nbsp;</div>
+    </div>
+    <div class="switch" id="switch"></div>
+  </header>
+
+  <div class="body">
+    <section class="stage">
+
+      <!-- SCN-02 · WEEK -->
+      <div class="view" data-v="week">
+        <div class="days" id="dayHeads"></div>
+        <div class="gw" id="gw">
+          <div class="hours" id="hours"></div>
+          <div class="rules" id="rules"></div>
+          <div id="now" style="display:none"><span id="nowlab" class="mono"></span></div>
+        </div>
+      </div>
+
+      <!-- SCN-03 · MONTH -->
+      <div class="view" data-v="month">
+        <div class="mhead" id="mhead"></div>
+        <div class="mgrid" id="mgrid"></div>
+      </div>
+
+      <!-- SCN-04 · DAY -->
+      <div class="view" data-v="day">
+        <div class="dayv">
+          <div class="dcol"><div class="dline" id="dline"></div></div>
+          <div class="dside">
+            <div class="eyebrow mono" id="dSideLab">right now</div>
+            <div class="rightnow" id="dNow">&nbsp;</div>
+            <div class="rightwhy" id="dWhy"></div>
+            <div class="eyebrow mono" style="margin-top:.4vw">after that</div>
+            <div id="dAfter"></div>
+            <div id="dExtra"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCN-05 · AGENDA -->
+      <div class="view" data-v="agenda">
+        <div class="agenda" id="agenda"></div>
+      </div>
+    </section>
+
+    <!-- SCN-06 · THE RAIL -->
+    <aside class="rail">
+      <div class="railsec">
+        <div class="eyebrow mono">what is next</div>
+        <div id="railNext"></div>
+      </div>
+      <div class="railsec">
+        <div class="eyebrow mono">money out</div>
+        <div id="railMoney"></div>
+      </div>
+      <div class="kinds mono" id="kinds"></div>
+    </aside>
+  </div>
+
+  <!-- SCN-07 · THE FOOT -->
+  <div class="foot" id="foot"></div>
+</main>
+
+<script src="data.local.js"></script>
+<script src="data.js"></script>
+<script src="hq-core.js"></script>
+<script>
+"use strict";
+
+var VIEWS = ["week","month","day","agenda"];
+var DWELL = 24;                                   // seconds a view holds the stage
+var DOW = ["sun","mon","tue","wed","thu","fri","sat"];
+var DOWL = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+var KIND = {money:"--k-money",client:"--k-client",school:"--k-school",
+            work:"--k-work",personal:"--k-personal"};
+var KBG = {money:"rgba(201,144,60,.22)", client:"rgba(123,163,196,.20)",
+           school:"rgba(127,166,106,.20)", work:"rgba(168,146,201,.20)",
+           personal:"rgba(148,137,118,.16)"};
+function kcol(k){ return "var(" + (KIND[k]||"--k-personal") + ")"; }
+function kbg(k){ return KBG[k] || KBG.personal; }
+function kvars(k){ return "--k:" + kcol(k) + ";--kbg:" + kbg(k) + ";"; }
+function midnight(d){ var x = new Date(d); x.setHours(0,0,0,0); return x; }
+
+/* which view is up. ?view= pins one for a review and stops the cycle. */
+var pinned = null, vi = 0, dwellLeft = DWELL;
+try{
+  var q = new URLSearchParams(location.search).get("view");
+  if (VIEWS.indexOf(q) >= 0){ pinned = q; vi = VIEWS.indexOf(q); }
+}catch(e){}
+
+function paintSwitch(){
+  var s = document.getElementById("switch");
+  if (s.children.length !== VIEWS.length){
+    s.innerHTML = VIEWS.map(function(v){
+      return '<div class="pip" data-p="' + v + '"><div class="fill"></div>' +
+        '<div class="pn">' + v + '</div></div>'; }).join("");
+  }
+  VIEWS.forEach(function(v,i){
+    var el = s.children[i];
+    el.classList.toggle("on", i === vi);
+    el.querySelector(".fill").style.width =
+      i === vi ? (pinned ? 100 : (1 - dwellLeft/DWELL) * 100).toFixed(1) + "%" : "0%";
+  });
+  document.querySelectorAll(".view").forEach(function(el){
+    el.classList.toggle("on", el.dataset.v === VIEWS[vi]);
+  });
+}
+
+/* the one steering input a Fire TV remote can give without a tap */
+document.addEventListener("keydown", function(e){
+  if (e.key === "ArrowRight"){ vi = (vi+1) % VIEWS.length; dwellLeft = DWELL; paintSwitch(); }
+  if (e.key === "ArrowLeft"){ vi = (vi+VIEWS.length-1) % VIEWS.length; dwellLeft = DWELL; paintSwitch(); }
+});
+
+function evList(D){
+  return (D.events || []).map(function(e){
+    return { t:e.title, s:new Date(e.start), e:new Date(e.end), k:e.kind,
+             real:!!e.real, why:e.why || "" };
+  }).filter(function(e){ return !isNaN(e.s) && !isNaN(e.e); })
+    .sort(function(a,b){ return a.s - b.s; });
+}
+
+function render(){
+  var D = HQ.data();
+  var now = new Date();
+  var evs = evList(D);
+
+  var weekStart = midnight(now); weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+  var week = []; for (var i=0;i<7;i++){ var d = new Date(weekStart); d.setDate(d.getDate()+i); week.push(d); }
+  var weekEnd = new Date(week[6]); weekEnd.setHours(23,59,59,999);
+  var inWeek = evs.filter(function(e){ return e.e >= weekStart && e.s <= weekEnd; });
+
+  document.getElementById("title").innerHTML =
+    now.toLocaleDateString(undefined,{month:"long",day:"numeric"}).toLowerCase() +
+    ' <span>' + DOWL[now.getDay()] + '</span>';
+
+  var running = evs.find(function(e){ return e.s <= now && e.e > now; });
+  var future = evs.filter(function(e){ return e.s > now; });
+  var nt = document.getElementById("nowText");
+  if (running) nt.innerHTML = "right now · <b>" + HQ.esc(running.t) + "</b> · " +
+    Math.round((running.e - now)/60000) + " minutes left";
+  else if (future.length) nt.innerHTML = "nothing running · next is <b>" +
+    HQ.esc(future[0].t) + "</b> " + HQ.gapText(future[0].s - now);
+  else nt.innerHTML = "nothing running · nothing else that HQ knows about";
+
+  /* ── SCN-02 · WEEK ───────────────────────────────────────────────────── */
+  var lo = 24, hi = 0;
+  inWeek.forEach(function(e){
+    lo = Math.min(lo, e.s.getHours());
+    hi = Math.max(hi, e.e.getHours() + (e.e.getMinutes() ? 1 : 0));
+  });
+  if (lo > hi){ lo = 8; hi = 20; }
+  lo = Math.max(0, lo - 1); hi = Math.min(24, hi + 1);
+  if (hi - lo < 6) hi = Math.min(24, lo + 6);
+  var span = (hi - lo) * 60;
+
+  document.getElementById("dayHeads").innerHTML = '<div class="dh"></div>' +
+    week.map(function(d){
+      var isT = d.toDateString() === now.toDateString();
+      return '<div class="dh' + (isT ? " today" : d < midnight(now) ? " past" : "") + '">' +
+        '<div class="dow mono">' + DOW[d.getDay()] + '</div>' +
+        '<div class="dnum">' + d.getDate() + '</div></div>';
+    }).join("");
+
+  var hh = "", rr = "";
+  for (var h = lo; h <= hi; h++){
+    var top = ((h - lo) * 60 / span) * 100;
+    rr += '<i style="top:' + top.toFixed(2) + '%"></i>';
+    if (h < hi) hh += '<div class="hr mono" style="top:' + top.toFixed(2) + '%">' +
+      (h % 12 || 12) + (h >= 12 ? "p" : "a") + '</div>';
+  }
+  document.getElementById("hours").innerHTML = hh;
+  document.getElementById("rules").innerHTML = rr;
+
+  var gw = document.getElementById("gw");
+  gw.querySelectorAll(".col").forEach(function(c){ c.remove(); });
+  week.forEach(function(d){
+    var col = document.createElement("div");
+    col.className = "col" + (d.toDateString() === now.toDateString() ? " today" : "");
+    col.innerHTML = inWeek.filter(function(e){ return e.s.toDateString() === d.toDateString(); })
+      .map(function(e){
+        var s = (e.s.getHours()*60 + e.s.getMinutes()) - lo*60;
+        var en = (e.e.getHours()*60 + e.e.getMinutes()) - lo*60;
+        return '<div class="ev ' + (e.real ? "real" : "shape") + (e.e < now ? " past" : "") +
+          ((en - s) <= 45 ? " tight" : "") + '" style="' + kvars(e.k) +
+          'top:' + Math.max(0, s/span*100).toFixed(2) + '%;height:' +
+          Math.max(2.2, (en-s)/span*100).toFixed(2) + '%">' +
+          '<div class="et">' + HQ.esc(e.t) + '</div>' +
+          '<div class="eh mono">' + HQ.clockOf(e.s) + '</div></div>';
+      }).join("");
+    gw.insertBefore(col, document.getElementById("rules"));
+  });
+
+  var nEl = document.getElementById("now");
+  var mins = now.getHours()*60 + now.getMinutes();
+  if (mins >= lo*60 && mins <= hi*60){
+    nEl.style.display = "block";
+    nEl.style.top = (((mins - lo*60)/span)*100).toFixed(3) + "%";
+    document.getElementById("nowlab").textContent = HQ.clockOf(now);
+  } else nEl.style.display = "none";
+
+  /* ── SCN-03 · MONTH ──────────────────────────────────────────────────── */
+  document.getElementById("mhead").innerHTML =
+    DOW.map(function(x){ return "<div>" + x + "</div>"; }).join("");
+  var first = new Date(now.getFullYear(), now.getMonth(), 1);
+  var gridStart = new Date(first); gridStart.setDate(1 - first.getDay());
+  var lastOfMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  var cells = Math.ceil((first.getDay() + lastOfMonth) / 7) * 7;
+  var bills = (D.bills||[]).filter(function(b){ return !b.paid; })
+    .concat((D.subscriptions||[]).map(function(s){
+      return {name:s.name, due:s.renews, amount:s.amount, sample:s.sample}; }));
+  var mHtml = "";
+  for (var c = 0; c < cells; c++){
+    var d2 = new Date(gridStart); d2.setDate(gridStart.getDate() + c);
+    var key = d2.toDateString();
+    var de = evs.filter(function(e){ return e.s.toDateString() === key; });
+    var dm = bills.filter(function(b){
+      var bd = new Date(String(b.due).length <= 10 ? b.due + "T00:00:00" : b.due);
+      return !isNaN(bd) && bd.toDateString() === key; });
+    var out = d2.getMonth() !== now.getMonth();
+    var items = de.slice(0,2).map(function(e){
+      return '<div class="mi' + (e.real ? "" : " shape") + '">' + HQ.clockOf(e.s) + ' ' +
+        HQ.esc(e.t) + '</div>'; })
+      .concat(dm.slice(0,1).map(function(b){
+        return '<div class="mi money">' + (HQ.money(b.amount) || "?") + ' ' +
+          HQ.esc(b.name) + '</div>'; }));
+    var hid = (de.length + dm.length) - items.length;
+    if (hid > 0) items.push('<div class="mi more">and ' + hid + ' more</div>');
+    var bars = de.concat(dm.map(function(){ return {k:"money"}; })).slice(0,6)
+      .map(function(e){ return '<i style="background:' + kcol(e.k || "money") + '"></i>'; }).join("");
+    mHtml += '<div class="mc' + (out ? " out" : "") +
+      (key === now.toDateString() ? " today" : "") + '">' +
+      '<div class="mn">' + d2.getDate() + '</div>' + items.join("") +
+      (bars ? '<div class="bars">' + bars + '</div>' : "") + '</div>';
+  }
+  document.getElementById("mgrid").innerHTML = mHtml;
+  document.getElementById("mgrid").style.gridTemplateRows =
+    "repeat(" + (cells/7) + ",1fr)";
+
+  /* ── SCN-04 · DAY ────────────────────────────────────────────────────── */
+  var todayEvs = evs.filter(function(e){ return e.s.toDateString() === now.toDateString(); });
+  var dlo = 24, dhi = 0;
+  todayEvs.forEach(function(e){
+    dlo = Math.min(dlo, e.s.getHours());
+    dhi = Math.max(dhi, e.e.getHours() + (e.e.getMinutes() ? 1 : 0));
+  });
+  if (dlo > dhi){ dlo = 7; dhi = 22; }
+  dlo = Math.max(0, Math.min(dlo - 1, now.getHours()));
+  dhi = Math.min(24, Math.max(dhi + 1, now.getHours() + 2));
+  if (dhi - dlo < 8) dhi = Math.min(24, dlo + 8);
+  var dspan = (dhi - dlo) * 60;
+  var dHtml = "";
+  for (var h3 = dlo; h3 < dhi; h3++){
+    dHtml += '<div class="dhr mono" style="top:' + (((h3-dlo)*60/dspan)*100).toFixed(2) + '%">' +
+      (h3 % 12 || 12) + (h3 >= 12 ? "pm" : "am") + '</div>';
+  }
+  dHtml += todayEvs.map(function(e){
+    var s = (e.s.getHours()*60 + e.s.getMinutes()) - dlo*60;
+    var en = (e.e.getHours()*60 + e.e.getMinutes()) - dlo*60;
+    return '<div class="dev ' + (e.real ? "real" : "shape") + '" style="' + kvars(e.k) +
+      'top:' + Math.max(0, s/dspan*100).toFixed(2) + '%;height:' +
+      Math.max(4, (en-s)/dspan*100).toFixed(2) + '%">' +
+      '<div class="t">' + HQ.esc(e.t) + '</div>' +
+      '<div class="w mono">' + HQ.clockOf(e.s) + ' to ' + HQ.clockOf(e.e) + '</div></div>';
+  }).join("");
+  var dmins = now.getHours()*60 + now.getMinutes();
+  if (dmins >= dlo*60 && dmins <= dhi*60)
+    dHtml += '<div id="dnow" style="top:' + (((dmins-dlo*60)/dspan)*100).toFixed(3) + '%"></div>';
+  document.getElementById("dline").innerHTML = dHtml;
+
+  document.getElementById("dSideLab").textContent = running ? "right now" : "nothing running";
+  document.getElementById("dNow").textContent = running ? running.t
+    : (future.length ? future[0].t : "nothing on the books");
+  document.getElementById("dWhy").textContent = running
+    ? (running.why || Math.round((running.e - now)/60000) + " minutes left")
+    : (future.length ? HQ.gapText(future[0].s - now) + ", " + HQ.clockOf(future[0].s)
+       : "no calendar is connected, so this only ever shows what HQ already knows");
+  var after = (running ? future : future.slice(1)).slice(0,6);
+  document.getElementById("dAfter").innerHTML = after.length
+    ? after.map(function(e){
+        return '<div class="row"><span class="nm">' + HQ.esc(e.t) + '</span>' +
+          '<span class="st">' + HQ.clockOf(e.s) + ' ' + DOW[e.s.getDay()] + '</span></div>';
+      }).join("")
+    : '<div class="more mono">nothing else ahead that HQ knows about</div>';
+
+  /* the day column is one column. on a light day it left half the stage bare, so
+     the side carries what else that day actually holds. */
+  var todayTodos = (D.todos||[]).filter(function(t){ return t.when === "today"; });
+  var weekMoney = bills.filter(function(b3){
+    var dd = HQ.daysFromToday(b3.due); return dd !== null && dd <= 7; })
+    .sort(function(x,y){ return HQ.daysFromToday(x.due) - HQ.daysFromToday(y.due); });
+  document.getElementById("dExtra").innerHTML =
+    '<div class="eyebrow mono" style="margin-top:.5vw">on the list today</div>' +
+    (todayTodos.length
+      ? todayTodos.slice(0,4).map(function(t){
+          return '<div class="row"><span class="nm">' + HQ.esc(t.text) + '</span>' +
+            '<span class="st">' + HQ.esc(t.area || "") + '</span></div>'; }).join("") +
+        (todayTodos.length > 4 ? '<div class="more mono">and ' + (todayTodos.length-4) +
+          ' more marked today</div>' : "")
+      : '<div class="more mono">nothing marked for today</div>') +
+    '<div class="eyebrow mono" style="margin-top:.5vw">money out inside a week</div>' +
+    (weekMoney.length
+      ? weekMoney.slice(0,5).map(function(b4){
+          var dd = HQ.daysFromToday(b4.due);
+          return '<div class="row"><span class="nm">' + HQ.esc(b4.name) + '</span>' +
+            '<span class="st ' + (dd < 0 ? "late" : dd <= 3 ? "now" : "") + '">' +
+            (HQ.money(b4.amount) || "?") + ' · ' + HQ.dueText(b4.due) + '</span></div>';
+        }).join("")
+      : '<div class="more mono">nothing due inside a week</div>');
+
+  /* ── SCN-05 · AGENDA. everything dated, in one line, for three weeks.
+     A calendar agenda that only knows calendar events is half an agenda. Bills and
+     dated commitments land on days too, and they are the ones that cost money. ── */
+  var ahead = evs.filter(function(e){ return e.e > now; }).map(function(e){
+    return {t:e.t, s:e.s, e:e.e, k:e.k, real:e.real, kindly:""}; });
+  (D.deadlines||[]).forEach(function(x){
+    var dd = HQ.daysFromToday(x.on);
+    if (dd === null || dd < 0 || dd > 21) return;
+    var s0 = new Date(String(x.on) + "T09:00:00");
+    ahead.push({t:x.name, s:s0, e:s0, k:"money", real:true, kindly:"a dated commitment"});
+  });
+  bills.forEach(function(b2){
+    var dd = HQ.daysFromToday(b2.due);
+    if (dd === null || dd < 0 || dd > 21) return;
+    var s1 = new Date(String(b2.due).length <= 10 ? b2.due + "T08:00:00" : b2.due);
+    ahead.push({t:(HQ.money(b2.amount) || "?") + "  " + b2.name, s:s1, e:s1, k:"money",
+                real:true, kindly:b2.sample ? "an invented amount" : "money out"});
+  });
+  ahead.sort(function(x,y){ return x.s - y.s; });
+  ahead = ahead.slice(0,22);
+  var aHtml = "", lastDay = "", prevEnd = null;
+  ahead.forEach(function(e){
+    var dk = e.s.toDateString();
+    if (dk !== lastDay){
+      lastDay = dk; prevEnd = null;
+      var dd = HQ.daysFromToday(e.s.toISOString().slice(0,10));
+      aHtml += '<div class="agday">' + DOWL[e.s.getDay()] + ' · ' +
+        e.s.toLocaleDateString(undefined,{month:"short",day:"numeric"}).toLowerCase() +
+        (dd === 0 ? " · today" : dd === 1 ? " · tomorrow" : "") + '</div>';
+    } else if (prevEnd){
+      var gap = Math.round((e.s - prevEnd)/60000);
+      if (gap >= 30) aHtml += '<div class="aggap">' +
+        (gap < 60 ? gap + " minutes" : Math.floor(gap/60) + "h " + (gap%60) + "m") +
+        ' clear</div>';
+    }
+    var range = (+e.e === +e.s) ? HQ.clockOf(e.s)
+      : HQ.clockOf(e.s) + " to " + HQ.clockOf(e.e);
+    aHtml += '<div class="ag ' + (e.real ? "real" : "shape") + '" style="' + kvars(e.k) + '">' +
+      '<div class="at">' + HQ.esc(e.t) + '</div>' +
+      '<div class="aw mono"><b>' + range + '</b> · ' + HQ.gapText(e.s - now) +
+      (e.kindly ? " · " + HQ.esc(e.kindly) : "") +
+      (e.real ? "" : " · a shape only") + '</div></div>';
+    prevEnd = e.e;
+  });
+  document.getElementById("agenda").innerHTML = aHtml ||
+    '<div class="more mono">nothing ahead that HQ knows about. no calendar is connected.</div>';
+
+  /* ── SCN-06 · the rail ───────────────────────────────────────────────── */
+  var nextQ = future.slice(0,4).map(function(e){
+    return '<div class="row"><span class="nm">' + HQ.esc(e.t) + '</span>' +
+      '<span class="st">' + HQ.gapText(e.s - now) + '</span></div>'; });
+  (D.deadlines||[]).forEach(function(x){
+    var dd = HQ.daysFromToday(x.on);
+    if (dd === null || dd < 0) return;
+    nextQ.push('<div class="row"><span class="nm">' + HQ.esc(x.name) + '</span>' +
+      '<span class="st ' + (dd <= 2 ? "now" : "") + '">' + HQ.dueText(x.on) + '</span></div>');
+  });
+  document.getElementById("railNext").innerHTML = nextQ.slice(0,6).join("") +
+    (nextQ.length > 6 ? '<div class="more mono">and ' + (nextQ.length-6) + ' more</div>' : "");
+
+  var out = bills.slice().sort(function(a,b){
+    return HQ.daysFromToday(a.due) - HQ.daysFromToday(b.due); });
+  var oShow = out.slice(0,6);
+  document.getElementById("railMoney").innerHTML = oShow.map(function(b){
+    var dd = HQ.daysFromToday(b.due);
+    return '<div class="row"><span class="nm">' + HQ.esc(b.name) + '</span>' +
+      '<span class="st ' + (dd < 0 ? "late" : dd <= 3 ? "now" : "") + '">' +
+      (HQ.money(b.amount) || "?") + '</span></div>';
+  }).join("") + (out.length > oShow.length
+    ? '<div class="more mono">and ' + (out.length - oShow.length) + ' more this month</div>' : "");
+
+  document.getElementById("kinds").innerHTML =
+    Object.keys(KIND).map(function(k){
+      return '<i><b style="background:' + kcol(k) + '"></b>' + k + '</i>'; }).join("") +
+    '<i style="opacity:.75">solid = HQ knows it · hatched or italic = a shape only</i>';
+
+  /* ── SCN-07 · the foot ───────────────────────────────────────────────── */
+  var cf = HQ.fresh("calendar");
+  document.getElementById("foot").innerHTML =
+    (pinned ? '<span>view pinned to <b>' + pinned + '</b> by the address bar</span>'
+            : '<span>the four views take turns every <b>' + DWELL + ' seconds</b>. nothing is tapped.</span>') +
+    '<span>left and right on the remote steers it</span>' +
+    '<span>' + (cf.state === "unknown"
+      ? 'no calendar is connected. ' + HQ.esc(cf.needs)
+      : 'calendar · ' + HQ.esc(cf.age)) + '</span>';
+
+  paintSwitch();
+}
+
+HQ.boot(render);
+HQ.refreshLine(document.getElementById("refresh"));
+
+/* the cycle. a second beat, so the pip fill moves smoothly and the countdowns tick. */
+HQ.everySecond(function(){
+  if (pinned) { paintSwitch(); return; }
+  dwellLeft -= 1;
+  if (dwellLeft <= 0){ dwellLeft = DWELL; vi = (vi + 1) % VIEWS.length; }
+  paintSwitch();
+});
+
+setTimeout(function(){
+  var t = document.getElementById("title");
+  if (t && t.textContent.trim() === "")
+    t.textContent = "data did not load. run python3 make-data.py in this folder.";
+}, 2500);
+</script>
+</body>
+</html>
