@@ -273,3 +273,51 @@ as proof-of-delivery. Status must show an **age in seconds** plus the value the 
 still-open Safari bug where an empty value becomes uneditable after blur, and it cannot be styled
 to match. Replace with big tappable digits + a numeric keypad + 5-minute steppers, AM/PM always
 visible as two large segments.
+
+## v8, 2026-08-13 — his fullest brief yet
+
+**Verdict on the alarm: it works.** *"the alarm is actually waking me up pretty good."* The v7
+audio fix landed. The struck-bell voice stays; do not replace it.
+
+**Settled:** he is fine controlling the TV with the remote, and the iPad-as-control-panel answer
+satisfied him. Stop re-raising it.
+
+### Built this session
+- **Snooze**, which did not exist. Shrinking 9 / 7 / 5, capped at three, then the button disables
+  and it keeps ringing rather than giving up. Durations provisional pending the sleep research.
+- **A real dawn simulation.** Six keyframed stages over 30 min, deep red to warm white, colours
+  interpolated per frame, brightness rising alongside. Red first is deliberate: long wavelengths
+  do not suppress melatonin, so the early phase runs while he is still asleep.
+- **Bug found while testing:** `minsUntil` rolled to tomorrow the moment the alarm minute began, so
+  the dawn collapsed to black for the last 60 seconds. Fixed.
+- **The red/white strobe is gone.** His exact complaint. The wake screen is now a warm sunrise that
+  breathes in brightness. The strobe survives only for the no-audio emergency.
+- **Dim for sleep**, on the TV, plus **auto-dim at 22:00** because *"sometimes I might forget to
+  press it."* The dim veil retreats as the dawn rises.
+- **Privacy mode.** He films his room for TikTok and has people over. Blurs money, to-dos and the
+  whiteboard while keeping the layout full and good looking, which was his stated requirement.
+
+### The 2026-08-10 build loop: DO NOT APPLY
+*"we did a build loop on this project... don't apply that for now. I still haven't reviewed it."*
+It sits in `build-loop-2026-08-10/` (TV01-TV12 + a launcher) and **never touched `index.html`** —
+verified before editing. Surface it to him in a launcher when he asks; do not merge it.
+
+### The big one: NERVE-SYSTEM.md
+The system-status idea deserves its own document and now has one:
+`projects/hq-tv/NERVE-SYSTEM.md`. Read it before touching the data layer. Summary: the TV's real
+job is to show whether the machinery is alive, distinguish "job ran" from "data is fresh" from
+"credential still valid", and make him act **before** he leaves the house. The always-on **home
+MacBook** is the hub, not the M5.
+
+### Live data is still the credibility gap
+*"it still says sample... which means you're not pushing information to it."* Correct. Blocked on
+the home MacBook publishing a payload every ~30 min. Until then every unverified figure keeps
+saying sample, per the standing never-show-a-stale-number rule.
+
+### How he wants me to work (now global memory, applies everywhere)
+*"I'm not gonna give you clear directions, I'm giving you ideas... you're supposed to come up with
+it yourself."* *"I have ADHD, I cannot always narrate this deep into every little build."* *"When
+one day I'm slacking, you can take over, because you know how I think. You can be my partner."*
+Saved as `be-his-partner-not-his-typist` in ~/.claude memory. **A hint is an instruction.** Proved
+immediately: he mentioned the M5 return window in passing, so it became a dated commitment with
+days to spare.
