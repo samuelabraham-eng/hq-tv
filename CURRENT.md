@@ -5,10 +5,10 @@
 
 | | |
 |---|---|
-| Stamped | 2026-08-13 18:09 |
+| Stamped | 2026-08-13 20:10 |
 | Stamped from | Samuel’s MacBook Pro |
-| Last commit | 2026-08-13 16:09 |
-| Last commit was | autosave 2026-08-13 16:08 from Samuel’s MacBook Pro |
+| Last commit | 2026-08-13 18:09 |
+| Last commit was | autosave 2026-08-13 18:09 from Samuel’s MacBook Pro |
 | Branch | main |
 | GitHub | samuelabraham-eng/hq-tv |
 
@@ -21,6 +21,7 @@ before building further, or the next session will drift again.
 
 Newest first. The top entry is almost always the live build.
 
+- `index.html` — 2026-08-13 18:10
 - `build-loop-2026-08-10/TV03-money.html` — 2026-08-13 15:15
 - `build-loop-2026-08-10/LAUNCHER.html` — 2026-08-13 15:12
 - `build-loop-2026-08-10/TV12-mosaic.html` — 2026-08-13 15:03
@@ -28,7 +29,6 @@ Newest first. The top entry is almost always the live build.
 - `build-loop-2026-08-10/TV10-views.html` — 2026-08-13 14:57
 - `build-loop-2026-08-10/TV04-console.html` — 2026-08-13 14:52
 - `build-loop-2026-08-10/TV06-board.html` — 2026-08-13 14:51
-- `build-loop-2026-08-10/TV05-dayparts.html` — 2026-08-13 14:51
 
 ---
 
