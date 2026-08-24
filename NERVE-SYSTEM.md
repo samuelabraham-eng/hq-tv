@@ -56,10 +56,12 @@ screen. **Show freshness as an age, and show credential expiry BEFORE it expires
 - It should **pre-pull everything on a schedule** (~every 30 minutes) so that data is warm before
   anyone asks for it.
 - It publishes a curated payload that the TV reads. **The TV never pulls from sources directly.**
-- Future: he intends to **stop using the Fire TV browser** and instead run the dashboard on the
-  home MacBook, output over **HDMI as an always-on second display**. Design for that: it removes
+- ~~Future:~~ **CONFIRMED THE PLAN, 2026-08-24.** His words: *"this has to run on the home
+  macbook running hdmi to the fire TV since this is always going to be on."* Stop designing for
+  Silk. The dashboard (and the Monday voice overlay, see `idea-lab/research/08` v2 section)
+  runs ON the home MacBook, output over **HDMI as an always-on second display**. This removes
   every Fire TV constraint (the 20-minute sleep, Silk quirks, kiosk apps) and makes the machine
-  showing the screen the same machine holding the data.
+  showing the screen the same machine holding the data — and the same machine listening.
 
 ---
 
