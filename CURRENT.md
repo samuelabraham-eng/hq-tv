@@ -5,10 +5,10 @@
 
 | | |
 |---|---|
-| Stamped | 2026-09-01 04:08 |
-| Stamped from | Samuel's Windows Desktop |
-| Last commit | 2026-09-01 03:52 |
-| Last commit was | autosave 2026-09-01 03:52 from Samuel’s MacBook Pro |
+| Stamped | 2026-09-01 05:53 |
+| Stamped from | Samuel’s MacBook Pro |
+| Last commit | 2026-09-01 04:08 |
+| Last commit was | autosave 2026-09-01 04:07 from Samuel's Windows Desktop |
 | Branch | main |
 | GitHub | samuelabraham-eng/hq-tv |
 
@@ -21,14 +21,14 @@ before building further, or the next session will drift again.
 
 Newest first. The top entry is almost always the live build.
 
-- `index.html` — 2026-09-01 01:32
-- `build-loop-2026-08-10/TV12-mosaic.html` — 2026-09-01 01:32
-- `build-loop-2026-08-10/TV11-sky.html` — 2026-09-01 01:32
-- `build-loop-2026-08-10/TV10-views.html` — 2026-09-01 01:32
-- `build-loop-2026-08-10/TV06-board.html` — 2026-09-01 01:32
-- `build-loop-2026-08-10/TV05-dayparts.html` — 2026-09-01 01:32
-- `build-loop-2026-08-10/TV04-console.html` — 2026-09-01 01:32
-- `build-loop-2026-08-10/TV03-money.html` — 2026-09-01 01:32
+- `index.html` — 2026-08-25 18:20
+- `build-loop-2026-08-10/TV03-money.html` — 2026-08-13 15:15
+- `build-loop-2026-08-10/LAUNCHER.html` — 2026-08-13 15:12
+- `build-loop-2026-08-10/TV12-mosaic.html` — 2026-08-13 15:03
+- `build-loop-2026-08-10/TV11-sky.html` — 2026-08-13 15:01
+- `build-loop-2026-08-10/TV10-views.html` — 2026-08-13 14:57
+- `build-loop-2026-08-10/TV04-console.html` — 2026-08-13 14:52
+- `build-loop-2026-08-10/TV06-board.html` — 2026-08-13 14:51
 
 ---
 
