@@ -5,30 +5,39 @@
 
 | | |
 |---|---|
-| Stamped | 2026-09-01 22:08 |
-| Stamped from | Samuel's Windows Desktop |
-| Last commit | 2026-09-01 20:08 |
-| Last commit was | autosave 2026-09-01 20:07 from Samuel's Windows Desktop |
+| Stamped | 2026-09-02 19:20 |
+| Stamped from | Samuel’s MacBook Pro |
+| Last commit | 2026-09-01 22:08 |
+| Last commit was | autosave 2026-09-01 22:07 from Samuel's Windows Desktop |
 | Branch | main |
 | GitHub | samuelabraham-eng/hq-tv |
 
-## No design lock yet
+## Design lock is ACTIVE
 
-There is no `DESIGN-LOCK.md` here. If Samuel has approved a look, write one
-before building further, or the next session will drift again.
+`DESIGN-LOCK.md` exists at this root and it outranks everything below.
+Read it before restyling anything. Never restyle outside it.
+
+> # DESIGN-LOCK, hq-tv
+> ## The skin (locked)
+> - Ground `#100e0c`, tile `#1a1512`, tile2 `#211b16`, hairline `#2a241d`
+> - Text bone `#f1ebdf`, secondary dim `#8a8073`
+> - Accent gold `#c9a96a` (accents and chips, never large fills), on-accent `#2b2208`
+> - Alert red `#d0402e`, ok green `#7e9b7a`
+> - Font: Plus Jakarta Sans (400/500/700/800), display headings bold lowercase
+> - Warm black, premium, calm, generous spacing. No gradients, no glassmorphism,
 
 ## Most recently touched build files
 
 Newest first. The top entry is almost always the live build.
 
-- `index.html` — 2026-09-01 01:32
-- `build-loop-2026-08-10/TV12-mosaic.html` — 2026-09-01 01:32
-- `build-loop-2026-08-10/TV11-sky.html` — 2026-09-01 01:32
-- `build-loop-2026-08-10/TV10-views.html` — 2026-09-01 01:32
-- `build-loop-2026-08-10/TV06-board.html` — 2026-09-01 01:32
-- `build-loop-2026-08-10/TV05-dayparts.html` — 2026-09-01 01:32
-- `build-loop-2026-08-10/TV04-console.html` — 2026-09-01 01:32
-- `build-loop-2026-08-10/TV03-money.html` — 2026-09-01 01:32
+- `index.html` — 2026-08-25 18:20
+- `build-loop-2026-08-10/TV03-money.html` — 2026-08-13 15:15
+- `build-loop-2026-08-10/LAUNCHER.html` — 2026-08-13 15:12
+- `build-loop-2026-08-10/TV12-mosaic.html` — 2026-08-13 15:03
+- `build-loop-2026-08-10/TV11-sky.html` — 2026-08-13 15:01
+- `build-loop-2026-08-10/TV10-views.html` — 2026-08-13 14:57
+- `build-loop-2026-08-10/TV04-console.html` — 2026-08-13 14:52
+- `build-loop-2026-08-10/TV06-board.html` — 2026-08-13 14:51
 
 ---
 
