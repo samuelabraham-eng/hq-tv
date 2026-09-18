@@ -96,6 +96,36 @@ header{display:flex;align-items:flex-end;justify-content:space-between;gap:30px}
 .monday .hint{font-size:12.5px;color:var(--dim);flex:0 0 auto}
 .stale{color:var(--red);font-weight:700}
 
+/* ---------- monday wake overlay ----------
+   Samuel, Sept 18 2026: he wants the HQ board to BE the interface and Monday to
+   "pop up" on it, not live on a separate page. The slim bottom bar stays as the
+   quiet proof she is alive; this card is the loud state and only exists while
+   she is actually in a turn. */
+.veil{
+  position:absolute;inset:0;background:rgba(16,14,12,.82);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .22s ease;z-index:40;
+}
+.veil.show{opacity:1}
+.wake{
+  width:min(760px,76vw);background:var(--tile2);
+  border:1px solid var(--gold);border-radius:20px;
+  padding:38px 44px;text-align:center;
+  transform:translateY(14px) scale(.98);transition:transform .22s ease;
+}
+.veil.show .wake{transform:translateY(0) scale(1)}
+.wake .orbwrap{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:22px}
+.wake .borb{width:16px;height:16px;border-radius:50%;background:var(--gold);animation:pulse 1.5s ease-in-out infinite}
+.wake.thinking .borb{animation:none;opacity:.5}
+.wake.speaking .borb{background:var(--green);animation:none}
+.wake .bst{font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.wake.speaking .bst{color:var(--green)}
+.wake .heard{font-size:34px;font-weight:700;line-height:1.3;letter-spacing:-.02em;min-height:1.3em}
+.wake .heard.dim{color:var(--dim);font-weight:500;font-size:26px}
+.wake .reply{font-size:20px;line-height:1.5;color:var(--gold);margin-top:18px}
+.wake .foot{font-size:13px;color:var(--dim);margin-top:24px}
+body{position:relative}
+
 /* The TV is 1080p and that is the design target. Shorter screens (the iPad
    kiosk, a laptop check) get the same board with less chrome, so panels keep
    real room for rows instead of collapsing to their headers. */
@@ -159,6 +189,15 @@ header{display:flex;align-items:flex-end;justify-content:space-between;gap:30px}
       <h2>now working</h2>
       <div class="scroll" id="lanes"><div class="calm">&mdash;</div></div>
     </section>
+  </div>
+</div>
+
+<div class="veil" id="veil">
+  <div class="wake" id="wake">
+    <div class="orbwrap"><span class="borb"></span><span class="bst" id="wState">listening</span></div>
+    <div class="heard dim" id="wHeard">go ahead</div>
+    <div class="reply" id="wReply"></div>
+    <div class="foot">say &ldquo;close out&rdquo; when you&rsquo;re done</div>
   </div>
 </div>
 
@@ -342,6 +381,8 @@ setInterval(poll, 15000);
 
 // ---- Monday, over her own websocket. Absent daemon = honest "offline". ----
 var LABEL = { idle: 'ready', listening: 'listening', thinking: 'thinking', speaking: 'speaking' };
+var hideTimer = null;
+
 function setMonday(state, text) {
   var el = $('monday');
   el.className = 'monday ' + state;
@@ -349,7 +390,38 @@ function setMonday(state, text) {
   var tx = $('mText');
   tx.textContent = text;
   tx.className = 'tx' + (state === 'idle' || state === 'down' ? ' idle' : '');
+  paintVeil(state);
 }
+
+// The card is up for exactly as long as she is in a turn. idle/down drop it,
+// after a short grace period so a finished answer stays readable.
+function paintVeil(state) {
+  var veil = $('veil'), wake = $('wake');
+  wake.className = 'wake ' + state;
+  $('wState').textContent = LABEL[state] || state;
+
+  if (state === 'idle' || state === 'down') {
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(function () {
+      veil.classList.remove('show');
+      $('wHeard').textContent = 'go ahead';
+      $('wHeard').className = 'heard dim';
+      $('wReply').textContent = '';
+    }, 2600);
+    return;
+  }
+  clearTimeout(hideTimer);
+  veil.classList.add('show');
+  if (state === 'listening') $('wReply').textContent = '';
+}
+
+function showHeard(text) {
+  var h = $('wHeard');
+  h.textContent = text;
+  h.className = 'heard';
+}
+
+function showReply(text) { $('wReply').textContent = text; }
 
 var ws = null, retry = null;
 function connectMonday() {
@@ -362,8 +434,8 @@ function connectMonday() {
     var m;
     try { m = JSON.parse(ev.data); } catch (e) { return; }
     if (m.type === 'state') setMonday(m.value, m.value === 'idle' ? 'say “monday”' : '…');
-    else if (m.type === 'transcript' && m.text) setMonday('listening', m.text);
-    else if (m.type === 'reply' && m.text) setMonday('speaking', m.text);
+    else if (m.type === 'transcript' && m.text) { setMonday('listening', m.text); showHeard(m.text); }
+    else if (m.type === 'reply' && m.text) { setMonday('speaking', m.text); showReply(m.text); }
     else if (m.type === 'panel' && m.name === 'alarm') renderAlarm(m.data);
     else if (m.type === 'error' && m.text) setMonday('down', m.text);
   };
