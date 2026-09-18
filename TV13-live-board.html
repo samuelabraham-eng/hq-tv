@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Samuel HQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+/* DESIGN-LOCK hq-tv: warm black, gold accent, Plus Jakarta Sans.
+   No gradients, no glassmorphism, no purple, no cold grays. */
+:root{
+  --ground:#100e0c; --tile:#1a1512; --tile2:#211b16; --hair:#2a241d;
+  --bone:#f1ebdf; --dim:#8a8073;
+  --gold:#c9a96a; --on-gold:#2b2208;
+  --red:#d0402e; --green:#7e9b7a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--ground); color:var(--bone);
+  font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-weight:400; -webkit-font-smoothing:antialiased;
+  padding:34px 40px; display:flex; flex-direction:column; gap:22px;
+  overflow:hidden;
+}
+/* ---------- header ---------- */
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:30px}
+.clock{font-size:86px;font-weight:800;line-height:.9;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.meridiem{font-size:30px;font-weight:500;color:var(--dim);margin-left:10px;letter-spacing:0}
+.datel{font-size:17px;color:var(--dim);margin-top:12px;font-weight:500}
+.brand{text-align:right}
+.brand h1{font-size:23px;font-weight:800;letter-spacing:-.01em;text-transform:lowercase}
+.brand .stamp{font-size:13px;color:var(--dim);margin-top:5px;font-variant-numeric:tabular-nums}
+/* ---------- alarm ---------- */
+.alarm{
+  display:flex;align-items:center;gap:16px;
+  background:var(--tile);border:1px solid var(--hair);border-radius:14px;
+  padding:16px 22px;
+}
+.alarm.on{border-color:var(--gold)}
+.alarm .ico{width:9px;height:9px;border-radius:50%;background:var(--dim);flex:0 0 auto}
+.alarm.on .ico{background:var(--gold)}
+.alarm .t{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.alarm.off .t{color:var(--dim);font-size:20px;font-weight:500}
+.alarm .meta{font-size:14px;color:var(--dim);margin-left:auto;text-align:right;line-height:1.5}
+.alarm .lbl{font-size:13px;color:var(--gold);text-transform:uppercase;letter-spacing:.09em;font-weight:700}
+/* ---------- zones ---------- */
+.zones{display:grid;grid-template-columns:1.2fr 1fr;gap:22px;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;gap:22px;min-height:0}
+.panel{background:var(--tile);border:1px solid var(--hair);border-radius:14px;padding:20px 22px;min-height:0;display:flex;flex-direction:column;flex:1 1 0}
+.panel.fixed{flex:0 0 auto}
+.panel > h2{font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);margin-bottom:15px;flex:0 0 auto}
+.scroll{overflow:hidden;flex:1;min-height:0}
+.panel.grow{flex:1 1 auto}
+/* systems */
+.sys{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.s{display:flex;align-items:center;gap:11px;background:var(--tile2);border:1px solid transparent;border-radius:10px;padding:12px 14px}
+.s .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;background:var(--dim)}
+.s.live .dot{background:var(--green)}
+.s.attention .dot{background:var(--gold)}
+.s.down .dot{background:var(--red)}
+.s.down{border-color:var(--red)}
+.s .n{font-size:14.5px;font-weight:700;text-transform:lowercase}
+.s .d{font-size:12.5px;color:var(--dim);margin-left:auto;text-align:right;max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* alerts */
+.al{display:flex;gap:11px;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--hair);font-size:14.5px;line-height:1.45}
+.al:last-child{border-bottom:none}
+.al .tier{flex:0 0 auto;font-size:14px}
+.al .main{flex:1;min-width:0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.al .side{flex:0 0 auto;font-size:12.5px;color:var(--dim);text-transform:lowercase;font-weight:700}
+.al.hot .side{color:var(--gold)}
+.calm{color:var(--dim);font-size:14.5px;padding:10px 0}
+/* now working: machine + clamped note */
+.lane{padding:10px 0;border-bottom:1px solid var(--hair)}
+.lane:last-child{border-bottom:none}
+.lane-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:3px}
+.lane .mach{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--gold)}
+.lane .side{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+.lane-n{font-size:13.5px;line-height:1.5;color:var(--dim);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+/* monday bar */
+.monday{background:var(--tile);border:1px solid var(--hair);border-radius:14px;padding:18px 22px;display:flex;align-items:center;gap:18px;flex:0 0 auto}
+.monday.listening{border-color:var(--gold)}
+.monday.down{border-color:var(--red)}
+.orb{width:15px;height:15px;border-radius:50%;background:var(--dim);flex:0 0 auto}
+.monday.listening .orb{background:var(--gold);animation:pulse 1.5s ease-in-out infinite}
+.monday.thinking .orb{background:var(--gold);opacity:.55}
+.monday.speaking .orb{background:var(--green)}
+.monday.down .orb{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.8)}}
+.monday .st{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.11em;color:var(--gold);flex:0 0 auto}
+.monday.down .st{color:var(--red)}
+.monday .tx{font-size:16.5px;color:var(--bone);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.monday .tx.idle{color:var(--dim)}
+.monday .hint{font-size:12.5px;color:var(--dim);flex:0 0 auto}
+.stale{color:var(--red);font-weight:700}
+
+/* The TV is 1080p and that is the design target. Shorter screens (the iPad
+   kiosk, a laptop check) get the same board with less chrome, so panels keep
+   real room for rows instead of collapsing to their headers. */
+@media (max-height: 900px){
+  body{padding:22px 26px;gap:14px}
+  .clock{font-size:58px}
+  .meridiem{font-size:22px}
+  .datel{font-size:14px;margin-top:7px}
+  .alarm{padding:11px 18px}
+  .alarm .t{font-size:24px}
+  .zones{gap:14px}
+  .col{gap:14px}
+  .panel{padding:14px 16px}
+  .panel > h2{margin-bottom:9px}
+  .s{padding:9px 11px}
+  .monday{padding:12px 18px}
+}
+@media (max-height: 720px){
+  .clock{font-size:44px}
+  .sys{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="clock"><span id="time">--:--</span><span class="meridiem" id="mer"></span></div>
+    <div class="datel" id="date">&nbsp;</div>
+  </div>
+  <div class="brand">
+    <h1>samuel hq</h1>
+    <div class="stamp" id="stamp">connecting</div>
+  </div>
+</header>
+
+<div class="alarm off" id="alarm">
+  <span class="ico"></span>
+  <span class="lbl">alarm</span>
+  <span class="t" id="alarmTime">none set</span>
+  <span class="meta" id="alarmMeta">say &ldquo;monday set alarm for 7 30&rdquo;</span>
+</div>
+
+<div class="zones">
+  <div class="col">
+    <section class="panel fixed">
+      <h2>systems</h2>
+      <div class="sys" id="sys"></div>
+    </section>
+    <section class="panel">
+      <h2>today</h2>
+      <div class="scroll" id="today"><div class="calm">&mdash;</div></div>
+    </section>
+  </div>
+  <div class="col">
+    <section class="panel" style="flex:1.15 1 0">
+      <h2>alerts</h2>
+      <div class="scroll" id="alerts"><div class="calm">&mdash;</div></div>
+    </section>
+    <section class="panel">
+      <h2>now working</h2>
+      <div class="scroll" id="lanes"><div class="calm">&mdash;</div></div>
+    </section>
+  </div>
+</div>
+
+<div class="monday down" id="monday">
+  <span class="orb"></span>
+  <span class="st" id="mState">offline</span>
+  <span class="tx idle" id="mText">monday is not running</span>
+  <span class="hint">say &ldquo;monday&rdquo; &middot; &ldquo;close out&rdquo; to end</span>
+</div>
+
+<script>
+'use strict';
+// Honesty rules (DESIGN-LOCK): real data only, stale shown as stale, never a
+// placeholder presented as live. Every failure path writes an explicit unknown.
+
+var $ = function (id) { return document.getElementById(id); };
+
+function clock() {
+  var d = new Date();
+  var h = d.getHours(), m = d.getMinutes();
+  $('time').textContent = (h % 12 || 12) + ':' + (m < 10 ? '0' + m : m);
+  $('mer').textContent = h < 12 ? 'am' : 'pm';
+  $('date').textContent = d.toLocaleDateString('en-US',
+    { weekday: 'long', month: 'long', day: 'numeric' }).toLowerCase();
+}
+clock();
+setInterval(clock, 10000);
+
+function ago(s) {
+  if (s === null || s === undefined) return '';
+  if (s < 90) return Math.round(s) + 's ago';
+  if (s < 5400) return Math.round(s / 60) + 'm ago';
+  if (s < 172800) return Math.round(s / 3600) + 'h ago';
+  return Math.round(s / 86400) + 'd ago';
+}
+
+function renderAlarm(a) {
+  var el = $('alarm');
+  if (!a || !a.enabled || !a.time) {
+    el.className = 'alarm off';
+    $('alarmTime').textContent = 'none set';
+    $('alarmMeta').innerHTML = 'say “monday set alarm for 7 30”';
+    return;
+  }
+  el.className = 'alarm on';
+  var p = a.time.split(':'), h = parseInt(p[0], 10), mm = p[1];
+  $('alarmTime').textContent = (h % 12 || 12) + ':' + mm + ' ' + (h < 12 ? 'am' : 'pm');
+  var meta = '';
+  if (a.fires_in_s !== null && a.fires_in_s !== undefined) {
+    var hrs = Math.floor(a.fires_in_s / 3600), mins = Math.round((a.fires_in_s % 3600) / 60);
+    meta = 'in ' + (hrs ? hrs + 'h ' : '') + mins + 'm';
+  }
+  if (a.label) meta += (meta ? ' &middot; ' : '') + a.label;
+  if (a.set_by) meta += '<br>set by ' + a.set_by;
+  $('alarmMeta').innerHTML = meta || '&nbsp;';
+}
+
+function renderBoard(d) {
+  var sys = $('sys');
+  sys.innerHTML = '';
+  (d.systems || []).forEach(function (s) {
+    var div = document.createElement('div');
+    div.className = 's ' + (s.state || 'unknown');
+    var n = document.createElement('span'); n.className = 'n';
+    n.textContent = (s.name || '').replace(/_/g, ' ');
+    var dd = document.createElement('span'); dd.className = 'd';
+    dd.textContent = s.detail || '';
+    div.appendChild(Object.assign(document.createElement('span'), { className: 'dot' }));
+    div.appendChild(n); div.appendChild(dd);
+    sys.appendChild(div);
+  });
+
+  var al = $('alerts');
+  al.innerHTML = '';
+  var alerts = d.alerts || [];
+  if (!alerts.length) {
+    al.innerHTML = '<div class="calm">nothing needs you right now</div>';
+  } else {
+    alerts.slice(0, 4).forEach(function (a) {
+      var r = document.createElement('div'); r.className = 'al';
+      var t = document.createElement('span'); t.className = 'tier'; t.textContent = a.tier || '';
+      var x = document.createElement('span'); x.className = 'main'; x.textContent = a.text || '';
+      x.title = a.text || '';
+      r.appendChild(t); r.appendChild(x); al.appendChild(r);
+    });
+  }
+
+  renderToday(d.today);
+  renderLanes(d.lanes);
+
+  var gen = d.generated ? String(d.generated).replace('T', ' ').slice(0, 16) : 'unknown';
+  $('stamp').textContent = 'board ' + gen;
+  $('stamp').className = 'stamp';
+}
+
+function row(parent, main, side, cls) {
+  var r = document.createElement('div'); r.className = 'al' + (cls ? ' ' + cls : '');
+  var m = document.createElement('span'); m.className = 'main'; m.textContent = main;
+  r.appendChild(m);
+  if (side) {
+    var sd = document.createElement('span'); sd.className = 'side'; sd.textContent = side;
+    r.appendChild(sd);
+  }
+  parent.appendChild(r);
+  return r;
+}
+
+function dayLabel(iso) {
+  if (!iso) return '';
+  var d = new Date(iso + 'T12:00:00');
+  if (isNaN(d)) return iso;
+  var today = new Date(); today.setHours(12, 0, 0, 0);
+  var days = Math.round((d - today) / 86400000);
+  if (days === 0) return 'today';
+  if (days === 1) return 'tomorrow';
+  if (days < 0) return 'overdue';
+  if (days < 7) return d.toLocaleDateString('en-US', { weekday: 'short' }).toLowerCase();
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toLowerCase();
+}
+
+// `today` is an object of named sections, not a list. School deadlines are the
+// spine; a live Turo trip earns a line of its own.
+function renderToday(t) {
+  var el = $('today');
+  el.innerHTML = '';
+  if (!t || typeof t !== 'object') { el.innerHTML = '<div class="calm">&mdash;</div>'; return; }
+
+  var next = t.school_next || [];
+  next.slice(0, 4).forEach(function (it) {
+    var when = dayLabel(it.date);
+    var r = row(el, (it.course ? it.course + ' \u00b7 ' : '') + (it.item || ''), when,
+                when === 'overdue' || when === 'today' ? 'hot' : '');
+    r.title = it.item || '';
+  });
+
+  var turo = t.turo;
+  if (turo && typeof turo === 'object') {
+    var guest = turo.guest || turo.next_guest;
+    if (guest) row(el, 'turo \u00b7 ' + guest, turo.start ? dayLabel(String(turo.start).slice(0, 10)) : '');
+  }
+  if (!el.children.length) el.innerHTML = '<div class="calm">nothing scheduled</div>';
+}
+
+// bus/FEED entries: one machine, one note. The note is long, so it gets clamped
+// to two lines rather than dumped raw.
+function renderLanes(lanes) {
+  var el = $('lanes');
+  el.innerHTML = '';
+  if (!lanes || !lanes.length) { el.innerHTML = '<div class="calm">&mdash;</div>'; return; }
+  lanes.slice(0, 3).forEach(function (l) {
+    var r = document.createElement('div'); r.className = 'lane';
+    var head = document.createElement('div'); head.className = 'lane-h';
+    var mach = document.createElement('span'); mach.className = 'mach';
+    mach.textContent = (l.machine || 'unknown').toLowerCase();
+    var when = document.createElement('span'); when.className = 'side';
+    when.textContent = (l.time || '').slice(5, 16).replace('-', '/');
+    head.appendChild(mach); head.appendChild(when);
+    var note = document.createElement('div'); note.className = 'lane-n';
+    note.textContent = l.note || '';
+    note.title = l.note || '';
+    r.appendChild(head); r.appendChild(note);
+    el.appendChild(r);
+  });
+}
+
+function poll() {
+  fetch('/api/board', { cache: 'no-store' })
+    .then(function (r) { return r.json(); })
+    .then(renderBoard)
+    .catch(function () {
+      $('stamp').textContent = 'board unreachable';
+      $('stamp').className = 'stamp stale';
+    });
+  fetch('/api/alarm', { cache: 'no-store' })
+    .then(function (r) { return r.json(); })
+    .then(renderAlarm)
+    .catch(function () { /* leave the last known alarm rather than lie */ });
+}
+poll();
+setInterval(poll, 15000);
+
+// ---- Monday, over her own websocket. Absent daemon = honest "offline". ----
+var LABEL = { idle: 'ready', listening: 'listening', thinking: 'thinking', speaking: 'speaking' };
+function setMonday(state, text) {
+  var el = $('monday');
+  el.className = 'monday ' + state;
+  $('mState').textContent = LABEL[state] || state;
+  var tx = $('mText');
+  tx.textContent = text;
+  tx.className = 'tx' + (state === 'idle' || state === 'down' ? ' idle' : '');
+}
+
+var ws = null, retry = null;
+function connectMonday() {
+  try { ws = new WebSocket('ws://127.0.0.1:8765/ws'); } catch (e) { return schedule(); }
+  ws.onopen = function () {
+    setMonday('idle', 'say “monday”');
+    try { ws.send(JSON.stringify({ type: 'hello' })); } catch (e) {}
+  };
+  ws.onmessage = function (ev) {
+    var m;
+    try { m = JSON.parse(ev.data); } catch (e) { return; }
+    if (m.type === 'state') setMonday(m.value, m.value === 'idle' ? 'say “monday”' : '…');
+    else if (m.type === 'transcript' && m.text) setMonday('listening', m.text);
+    else if (m.type === 'reply' && m.text) setMonday('speaking', m.text);
+    else if (m.type === 'panel' && m.name === 'alarm') renderAlarm(m.data);
+    else if (m.type === 'error' && m.text) setMonday('down', m.text);
+  };
+  ws.onclose = function () { setMonday('down', 'monday is not running'); schedule(); };
+  ws.onerror = function () { try { ws.close(); } catch (e) {} };
+}
+function schedule() {
+  clearTimeout(retry);
+  retry = setTimeout(connectMonday, 5000);
+}
+connectMonday();
+</script>
+</body>
+</html>
