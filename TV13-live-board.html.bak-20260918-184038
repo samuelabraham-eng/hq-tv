@@ -71,11 +71,6 @@ header{display:flex;align-items:flex-end;justify-content:space-between;gap:30px}
 .al .main{flex:1;min-width:0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .al .side{flex:0 0 auto;font-size:12.5px;color:var(--dim);text-transform:lowercase;font-weight:700}
 .al.hot .side{color:var(--gold)}
-/* email that still needs a human answer. Three lines, not two: a one-line clamp
-   turned "Abegail still owed the Buy/Sell photo swap" into "Abegail still owed
-   the...", which is exactly the unreadable state this board exists to fix. */
-.al.mail .main{-webkit-line-clamp:3}
-.al.mail{border-left:2px solid var(--gold);padding-left:11px;margin-left:-13px}
 .calm{color:var(--dim);font-size:14.5px;padding:10px 0}
 /* now working: machine + clamped note */
 .lane{padding:10px 0;border-bottom:1px solid var(--hair)}
@@ -281,8 +276,8 @@ function renderBoard(d) {
   if (!alerts.length) {
     al.innerHTML = '<div class="calm">nothing needs you right now</div>';
   } else {
-    alerts.slice(0, 5).forEach(function (a) {
-      var r = document.createElement('div'); r.className = 'al' + (a.kind === 'mail' ? ' mail' : '');
+    alerts.slice(0, 4).forEach(function (a) {
+      var r = document.createElement('div'); r.className = 'al';
       var t = document.createElement('span'); t.className = 'tier'; t.textContent = a.tier || '';
       var x = document.createElement('span'); x.className = 'main'; x.textContent = a.text || '';
       x.title = a.text || '';
