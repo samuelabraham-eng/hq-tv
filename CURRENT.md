@@ -5,10 +5,10 @@
 
 | | |
 |---|---|
-| Stamped | 2026-09-18 04:59 |
+| Stamped | 2026-09-18 06:08 |
 | Stamped from | Samuel's Windows Desktop |
-| Last commit | 2026-09-18 04:28 |
-| Last commit was | autosave 2026-09-18 04:28 from Samuel’s MacBook Pro |
+| Last commit | 2026-09-18 06:01 |
+| Last commit was | Samuel HQ.app + Monday as a popup on the board |
 | Branch | main |
 | GitHub | samuelabraham-eng/hq-tv |
 
@@ -30,6 +30,7 @@ Read it before restyling anything. Never restyle outside it.
 
 Newest first. The top entry is almost always the live build.
 
+- `TV13-live-board.html` · 2026-09-18 06:08
 - `index.html` · 2026-09-01 01:32
 - `build-loop-2026-08-10/TV12-mosaic.html` · 2026-09-01 01:32
 - `build-loop-2026-08-10/TV11-sky.html` · 2026-09-01 01:32
@@ -37,7 +38,6 @@ Newest first. The top entry is almost always the live build.
 - `build-loop-2026-08-10/TV06-board.html` · 2026-09-01 01:32
 - `build-loop-2026-08-10/TV05-dayparts.html` · 2026-09-01 01:32
 - `build-loop-2026-08-10/TV04-console.html` · 2026-09-01 01:32
-- `build-loop-2026-08-10/TV03-money.html` · 2026-09-01 01:32
 
 ---
 
