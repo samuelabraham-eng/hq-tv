@@ -1,13 +1,31 @@
 # hq-tv
 
-The Samuel HQ dashboard for a TV, an iPad, a phone, or a monitor. One file, no build step,
-no dependencies beyond a webfont.
+The Samuel HQ dashboard for a TV, an iPad, a phone, or a monitor. The current production
+surface is `TV13-live-board.html`. It is served by `home-server/boardd`, which curates a
+small JSON view from Samuel HQ and exposes the alarm contract. Monday connects directly to
+the page over her local websocket.
 
-- `index.html` is the whole app.
-- Data lives in the `DATA` object at the top of the script. It is hand written for now and is
-  honest about what it does not know. Phase 3 swaps it for a fetch of a curated file generated
-  out of the private `samuel-hq` repo. Nothing else has to change.
-- **Never point this at the private brain directly.** Only curated, safe fields leave HQ.
+- `TV13-live-board.html` is the live board and has no build step.
+- `index.html` is the earlier standalone dashboard and alarm prototype.
+- The private brain is never served as a directory. `boardd` returns only the fields the
+  board knows how to display.
+- The locked noir design in `DESIGN-LOCK.md` applies to the live surface.
+
+## Live-board verification
+
+The static suite guards design tokens, safe alarm rendering, honest failure states, semantic
+alerts, and reduced motion. The browser suite launches Chrome against real `boardd`, tests
+the alarm HTTP contract, simulates API failure and recovery, and verifies the Monday websocket
+overlay at 1920x1080, 1280x720, and 1024x768.
+
+Use the Python environment from the Monday daemon:
+
+```sh
+../monday/daemon/.venv/bin/python -m pytest -q
+```
+
+Run the browser suite with `../monday/daemon/.venv/bin/python tests/run_browser.py`. The runner
+starts and stops both `boardd` and the deterministic websocket fixture in `tests/fake_monday.py`.
 
 ## What works today
 Live clock, a real alarm with a 25 minute sunrise ramp that uses the TV as a lamp, sound that

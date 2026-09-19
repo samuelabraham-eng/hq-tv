@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Samuel HQ</title>
+<link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -36,12 +37,14 @@ header{display:flex;align-items:flex-end;justify-content:space-between;gap:30px}
 /* ---------- alarm ---------- */
 .alarm{
   display:flex;align-items:center;gap:16px;
-  background:var(--tile);border:1px solid var(--hair);border-radius:14px;
+  background:var(--tile);border:1px solid var(--hair);border-radius:20px;
   padding:16px 22px;
 }
 .alarm.on{border-color:var(--gold)}
+.alarm.unavailable{border-color:var(--red)}
 .alarm .ico{width:9px;height:9px;border-radius:50%;background:var(--dim);flex:0 0 auto}
 .alarm.on .ico{background:var(--gold)}
+.alarm.unavailable .ico{background:var(--red)}
 .alarm .t{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
 .alarm.off .t{color:var(--dim);font-size:20px;font-weight:500}
 .alarm .meta{font-size:14px;color:var(--dim);margin-left:auto;text-align:right;line-height:1.5}
@@ -49,7 +52,7 @@ header{display:flex;align-items:flex-end;justify-content:space-between;gap:30px}
 /* ---------- zones ---------- */
 .zones{display:grid;grid-template-columns:1.2fr 1fr;gap:22px;flex:1;min-height:0}
 .col{display:flex;flex-direction:column;gap:22px;min-height:0}
-.panel{background:var(--tile);border:1px solid var(--hair);border-radius:14px;padding:20px 22px;min-height:0;display:flex;flex-direction:column;flex:1 1 0}
+.panel{background:var(--tile);border:1px solid var(--hair);border-radius:20px;padding:22px 24px;min-height:0;display:flex;flex-direction:column;flex:1 1 0}
 .panel.fixed{flex:0 0 auto}
 .panel > h2{font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);margin-bottom:15px;flex:0 0 auto}
 .scroll{overflow:hidden;flex:1;min-height:0}
@@ -65,9 +68,16 @@ header{display:flex;align-items:flex-end;justify-content:space-between;gap:30px}
 .s .n{font-size:14.5px;font-weight:700;text-transform:lowercase}
 .s .d{font-size:12.5px;color:var(--dim);margin-left:auto;text-align:right;max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* alerts */
-.al{display:flex;gap:11px;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--hair);font-size:14.5px;line-height:1.45}
+.al{position:relative;display:grid;grid-template-columns:72px 1fr;gap:12px;align-items:start;padding:11px 0 11px 14px;border-bottom:1px solid var(--hair);font-size:14.5px;line-height:1.45}
+.al::before{content:"";position:absolute;left:0;top:13px;bottom:13px;width:2px;border-radius:999px;background:var(--dim)}
+.al.critical::before{background:var(--red)}
+.al.attention::before{background:var(--gold)}
+.al.info::before{background:var(--green)}
 .al:last-child{border-bottom:none}
-.al .tier{flex:0 0 auto;font-size:14px}
+.al .severity{font-size:10px;line-height:1.6;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--dim)}
+.al.critical .severity{color:var(--red)}
+.al.attention .severity{color:var(--gold)}
+.al.info .severity{color:var(--green)}
 .al .main{flex:1;min-width:0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .al .side{flex:0 0 auto;font-size:12.5px;color:var(--dim);text-transform:lowercase;font-weight:700}
 .al.hot .side{color:var(--gold)}
@@ -75,7 +85,7 @@ header{display:flex;align-items:flex-end;justify-content:space-between;gap:30px}
    turned "Abegail still owed the Buy/Sell photo swap" into "Abegail still owed
    the...", which is exactly the unreadable state this board exists to fix. */
 .al.mail .main{-webkit-line-clamp:3}
-.al.mail{border-left:2px solid var(--gold);padding-left:11px;margin-left:-13px}
+.al.mail{background:var(--tile2);border-radius:10px;padding-right:12px;margin-bottom:5px}
 .calm{color:var(--dim);font-size:14.5px;padding:10px 0}
 /* now working: machine + clamped note */
 .lane{padding:10px 0;border-bottom:1px solid var(--hair)}
@@ -85,7 +95,7 @@ header{display:flex;align-items:flex-end;justify-content:space-between;gap:30px}
 .lane .side{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
 .lane-n{font-size:13.5px;line-height:1.5;color:var(--dim);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 /* monday bar */
-.monday{background:var(--tile);border:1px solid var(--hair);border-radius:14px;padding:18px 22px;display:flex;align-items:center;gap:18px;flex:0 0 auto}
+.monday{background:var(--tile);border:1px solid var(--hair);border-radius:20px;padding:18px 22px;display:flex;align-items:center;gap:18px;flex:0 0 auto}
 .monday.listening{border-color:var(--gold)}
 .monday.down{border-color:var(--red)}
 .orb{width:15px;height:15px;border-radius:50%;background:var(--dim);flex:0 0 auto}
@@ -150,7 +160,13 @@ body{position:relative}
 }
 @media (max-height: 720px){
   .clock{font-size:44px}
-  .sys{grid-template-columns:1fr}
+  .panel{padding:12px 15px}
+  .al{padding-top:7px;padding-bottom:7px}
+  .al::before{top:9px;bottom:9px}
+}
+@media (prefers-reduced-motion: reduce){
+  .monday.listening .orb,.wake .borb{animation:none}
+  .veil,.wake,.veil.show .wake{transition:none;transform:none}
 }
 </style>
 </head>
@@ -182,17 +198,17 @@ body{position:relative}
     </section>
     <section class="panel">
       <h2>today</h2>
-      <div class="scroll" id="today"><div class="calm">&mdash;</div></div>
+      <div class="scroll" id="today"><div class="calm">waiting for data</div></div>
     </section>
   </div>
   <div class="col">
     <section class="panel" style="flex:1.15 1 0">
       <h2>alerts</h2>
-      <div class="scroll" id="alerts"><div class="calm">&mdash;</div></div>
+      <div class="scroll" id="alerts"><div class="calm">waiting for data</div></div>
     </section>
     <section class="panel">
       <h2>now working</h2>
-      <div class="scroll" id="lanes"><div class="calm">&mdash;</div></div>
+      <div class="scroll" id="lanes"><div class="calm">waiting for data</div></div>
     </section>
   </div>
 </div>
@@ -239,25 +255,41 @@ function ago(s) {
   return Math.round(s / 86400) + 'd ago';
 }
 
+function setAlarmMeta(lines) {
+  var meta = $('alarmMeta');
+  meta.textContent = '';
+  (lines || []).forEach(function (line, index) {
+    if (index) meta.appendChild(document.createElement('br'));
+    meta.appendChild(document.createTextNode(line));
+  });
+}
+
 function renderAlarm(a) {
   var el = $('alarm');
   if (!a || !a.enabled || !a.time) {
     el.className = 'alarm off';
     $('alarmTime').textContent = 'none set';
-    $('alarmMeta').innerHTML = 'say “monday set alarm for 7 30”';
+    setAlarmMeta(['say “monday set alarm for 7 30”']);
     return;
   }
   el.className = 'alarm on';
   var p = a.time.split(':'), h = parseInt(p[0], 10), mm = p[1];
   $('alarmTime').textContent = (h % 12 || 12) + ':' + mm + ' ' + (h < 12 ? 'am' : 'pm');
-  var meta = '';
+  var lines = [], timing = '';
   if (a.fires_in_s !== null && a.fires_in_s !== undefined) {
     var hrs = Math.floor(a.fires_in_s / 3600), mins = Math.round((a.fires_in_s % 3600) / 60);
-    meta = 'in ' + (hrs ? hrs + 'h ' : '') + mins + 'm';
+    timing = 'in ' + (hrs ? hrs + 'h ' : '') + mins + 'm';
   }
-  if (a.label) meta += (meta ? ' &middot; ' : '') + a.label;
-  if (a.set_by) meta += '<br>set by ' + a.set_by;
-  $('alarmMeta').innerHTML = meta || '&nbsp;';
+  if (a.label) timing += (timing ? ' · ' : '') + a.label;
+  if (timing) lines.push(timing);
+  if (a.set_by) lines.push('set by ' + a.set_by);
+  setAlarmMeta(lines.length ? lines : ['active']);
+}
+
+function renderAlarmUnavailable() {
+  $('alarm').className = 'alarm unavailable';
+  $('alarmTime').textContent = 'alarm status unavailable';
+  setAlarmMeta(['board connection failed']);
 }
 
 function renderBoard(d) {
@@ -282,8 +314,9 @@ function renderBoard(d) {
     al.innerHTML = '<div class="calm">nothing needs you right now</div>';
   } else {
     alerts.slice(0, 5).forEach(function (a) {
-      var r = document.createElement('div'); r.className = 'al' + (a.kind === 'mail' ? ' mail' : '');
-      var t = document.createElement('span'); t.className = 'tier'; t.textContent = a.tier || '';
+      var severity = ['critical', 'attention', 'info'].indexOf(a.severity) >= 0 ? a.severity : 'attention';
+      var r = document.createElement('div'); r.className = 'al ' + severity + (a.kind === 'mail' ? ' mail' : '');
+      var t = document.createElement('span'); t.className = 'severity'; t.textContent = severity;
       var x = document.createElement('span'); x.className = 'main'; x.textContent = a.text || '';
       x.title = a.text || '';
       r.appendChild(t); r.appendChild(x); al.appendChild(r);
@@ -294,6 +327,7 @@ function renderBoard(d) {
   renderLanes(d.lanes);
 
   var gen = d.generated ? String(d.generated).replace('T', ' ').slice(0, 16) : 'unknown';
+  lastBoardUpdate = gen;
   $('stamp').textContent = 'board ' + gen;
   $('stamp').className = 'stamp';
 }
@@ -328,7 +362,7 @@ function dayLabel(iso) {
 function renderToday(t) {
   var el = $('today');
   el.innerHTML = '';
-  if (!t || typeof t !== 'object') { el.innerHTML = '<div class="calm">&mdash;</div>'; return; }
+  if (!t || typeof t !== 'object') { el.innerHTML = '<div class="calm">today unavailable</div>'; return; }
 
   var next = t.school_next || [];
   next.slice(0, 4).forEach(function (it) {
@@ -351,7 +385,7 @@ function renderToday(t) {
 function renderLanes(lanes) {
   var el = $('lanes');
   el.innerHTML = '';
-  if (!lanes || !lanes.length) { el.innerHTML = '<div class="calm">&mdash;</div>'; return; }
+  if (!lanes || !lanes.length) { el.innerHTML = '<div class="calm">no active work reported</div>'; return; }
   lanes.slice(0, 3).forEach(function (l) {
     var r = document.createElement('div'); r.className = 'lane';
     var head = document.createElement('div'); head.className = 'lane-h';
@@ -368,18 +402,27 @@ function renderLanes(lanes) {
   });
 }
 
+var lastBoardUpdate = null;
+
+function expectJson(r) {
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+
 function poll() {
   fetch('/api/board', { cache: 'no-store' })
-    .then(function (r) { return r.json(); })
+    .then(expectJson)
     .then(renderBoard)
     .catch(function () {
-      $('stamp').textContent = 'board unreachable';
+      $('stamp').textContent = lastBoardUpdate
+        ? 'refresh failed, showing last update ' + lastBoardUpdate
+        : 'board unreachable';
       $('stamp').className = 'stamp stale';
     });
   fetch('/api/alarm', { cache: 'no-store' })
-    .then(function (r) { return r.json(); })
+    .then(expectJson)
     .then(renderAlarm)
-    .catch(function () { /* leave the last known alarm rather than lie */ });
+    .catch(renderAlarmUnavailable);
 }
 poll();
 setInterval(poll, 15000);
