@@ -14,3 +14,7 @@
 - The public GitHub Pages surface remains sample-only. Private operational data stays local.
 - An alarm is not complete because its time appears on screen. The wake path, sound readiness,
   visual fallback, snooze limit, and intentional dismissal are all part of the contract.
+- The production dashboard is a native Mac app window. Its WebKit content stays deliberately
+  simple, but launch, audio policy, service readiness, and app identity belong to macOS.
+- A local alarm should fail safe. The last confirmed alarm remains eligible during a brief
+  board outage, and the UI must say that plainly.

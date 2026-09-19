@@ -10,6 +10,8 @@ the page over her local websocket.
 - The private brain is never served as a directory. `boardd` returns only the fields the
   board knows how to display.
 - The locked noir design in `DESIGN-LOCK.md` applies to the live surface.
+- `app-bundle/SamuelHQ.swift` is the native macOS shell installed as `Samuel HQ.app`.
+  It starts the local services and hosts the board in a real AppKit window.
 
 ## Live-board verification
 
@@ -30,7 +32,7 @@ starts and stops both `boardd` and the deterministic websocket fixture in `tests
 Before opening Chrome, it also sends a set and query through Monday's real alarm HTTP client.
 
 ## What works today
-Live clock, a real alarm with a 25 minute sunrise ramp that uses the TV as a lamp, sound that
+Live clock, a real alarm with a 30 minute sunrise ramp that uses the TV as a lamp, sound that
 ramps rather than jump scares, question mark popovers on any number that needs explaining, a
 "needs your word" strip for stale or unknown data, D-pad support for a Fire TV remote, and a
 responsive layout down to a phone.

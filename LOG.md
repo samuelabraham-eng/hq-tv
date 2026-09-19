@@ -1,5 +1,23 @@
 # LOG, hq-tv
 
+## 2026-09-19, native app and alarm failure-mode audit
+
+- Replaced the visible Chrome wrapper with a signed native AppKit and WebKit `Samuel HQ.app`.
+  It owns its Mac window, starts boardd and Monday, waits for readiness, and allows alarm
+  audio without a first click.
+- Persisted fired, dismissed, and snoozed wake state so reloads do not replay or lose an
+  occurrence. Added a conservative five-minute wake catch-up after sleep or suspension.
+- Fixed cancellation during snooze, which could previously re-ring after the shared alarm
+  was already disabled.
+- Ordered poll and websocket updates by `updated_at`, validated incoming alarm payloads,
+  and made connection failure explicitly say the last confirmed alarm remains active.
+- Prevented the HQ launcher from opening a second independent dashboard and made inactive
+  alarm dialogs invisible to assistive technology.
+- Made Monday's microphone state honest on the dashboard instead of claiming ready before
+  the microphone was armed.
+
+Verification: 17 static tests and the complete real-browser system contract passed.
+
 ## 2026-09-19, live board hardening
 
 - Kept the locked noir skin and improved density, spacing, alarm readability, and panel shape.

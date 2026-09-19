@@ -106,12 +106,57 @@ def verify_page(browser, name, viewport):
         page.locator("#wakeSnooze").click()
         page.wait_for_function("!document.querySelector('#wakeAlarm').classList.contains('show')")
 
-        page.evaluate("fireAlarm()")
+        # Shared cancellation must clear a pending local snooze. The old state
+        # used to re-ring even though boardd already said the alarm was off.
+        page.evaluate(
+            """async () => {
+              await fetch('/api/alarm', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({enabled:false,time:null,set_by:'browser test'})
+              });
+              await poll();
+              snoozeUntil = Date.now() - 1;
+              checkAlarm(new Date());
+            }"""
+        )
+        assert not page.locator("#wakeAlarm").evaluate("node => node.classList.contains('show')")
+        assert page.evaluate("snoozeUntil") == 0
+
+        # Re-enable for the remaining interaction and persistence checks.
+        page.evaluate(
+            """async () => {
+              const now = new Date();
+              const time = String(now.getHours()).padStart(2, '0') + ':' +
+                String(now.getMinutes()).padStart(2, '0');
+              await fetch('/api/alarm', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({enabled:true,time:time,set_by:'browser test'})
+              });
+              await poll();
+            }"""
+        )
         page.wait_for_function("document.querySelector('#wakeAlarm').classList.contains('show')")
+
         page.locator("#wakeDismiss").click()
         assert page.locator("#wakeAlarm").evaluate("node => node.classList.contains('show')")
         page.locator("#wakeDismiss").dispatch_event("pointerdown")
         page.wait_for_function("!document.querySelector('#wakeAlarm').classList.contains('show')")
+
+        # The current occurrence stays dismissed through a same-minute reload.
+        page.reload(wait_until="networkidle")
+        page.wait_for_function("document.querySelector('#alarm').classList.contains('on')")
+        assert not page.locator("#wakeAlarm").evaluate("node => node.classList.contains('show')")
+
+        # An older asynchronous payload cannot reverse a newer alarm state.
+        page.evaluate(
+            """() => {
+              const base = Date.now() + 10000;
+              renderAlarm({enabled:true,time:'08:15',updated_at:new Date(base).toISOString()});
+              renderAlarm({enabled:true,time:'06:45',updated_at:new Date(base - 1000).toISOString()});
+            }"""
+        )
+        assert page.locator("#alarmTime").inner_text() == "8:15 am"
+        page.evaluate("acceptedAlarmEpoch = 0")
 
         page.route("**/api/alarm", lambda route: route.abort())
         page.evaluate("poll()")

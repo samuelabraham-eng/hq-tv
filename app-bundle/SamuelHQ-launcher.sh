@@ -34,7 +34,7 @@ fi
 # the board still works without her (it shows her as offline, honestly).
 if ! /usr/bin/nc -z 127.0.0.1 8765 >/dev/null 2>&1; then
   echo "$(stamp) starting Monday alongside the board" >> "$LOG"
-  /usr/bin/open -a "${HOME}/Applications/Monday.app" >/dev/null 2>&1
+  /usr/bin/open "${HOME}/Applications/Monday.app" --args --background >/dev/null 2>&1
 fi
 
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
@@ -44,6 +44,7 @@ if [ -x "$CHROME" ]; then
   exec "$CHROME" --app="$BOARD" \
        --user-data-dir="${HOME}/monday-runner/hq-chrome" \
        --window-size=1600,980 \
+       --autoplay-policy=no-user-gesture-required \
        --no-first-run --no-default-browser-check
 fi
 # no Chrome: fall back to the default browser rather than failing

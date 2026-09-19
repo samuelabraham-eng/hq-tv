@@ -202,7 +202,7 @@ body{position:relative}
 <body>
 
 <div class="dawn" id="dawn"></div>
-<div class="alarm-wake" id="wakeAlarm" role="dialog" aria-label="Alarm" aria-modal="true">
+<div class="alarm-wake" id="wakeAlarm" role="dialog" aria-label="Alarm" aria-modal="true" aria-hidden="true">
   <div class="alarm-wake-card">
     <div class="eyebrow">alarm</div>
     <h2 id="wakeAlarmTitle">good morning</h2>
@@ -311,9 +311,10 @@ function setAlarmMeta(lines) {
 
 function renderAlarm(a) {
   var el = $('alarm');
+  if (!validAlarmPayload(a)) { renderAlarmUnavailable(); return; }
+  if (!adoptAlarm(a)) return;
   if (!a || !a.enabled || !a.time) {
-    alarmState = { enabled: false, time: null };
-    if (ringing) dismissAlarm();
+    resetAlarmRuntime();
     el.className = 'alarm off';
     $('alarmTime').textContent = 'none set';
     setAlarmMeta(['say “monday set alarm for 7 30”']);
@@ -342,7 +343,7 @@ function renderAlarm(a) {
 function renderAlarmUnavailable() {
   $('alarm').className = 'alarm unavailable';
   $('alarmTime').textContent = 'alarm status unavailable';
-  setAlarmMeta(['board connection failed']);
+  setAlarmMeta([alarmParts() ? 'board connection failed; using last confirmed alarm' : 'board connection failed']);
 }
 
 // The live board replaced the original alarm surface, so the proven TV wake
@@ -353,6 +354,9 @@ var firedOn = null, snoozeUntil = 0, ringing = false, snoozeCount = 0;
 var audioContext = null, audioReady = false, master = null, chimeTimer = null, chimeStep = 0;
 var RAMP_MINUTES = 30;
 var MAX_SNOOZES = 3;
+var CATCH_UP_MS = 5 * 60000;
+var ALARM_RUNTIME_KEY = 'samuel-hq-alarm-runtime-v1';
+var acceptedAlarmEpoch = 0, currentAlarmKey = null;
 var DAWN = [
   { at:30, color:'#1a0000', opacity:.02 },
   { at:22, color:'#3d0000', opacity:.06 },
@@ -362,6 +366,62 @@ var DAWN = [
   { at:2, color:'#f0932e', opacity:.78 },
   { at:0, color:'#ffd9a0', opacity:1 }
 ];
+
+function validAlarmPayload(a) {
+  if (!a || typeof a.enabled !== 'boolean') return false;
+  if (!a.enabled) return a.time === null || a.time === undefined;
+  return typeof a.time === 'string' && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(a.time);
+}
+
+function alarmKey(a) {
+  return [a.enabled ? 'on' : 'off', a.time || '', a.updated_at || ''].join('|');
+}
+
+function readAlarmRuntime() {
+  try { return JSON.parse(localStorage.getItem(ALARM_RUNTIME_KEY) || 'null'); }
+  catch (e) { return null; }
+}
+
+function persistAlarmRuntime() {
+  if (!currentAlarmKey) return;
+  try {
+    localStorage.setItem(ALARM_RUNTIME_KEY, JSON.stringify({
+      key:currentAlarmKey, firedOn:firedOn, snoozeUntil:snoozeUntil,
+      snoozeCount:snoozeCount
+    }));
+  } catch (e) {}
+}
+
+function resetAlarmRuntime() {
+  stopTone();
+  firedOn = null; snoozeUntil = 0; snoozeCount = 0; ringing = false;
+  $('wakeAlarm').classList.remove('show');
+  $('wakeAlarm').setAttribute('aria-hidden', 'true');
+  $('dawn').style.opacity = '0';
+  try { localStorage.removeItem(ALARM_RUNTIME_KEY); } catch (e) {}
+}
+
+function restoreAlarmRuntime(key) {
+  var saved = readAlarmRuntime();
+  if (!saved || saved.key !== key) return;
+  firedOn = typeof saved.firedOn === 'string' ? saved.firedOn : null;
+  snoozeUntil = Number.isFinite(saved.snoozeUntil) && saved.snoozeUntil > 0
+    ? saved.snoozeUntil : 0;
+  snoozeCount = Number.isInteger(saved.snoozeCount)
+    ? Math.max(0, Math.min(MAX_SNOOZES, saved.snoozeCount)) : 0;
+}
+
+function adoptAlarm(a) {
+  var incomingEpoch = a.updated_at ? Date.parse(a.updated_at) : 0;
+  if (acceptedAlarmEpoch && (!incomingEpoch || incomingEpoch < acceptedAlarmEpoch)) return false;
+  var nextKey = alarmKey(a), firstState = currentAlarmKey === null;
+  if (!firstState && nextKey !== currentAlarmKey) resetAlarmRuntime();
+  alarmState = a;
+  currentAlarmKey = nextKey;
+  if (incomingEpoch) acceptedAlarmEpoch = incomingEpoch;
+  if (firstState && a.enabled) restoreAlarmRuntime(nextKey);
+  return true;
+}
 
 function alarmParts() {
   if (!alarmState || !alarmState.enabled || !alarmState.time) return null;
@@ -413,6 +473,7 @@ function unlockAudio() {
   if (!AudioEngine) return null;
   if (!audioContext) {
     audioContext = new AudioEngine();
+    audioContext.onstatechange = markAudio;
     try {
       var buffer = audioContext.createBuffer(1, audioContext.sampleRate, audioContext.sampleRate);
       var source = audioContext.createBufferSource(), gain = audioContext.createGain();
@@ -486,7 +547,13 @@ function fireAlarm() {
   $('wakeSnooze').disabled = snoozeCount >= MAX_SNOOZES;
   $('wakeSnooze').textContent = snoozeCount >= MAX_SNOOZES ? 'no more snoozes' : 'snooze 9 min';
   $('wakeAlarm').classList.add('show');
+  $('wakeAlarm').setAttribute('aria-hidden', 'false');
   startTone();
+  markAudio();
+  $('wakeAlarmSound').textContent = audioReady
+    ? 'the sunrise is full and the chime is playing'
+    : 'sound needs one remote press; the full-screen wake is active';
+  persistAlarmRuntime();
   $('wakeDismiss').focus();
 }
 
@@ -495,26 +562,41 @@ function snoozeAlarm() {
   snoozeCount++;
   stopTone(); ringing = false;
   $('wakeAlarm').classList.remove('show');
+  $('wakeAlarm').setAttribute('aria-hidden', 'true');
   $('dawn').style.opacity = '.22';
   snoozeUntil = Date.now() + 9 * 60000;
+  persistAlarmRuntime();
   setAlarmMeta(['snoozed for 9m', audioReady ? 'sound ready' : 'press any remote button once for sound']);
 }
 
 function dismissAlarm() {
   stopTone(); ringing = false; snoozeUntil = 0;
   $('wakeAlarm').classList.remove('show');
+  $('wakeAlarm').setAttribute('aria-hidden', 'true');
   $('dawn').style.opacity = '0';
+  persistAlarmRuntime();
 }
 
 function checkAlarm(now) {
-  if (snoozeUntil && now.getTime() >= snoozeUntil) { snoozeUntil = 0; fireAlarm(); return; }
   var parts = alarmParts();
-  if (!parts) return;
+  if (!parts) {
+    if (snoozeUntil) { snoozeUntil = 0; persistAlarmRuntime(); }
+    return;
+  }
+  if (snoozeUntil && now.getTime() >= snoozeUntil) {
+    snoozeUntil = 0; persistAlarmRuntime(); fireAlarm(); return;
+  }
   var stamp = now.toDateString() + ' ' + parts.hour + ':' + parts.minute;
   if (firedOn === stamp) return;
-  if (now.getHours() === parts.hour && now.getMinutes() === parts.minute) {
+  var target = new Date(now);
+  target.setHours(parts.hour, parts.minute, 0, 0);
+  var lateBy = now.getTime() - target.getTime();
+  var setAt = alarmState.updated_at ? Date.parse(alarmState.updated_at) : 0;
+  var catchUpIsSafe = lateBy < 60000 || !setAt || setAt <= target.getTime();
+  if (lateBy >= 0 && lateBy <= CATCH_UP_MS && catchUpIsSafe) {
     firedOn = stamp;
     snoozeCount = 0;
+    persistAlarmRuntime();
     fireAlarm();
   }
 }
@@ -684,8 +766,13 @@ setInterval(poll, 15000);
 // ---- Monday, over her own websocket. Absent daemon = honest "offline". ----
 var LABEL = { idle: 'ready', listening: 'listening', thinking: 'thinking', speaking: 'speaking' };
 var hideTimer = null;
+var micAvailable = null;
 
 function setMonday(state, text) {
+  if (state === 'idle' && micAvailable !== true) {
+    state = 'down';
+    text = micAvailable === false ? 'microphone permission needed' : 'checking microphone';
+  }
   var el = $('monday');
   el.className = 'monday ' + state;
   $('mState').textContent = LABEL[state] || state;
@@ -738,6 +825,11 @@ function connectMonday() {
     if (m.type === 'state') setMonday(m.value, m.value === 'idle' ? 'say “monday”' : '…');
     else if (m.type === 'transcript' && m.text) { setMonday('listening', m.text); showHeard(m.text); }
     else if (m.type === 'reply' && m.text) { setMonday('speaking', m.text); showReply(m.text); }
+    else if (m.type === 'mic') {
+      micAvailable = !!m.ok;
+      setMonday(m.ok ? 'idle' : 'down',
+        m.ok ? 'say “monday”' : 'microphone permission needed');
+    }
     else if (m.type === 'panel' && m.name === 'alarm') renderAlarm(m.data);
     else if (m.type === 'error' && m.text) setMonday('down', m.text);
   };
