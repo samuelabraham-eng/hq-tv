@@ -27,6 +27,7 @@ Use the Python environment from the Monday daemon:
 
 Run the browser suite with `../monday/daemon/.venv/bin/python tests/run_browser.py`. The runner
 starts and stops both `boardd` and the deterministic websocket fixture in `tests/fake_monday.py`.
+Before opening Chrome, it also sends a set and query through Monday's real alarm HTTP client.
 
 ## What works today
 Live clock, a real alarm with a 25 minute sunrise ramp that uses the TV as a lamp, sound that

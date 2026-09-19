@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import os
 from pathlib import Path
 import socket
@@ -37,6 +38,23 @@ def stop(process: subprocess.Popen) -> None:
         process.wait(timeout=5)
 
 
+def verify_monday_alarm_client() -> None:
+    """Prove Monday's real HTTP client against the running board service."""
+    monday_daemon = PROJECTS / "monday" / "daemon"
+    sys.path.insert(0, str(monday_daemon))
+    from monday.app import Monday
+
+    client = object.__new__(Monday)
+    saved = asyncio.run(
+        client._alarm_request(
+            {"enabled": True, "time": "06:45", "set_by": "system contract"}
+        )
+    )
+    assert saved and saved["enabled"] is True and saved["time"] == "06:45"
+    current = asyncio.run(client._alarm_request())
+    assert current and current["time"] == "06:45"
+
+
 def main() -> None:
     with tempfile.TemporaryDirectory(prefix="hq-tv-test-") as state_dir:
         env = os.environ.copy()
@@ -61,7 +79,9 @@ def main() -> None:
             os.environ.update(
                 BOARD_URL=env["BOARD_URL"],
                 EXPECT_MONDAY=env["EXPECT_MONDAY"],
+                BOARDD_PORT=env["BOARDD_PORT"],
             )
+            verify_monday_alarm_client()
             import browser_verify
 
             browser_verify.main()

@@ -27,3 +27,5 @@ and 1024x768 against real `boardd` and the Monday websocket fixture.
 
 Verification at checkpoint: 12 static tests passed and the Chrome contract passed at all three sizes.
 - Fixed a countdown rounding defect that could render `23h 60m`; the firing minute now reads `now`.
+- Extended the system runner through Monday's real alarm client before browser verification, so
+  the voice client, board service, and TV surface are proven in one command.
