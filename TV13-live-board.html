@@ -111,6 +111,34 @@ header{display:flex;align-items:flex-end;justify-content:space-between;gap:30px}
 .monday .hint{font-size:12.5px;color:var(--dim);flex:0 0 auto}
 .stale{color:var(--red);font-weight:700}
 
+/* ---------- alarm wake ---------- */
+.dawn{
+  position:fixed;inset:0;z-index:60;pointer-events:none;
+  background:#1a0000;opacity:0;transition:opacity 10s linear,background 10s linear;
+}
+.alarm-wake{
+  position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;
+  background:rgba(16,14,12,.88);opacity:0;pointer-events:none;
+}
+.alarm-wake.show{opacity:1;pointer-events:auto}
+.alarm-wake-card{
+  width:min(720px,78vw);padding:44px;background:var(--tile2);border:1px solid var(--gold);
+  border-radius:20px;text-align:center;
+}
+.alarm-wake .eyebrow{font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.alarm-wake h2{font-size:52px;line-height:1.05;margin:18px 0 8px;letter-spacing:-.03em}
+.alarm-wake .wake-time{font-size:23px;color:var(--dim);font-variant-numeric:tabular-nums}
+.alarm-wake .wake-sound{font-size:14px;color:var(--dim);margin:18px 0 28px}
+.alarm-actions{display:flex;justify-content:center;gap:12px}
+.alarm-actions button{
+  appearance:none;border:1px solid var(--gold);border-radius:12px;padding:14px 22px;
+  background:transparent;color:var(--bone);font:700 14px 'Plus Jakarta Sans',sans-serif;
+  letter-spacing:.04em;text-transform:lowercase;
+}
+.alarm-actions button:focus{outline:3px solid var(--bone);outline-offset:3px}
+.alarm-actions button:disabled{opacity:.38}
+.alarm-actions .dismiss{background:var(--gold);color:var(--on-gold)}
+
 /* ---------- monday wake overlay ----------
    Samuel, Sept 18 2026: he wants the HQ board to BE the interface and Monday to
    "pop up" on it, not live on a separate page. The slim bottom bar stays as the
@@ -167,10 +195,25 @@ body{position:relative}
 @media (prefers-reduced-motion: reduce){
   .monday.listening .orb,.wake .borb{animation:none}
   .veil,.wake,.veil.show .wake{transition:none;transform:none}
+  .dawn{transition:none}
 }
 </style>
 </head>
 <body>
+
+<div class="dawn" id="dawn"></div>
+<div class="alarm-wake" id="wakeAlarm" role="dialog" aria-label="Alarm" aria-modal="true">
+  <div class="alarm-wake-card">
+    <div class="eyebrow">alarm</div>
+    <h2 id="wakeAlarmTitle">good morning</h2>
+    <div class="wake-time" id="wakeAlarmTime"></div>
+    <div class="wake-sound" id="wakeAlarmSound">waking the room</div>
+    <div class="alarm-actions">
+      <button id="wakeSnooze" type="button">snooze 9 min</button>
+      <button class="dismiss" id="wakeDismiss" type="button">hold to say I am up</button>
+    </div>
+  </div>
+</div>
 
 <header>
   <div>
@@ -243,9 +286,11 @@ function clock() {
   $('mer').textContent = h < 12 ? 'am' : 'pm';
   $('date').textContent = d.toLocaleDateString('en-US',
     { weekday: 'long', month: 'long', day: 'numeric' }).toLowerCase();
+  paintSunrise(d);
+  checkAlarm(d);
 }
 clock();
-setInterval(clock, 10000);
+setInterval(clock, 1000);
 
 function ago(s) {
   if (s === null || s === undefined) return '';
@@ -267,23 +312,31 @@ function setAlarmMeta(lines) {
 function renderAlarm(a) {
   var el = $('alarm');
   if (!a || !a.enabled || !a.time) {
+    alarmState = { enabled: false, time: null };
+    if (ringing) dismissAlarm();
     el.className = 'alarm off';
     $('alarmTime').textContent = 'none set';
     setAlarmMeta(['say “monday set alarm for 7 30”']);
     return;
   }
+  alarmState = a;
+  claimPlaybackSession();
   el.className = 'alarm on';
   var p = a.time.split(':'), h = parseInt(p[0], 10), mm = p[1];
   $('alarmTime').textContent = (h % 12 || 12) + ':' + mm + ' ' + (h < 12 ? 'am' : 'pm');
   var lines = [], timing = '';
   if (a.fires_in_s !== null && a.fires_in_s !== undefined) {
-    var hrs = Math.floor(a.fires_in_s / 3600), mins = Math.round((a.fires_in_s % 3600) / 60);
-    timing = 'in ' + (hrs ? hrs + 'h ' : '') + mins + 'm';
+    var totalMinutes = Math.ceil(a.fires_in_s / 60);
+    var hrs = Math.floor(totalMinutes / 60), mins = totalMinutes % 60;
+    timing = totalMinutes === 0 ? 'now' : 'in ' + (hrs ? hrs + 'h' : '') +
+      (mins ? (hrs ? ' ' : '') + mins + 'm' : '');
   }
   if (a.label) timing += (timing ? ' · ' : '') + a.label;
   if (timing) lines.push(timing);
   if (a.set_by) lines.push('set by ' + a.set_by);
+  lines.push(audioReady ? 'sound ready' : 'press any remote button once for sound');
   setAlarmMeta(lines.length ? lines : ['active']);
+  checkAlarm(new Date());
 }
 
 function renderAlarmUnavailable() {
@@ -291,6 +344,207 @@ function renderAlarmUnavailable() {
   $('alarmTime').textContent = 'alarm status unavailable';
   setAlarmMeta(['board connection failed']);
 }
+
+// The live board replaced the original alarm surface, so the proven TV wake
+// path lives here too. The server owns the setting; this foreground kiosk owns
+// the dawn, sound, snooze, and wake interaction.
+var alarmState = { enabled: false, time: null };
+var firedOn = null, snoozeUntil = 0, ringing = false, snoozeCount = 0;
+var audioContext = null, audioReady = false, master = null, chimeTimer = null, chimeStep = 0;
+var RAMP_MINUTES = 30;
+var MAX_SNOOZES = 3;
+var DAWN = [
+  { at:30, color:'#1a0000', opacity:.02 },
+  { at:22, color:'#3d0000', opacity:.06 },
+  { at:15, color:'#6e0800', opacity:.13 },
+  { at:9, color:'#a52c00', opacity:.29 },
+  { at:5, color:'#d4620f', opacity:.52 },
+  { at:2, color:'#f0932e', opacity:.78 },
+  { at:0, color:'#ffd9a0', opacity:1 }
+];
+
+function alarmParts() {
+  if (!alarmState || !alarmState.enabled || !alarmState.time) return null;
+  var parts = alarmState.time.split(':');
+  return { hour:parseInt(parts[0], 10), minute:parseInt(parts[1], 10) };
+}
+
+function minutesUntilAlarm(now) {
+  var parts = alarmParts();
+  if (!parts) return null;
+  var target = new Date(now);
+  target.setHours(parts.hour, parts.minute, 0, 0);
+  if (target.getTime() <= now.getTime() - 60000) target.setDate(target.getDate() + 1);
+  return Math.max(0, (target.getTime() - now.getTime()) / 60000);
+}
+
+function blendHex(a, b, amount) {
+  function rgb(value) { return [1,3,5].map(function (i) { return parseInt(value.slice(i,i+2),16); }); }
+  var from = rgb(a), to = rgb(b);
+  return '#' + from.map(function (value, i) {
+    return Math.round(value + (to[i] - value) * amount).toString(16).padStart(2, '0');
+  }).join('');
+}
+
+function paintSunrise(now) {
+  var dawn = $('dawn');
+  if (!dawn || ringing) return;
+  var left = minutesUntilAlarm(now);
+  if (left === null || left > RAMP_MINUTES) { dawn.style.opacity = '0'; return; }
+  var i = 0;
+  while (i < DAWN.length - 1 && left < DAWN[i + 1].at) i++;
+  var from = DAWN[i], to = DAWN[Math.min(i + 1, DAWN.length - 1)];
+  var span = from.at - to.at;
+  var amount = span ? Math.max(0, Math.min(1, (from.at - left) / span)) : 1;
+  dawn.style.background = blendHex(from.color, to.color, amount);
+  dawn.style.opacity = String(from.opacity + (to.opacity - from.opacity) * amount * amount);
+}
+
+function markAudio() {
+  audioReady = !!(audioContext && audioContext.state === 'running');
+}
+
+function claimPlaybackSession() {
+  try { if ('audioSession' in navigator) navigator.audioSession.type = 'playback'; } catch (e) {}
+}
+
+function unlockAudio() {
+  var AudioEngine = window.AudioContext || window.webkitAudioContext;
+  if (!AudioEngine) return null;
+  if (!audioContext) {
+    audioContext = new AudioEngine();
+    try {
+      var buffer = audioContext.createBuffer(1, audioContext.sampleRate, audioContext.sampleRate);
+      var source = audioContext.createBufferSource(), gain = audioContext.createGain();
+      source.buffer = buffer; source.loop = true; gain.gain.value = .0001;
+      source.connect(gain); gain.connect(audioContext.destination); source.start();
+    } catch (e) {}
+  }
+  if (audioContext.state !== 'running') audioContext.resume().then(markAudio).catch(function () {});
+  markAudio();
+  return audioContext;
+}
+
+["pointerdown","keydown","touchstart"].forEach(function (eventName) {
+  document.addEventListener(eventName, unlockAudio, { passive:true });
+});
+
+function strike(freq, when, volume) {
+  [[1,1],[2.01,.30],[3.04,.13],[4.17,.06],[5.43,.03]].forEach(function (partial) {
+    var oscillator = audioContext.createOscillator(), gain = audioContext.createGain();
+    oscillator.type = 'sine'; oscillator.frequency.value = freq * partial[0];
+    oscillator.detune.value = Math.random() * 6 - 3;
+    var duration = 2.6 / (1 + partial[0] * .55);
+    gain.gain.setValueAtTime(.0001, when);
+    gain.gain.linearRampToValueAtTime(volume * partial[1], when + .006);
+    gain.gain.exponentialRampToValueAtTime(.0001, when + duration);
+    oscillator.connect(gain); gain.connect(master);
+    oscillator.start(when); oscillator.stop(when + duration + .05);
+  });
+}
+
+function stopTone() {
+  if (chimeTimer) { clearTimeout(chimeTimer); chimeTimer = null; }
+  if (master) { try { master.disconnect(); } catch (e) {} master = null; }
+}
+
+function startTone() {
+  claimPlaybackSession();
+  if (!unlockAudio()) return;
+  stopTone();
+  var notes = [523.25,587.33,659.25,783.99,880,1046.5];
+  chimeStep = 0;
+  master = audioContext.createGain();
+  var soften = audioContext.createBiquadFilter();
+  soften.type = 'lowpass'; soften.frequency.value = 5200;
+  master.gain.value = .0001; master.connect(soften); soften.connect(audioContext.destination);
+  master.gain.exponentialRampToValueAtTime(.16, audioContext.currentTime + 1);
+  function cycle() {
+    if (!master) return;
+    var when = audioContext.currentTime + .05, step = chimeStep++;
+    var count = step < 3 ? 3 : step < 7 ? 4 : 6;
+    var spacing = step < 3 ? .42 : step < 7 ? .34 : .26;
+    for (var i = 0; i < count; i++) strike(notes[i], when + i * spacing, .9);
+    master.gain.setTargetAtTime(Math.min(.16 + step * .045, .62), audioContext.currentTime, 6);
+    chimeTimer = setTimeout(cycle, step < 3 ? 4200 : step < 7 ? 3200 : 2400);
+  }
+  cycle();
+}
+
+function fireAlarm() {
+  if (ringing) return;
+  var parts = alarmParts();
+  ringing = true;
+  $('dawn').style.background = '#ffd9a0';
+  $('dawn').style.opacity = '1';
+  $('wakeAlarmTime').textContent = parts
+    ? (parts.hour % 12 || 12) + ':' + String(parts.minute).padStart(2, '0') + (parts.hour < 12 ? ' am' : ' pm')
+    : '';
+  $('wakeAlarmSound').textContent = audioReady
+    ? 'the sunrise is full and the chime is playing'
+    : 'sound needs one remote press; the full-screen wake is active';
+  $('wakeSnooze').disabled = snoozeCount >= MAX_SNOOZES;
+  $('wakeSnooze').textContent = snoozeCount >= MAX_SNOOZES ? 'no more snoozes' : 'snooze 9 min';
+  $('wakeAlarm').classList.add('show');
+  startTone();
+  $('wakeDismiss').focus();
+}
+
+function snoozeAlarm() {
+  if (snoozeCount >= MAX_SNOOZES) return;
+  snoozeCount++;
+  stopTone(); ringing = false;
+  $('wakeAlarm').classList.remove('show');
+  $('dawn').style.opacity = '.22';
+  snoozeUntil = Date.now() + 9 * 60000;
+  setAlarmMeta(['snoozed for 9m', audioReady ? 'sound ready' : 'press any remote button once for sound']);
+}
+
+function dismissAlarm() {
+  stopTone(); ringing = false; snoozeUntil = 0;
+  $('wakeAlarm').classList.remove('show');
+  $('dawn').style.opacity = '0';
+}
+
+function checkAlarm(now) {
+  if (snoozeUntil && now.getTime() >= snoozeUntil) { snoozeUntil = 0; fireAlarm(); return; }
+  var parts = alarmParts();
+  if (!parts) return;
+  var stamp = now.toDateString() + ' ' + parts.hour + ':' + parts.minute;
+  if (firedOn === stamp) return;
+  if (now.getHours() === parts.hour && now.getMinutes() === parts.minute) {
+    firedOn = stamp;
+    snoozeCount = 0;
+    fireAlarm();
+  }
+}
+
+$('wakeSnooze').addEventListener('click', snoozeAlarm);
+var dismissHoldTimer = null;
+var HOLD_MS = 1600;
+function beginDismissHold(event) {
+  if (event) event.preventDefault();
+  if (dismissHoldTimer) return;
+  $('wakeDismiss').textContent = 'keep holding';
+  dismissHoldTimer = setTimeout(function () {
+    dismissHoldTimer = null;
+    dismissAlarm();
+    $('wakeDismiss').textContent = 'hold to say I am up';
+  }, HOLD_MS);
+}
+function endDismissHold() {
+  if (dismissHoldTimer) clearTimeout(dismissHoldTimer);
+  dismissHoldTimer = null;
+  $('wakeDismiss').textContent = 'hold to say I am up';
+}
+$('wakeDismiss').addEventListener('pointerdown', beginDismissHold);
+['pointerup','pointerleave','pointercancel','blur'].forEach(function (eventName) {
+  $('wakeDismiss').addEventListener(eventName, endDismissHold);
+});
+$('wakeDismiss').addEventListener('keydown', function (event) {
+  if ((event.key === 'Enter' || event.key === ' ') && !event.repeat) beginDismissHold(event);
+});
+$('wakeDismiss').addEventListener('keyup', endDismissHold);
 
 function renderBoard(d) {
   var sys = $('sys');

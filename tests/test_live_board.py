@@ -73,3 +73,30 @@ def test_api_fetches_reject_non_success_responses():
 
 def test_browser_does_not_request_a_missing_favicon():
     assert '<link rel="icon" href="data:,">' in source()
+
+
+def test_live_board_restores_the_proven_alarm_wake_path():
+    html = source()
+    assert 'id="dawn"' in html
+    assert 'id="wakeAlarm"' in html
+    assert "function paintSunrise" in html
+    assert "function checkAlarm" in html
+    assert "function fireAlarm" in html
+    assert "function startTone" in html
+    assert '"pointerdown","keydown","touchstart"' in html
+    assert "HOLD_MS = 1600" in html
+    assert "MAX_SNOOZES = 3" in html
+
+
+def test_alarm_firing_uses_the_clock_not_the_countdown_hint():
+    html = source()
+    check_alarm = html.split("function checkAlarm", 1)[1].split("function", 1)[0]
+    assert "getHours()" in check_alarm
+    assert "getMinutes()" in check_alarm
+    assert "fires_in_s" not in check_alarm
+
+
+def test_alarm_countdown_cannot_render_sixty_minutes():
+    html = source()
+    assert "Math.ceil(a.fires_in_s / 60)" in html
+    assert "totalMinutes % 60" in html

@@ -85,6 +85,34 @@ def verify_page(browser, name, viewport):
         page.wait_for_function("document.querySelector('#alarm').classList.contains('on')")
         assert page.locator("#alarmTime").inner_text() == "7:30 am"
 
+        page.evaluate(
+            """async () => {
+              const now = new Date();
+              const time = String(now.getHours()).padStart(2, '0') + ':' +
+                String(now.getMinutes()).padStart(2, '0');
+              await fetch('/api/alarm', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({enabled:true,time:time,set_by:'browser test'})
+              });
+              await poll();
+            }"""
+        )
+        page.wait_for_function("document.querySelector('#wakeAlarm').classList.contains('show')")
+        assert page.locator("#wakeAlarmTitle").inner_text() == "good morning"
+        assert "60m" not in page.locator("#alarmMeta").inner_text()
+        SHOT_DIR.mkdir(parents=True, exist_ok=True)
+        page.screenshot(path=str(SHOT_DIR / "alarm-wake.png"), full_page=True)
+        page.locator("#wakeSnooze").click()
+        page.wait_for_function("!document.querySelector('#wakeAlarm').classList.contains('show')")
+
+        page.evaluate("fireAlarm()")
+        page.wait_for_function("document.querySelector('#wakeAlarm').classList.contains('show')")
+        page.locator("#wakeDismiss").click()
+        assert page.locator("#wakeAlarm").evaluate("node => node.classList.contains('show')")
+        page.locator("#wakeDismiss").dispatch_event("pointerdown")
+        page.wait_for_function("!document.querySelector('#wakeAlarm').classList.contains('show')")
+
         page.route("**/api/alarm", lambda route: route.abort())
         page.evaluate("poll()")
         page.wait_for_function("document.querySelector('#alarm').classList.contains('unavailable')")

@@ -16,7 +16,8 @@ the page over her local websocket.
 The static suite guards design tokens, safe alarm rendering, honest failure states, semantic
 alerts, and reduced motion. The browser suite launches Chrome against real `boardd`, tests
 the alarm HTTP contract, simulates API failure and recovery, and verifies the Monday websocket
-overlay at 1920x1080, 1280x720, and 1024x768.
+overlay at 1920x1080, 1280x720, and 1024x768. It also proves the shared alarm reaches the
+full-screen wake state, snoozes, and requires a deliberate hold to dismiss.
 
 Use the Python environment from the Monday daemon:
 

@@ -12,3 +12,5 @@
 - At TV distance, retaining the important panel is more valuable than showing every row. Today
   must never collapse merely to preserve a taller Systems list.
 - The public GitHub Pages surface remains sample-only. Private operational data stays local.
+- An alarm is not complete because its time appears on screen. The wake path, sound readiness,
+  visual fallback, snooze limit, and intentional dismissal are all part of the contract.
