@@ -9,6 +9,27 @@
 
 ---
 
+## What exists now (2026-09-21)
+
+The credential half of this document is BUILT. Read this before re-designing it.
+
+| Piece | Where |
+|---|---|
+| Probe, every 5 min | `home-server/connwatch/probe.py` -> `~/nerve/state/connections.json` |
+| Authenticated ping, hourly 7am-10pm | Claude task `conn-probe` -> `~/nerve/state/conn-probe.json` |
+| Notifier with judgment | `home-server/connwatch/notify.py`, launchd, texts only when it matters |
+| The strip on the screen | `TV13-live-board.html`, `#conn`, fed by `/api/board.connections` |
+| Out loud | `monday/daemon/monday/connections.py`, "monday what's disconnected" |
+
+It covers: internet, canvas + sis, turo host, the chrome bridge, claude scheduled
+tasks, the claude cli, and the gmail watcher. Each row carries its own evidence
+kind: **reached** means the prober made the call itself just now, **reported**
+means the producer that holds the session wrote the verdict and we date it.
+
+The three-truths rule below is enforced in two places that used to break it:
+`nerve.check_turo` no longer calls a ten hour old feed "live" because the runner
+ticked, and the strip degrades every row to unknown when the probe itself stops.
+
 ## The thesis
 
 The TV is not a dashboard. It is the **status board for a distributed system that he owns**,

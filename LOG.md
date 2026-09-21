@@ -47,3 +47,24 @@ Verification at checkpoint: 12 static tests passed and the Chrome contract passe
 - Fixed a countdown rounding defect that could render `23h 60m`; the firing minute now reads `now`.
 - Extended the system runner through Monday's real alarm client before browser verification, so
   the voice client, board service, and TV surface are proven in one command.
+
+## 2026-09-21 — the connections strip, and an X that works
+
+Samuel: *"make the systems watcher acc real like if it cant ping the turo system
+or school system say it needs to sing in this live app needs to be connected to
+everything and acc work correctly or its useles also neesd an X button the monday
+stuff when monday doesnt work correctly and i dont want to say close out"*.
+
+- **Connections strip** (`#conn`) between the alarm and the zones. Calm state is
+  one line; when something needs him it becomes cards with the whole sentence,
+  never an ellipsis. Data: `/api/board.connections`, from connwatch.
+- **Systems detail stopped truncating.** "school LOGIN EXPIRED, sign..." was
+  cutting off the half that tells him what to do. Two line clamp now.
+- **X on Monday's card** plus Escape, plus a mute button. The X sends `cancel`
+  over her websocket, so it ends the turn rather than only hiding the card.
+- **Found by clicking, not by reading:** `.veil.show` never restored
+  `pointer-events`, so the card swallowed every click and the X was decorative.
+  Locked with a test.
+- **Board unreachable** now says so in the strip instead of showing the last
+  reading as if it were fresh.
+- Tests: 29 in `tests/test_live_board.py`, all green.
