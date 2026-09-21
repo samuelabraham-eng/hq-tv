@@ -249,6 +249,12 @@ body{position:relative}
 }
 @media (max-height: 800px){
   body{padding:16px 22px;gap:11px}
+  /* three across instead of two: the systems tile is the tallest block on the
+     board, and at 720 it was eating the whole TODAY panel */
+  .sys{grid-template-columns:repeat(3,1fr);gap:7px}
+  .s{padding:6px 9px}
+  .s .n{font-size:13px}
+  .s .d{font-size:11.5px;max-width:50%}
   .conn{padding:9px 14px}
   .conn-cards{gap:8px;margin-top:8px}
   .cc{padding:8px 11px}
@@ -747,9 +753,15 @@ function renderConnections(c) {
     : 'checked ' + shortAge(c.age_s);
 
   // a short screen (the iPad kiosk, a laptop check) cannot afford four cards
-  // without pushing the systems panel off the bottom, and a cut off board is a
-  // board he stops trusting
-  var maxCards = window.innerHeight < 820 ? 2 : 4;
+  // without collapsing the panels below, and a board with a zero height panel is
+  // a board he stops trusting. Under 760 the strip keeps the words and drops the
+  // cards: the sentence he has to act on moves up into the summary line.
+  var h = window.innerHeight;
+  var maxCards = h < 760 ? 0 : (h < 820 ? 2 : 4);
+  if (maxCards === 0 && bad.length) {
+    $('connSum').textContent = (bad.length === 1 ? '' : bad.length + ' need you: ')
+      + (bad[0].action || bad[0].headline || '');
+  }
   bad.concat(warn).slice(0, maxCards).forEach(function (r) {
     var card = document.createElement('div');
     card.className = 'cc ' + (r.state || 'unknown');

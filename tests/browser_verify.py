@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 
@@ -7,6 +8,7 @@ from playwright.sync_api import sync_playwright
 
 
 BASE_URL = os.environ.get("BOARD_URL", "http://127.0.0.1:8780/")
+FAKE_MONDAY_LOG = Path(os.environ.get("FAKE_MONDAY_LOG", "/tmp/fake-monday-inbox.jsonl"))
 EXPECT_MONDAY = os.environ.get("EXPECT_MONDAY") == "1"
 SHOT_DIR = Path(__file__).resolve().parent / "shots"
 VIEWPORTS = {
@@ -41,7 +43,18 @@ def verify_page(browser, name, viewport):
     ], headings
     assert page.locator("#monday").is_visible()
     assert page.locator("#alarm").is_visible()
-    assert page.locator("#sys .s").count() == 8
+    # nine since the disk row landed (2026-09-21): both outages that year began
+    # with no free space and nothing was watching the number
+    names = page.locator("#sys .s .n").all_inner_texts()
+    assert page.locator("#sys .s").count() == 9, names
+    assert "disk" in names, names
+
+    # the credential strip: the row that exists to make him act before he leaves
+    assert page.locator("#conn").is_visible()
+    summary = page.locator("#connSum").inner_text()
+    assert summary and summary != "checking", summary
+    for action in page.locator(".cc .ca").all_inner_texts():
+        assert action.strip(), "a connection card with no action text"
     assert console_errors == [], console_errors
 
     if EXPECT_MONDAY:
@@ -49,6 +62,22 @@ def verify_page(browser, name, viewport):
         page.wait_for_function("document.querySelector('#wState').textContent === 'speaking'")
         assert page.locator("#wHeard").inner_text() == "what is on the board"
         assert page.locator("#wReply").inner_text() == "Here is your live system view."
+
+    # the X: it must end the turn, not just hide the card. Samuel, Sept 21:
+    # "i dont want to say close out". Checked on the 1080 pass only, because the
+    # later passes inherit a ringing alarm whose dialog sits above the card.
+    if EXPECT_MONDAY and name == "tv-1080":
+        close = page.locator("#wakeClose")
+        assert close.is_visible()
+        box = close.bounding_box()
+        assert box and box["width"] >= 44 and box["height"] >= 44, box
+        close.click()
+        page.wait_for_function(
+            "!document.querySelector('#veil').classList.contains('show')")
+        sent = [json.loads(line) for line in
+                FAKE_MONDAY_LOG.read_text(encoding="utf-8").splitlines() if line.strip()]
+        assert any(m.get("type") == "cancel" for m in sent), sent
+
 
     bounds = page.evaluate(
         """() => ({

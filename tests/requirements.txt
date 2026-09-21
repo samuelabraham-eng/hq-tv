@@ -1,2 +1,2 @@
 playwright==1.63.0
-pytest==9.1.1
+pytest==9.1.1\naiohttp>=3.9\n

@@ -41,3 +41,16 @@ responsive layout down to a phone.
 The screensaver can be set to Never in settings, but the sleep timer is separate, hidden, and
 fixed at 20 minutes. It has to be disabled over ADB or the screen goes black regardless of
 anything in this page.
+
+## Tests
+
+| Layer | Command |
+|---|---|
+| Source contract (fast, no browser) | `~/monday-venv/bin/python -m pytest tests/test_live_board.py -q` |
+| Browser contract, 3 viewports | stop Monday, then `~/hqtv-venv/bin/python tests/run_contract.py` |
+
+The browser pass drives a real chromium over an isolated boardd (temp state dir,
+port 8780) and the scripted `fake_monday.py`, so it can ring the alarm, snooze it,
+kill the board mid-poll and click the X on Monday's card without touching a single
+live file. It caught two real defects on 2026-09-21: a nine row systems grid that
+collapsed the TODAY panel to zero height at 720, and a card that swallowed clicks.

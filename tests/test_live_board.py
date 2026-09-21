@@ -242,3 +242,10 @@ def test_an_unreachable_board_stops_the_strip_claiming_freshness():
 def test_a_broken_background_job_renders_loud_not_quiet():
     html = source()
     assert "'broken'" in html.split("var CONN_BAD =")[1].split(";")[0]
+
+
+def test_a_short_screen_keeps_the_sentence_and_drops_the_cards():
+    """A collapsed TODAY panel is how the browser contract caught this."""
+    html = source()
+    assert "var maxCards = h < 760 ? 0 : (h < 820 ? 2 : 4);" in html
+    assert "if (maxCards === 0 && bad.length) {" in html
