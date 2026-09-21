@@ -66,7 +66,8 @@ header{display:flex;align-items:flex-end;justify-content:space-between;gap:30px}
 .s.down .dot{background:var(--red)}
 .s.down{border-color:var(--red)}
 .s .n{font-size:14.5px;font-weight:700;text-transform:lowercase}
-.s .d{font-size:12.5px;color:var(--dim);margin-left:auto;text-align:right;max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.s .d{font-size:12.5px;color:var(--dim);margin-left:auto;text-align:right;max-width:56%;line-height:1.35;
+      overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 /* alerts */
 .al{position:relative;display:grid;grid-template-columns:72px 1fr;gap:12px;align-items:start;padding:11px 0 11px 14px;border-bottom:1px solid var(--hair);font-size:14.5px;line-height:1.45}
 .al::before{content:"";position:absolute;left:0;top:13px;bottom:13px;width:2px;border-radius:999px;background:var(--dim)}
@@ -111,6 +112,59 @@ header{display:flex;align-items:flex-end;justify-content:space-between;gap:30px}
 .monday .hint{font-size:12.5px;color:var(--dim);flex:0 0 auto}
 .stale{color:var(--red);font-weight:700}
 
+
+/* ---------- connections: the credential layer ----------
+   NERVE-SYSTEM.md splits three truths: the job ran, the data is fresh, the login
+   is still valid. This strip is the third, and it is the only row on the board
+   whose job is to make him act BEFORE he leaves the house. Calm when everything
+   is connected (one line), loud when something is not (cards with the whole
+   sentence, never an ellipsis). */
+.conn{background:var(--tile);border:1px solid var(--hair);border-radius:20px;padding:15px 22px;flex:0 0 auto}
+.conn.needs{border-color:var(--red)}
+.conn.warn{border-color:var(--gold)}
+.conn-head{display:flex;align-items:center;gap:14px}
+.conn-head .ico{width:9px;height:9px;border-radius:50%;background:var(--green);flex:0 0 auto}
+.conn.needs .ico{background:var(--red)}
+.conn.warn .ico{background:var(--gold)}
+.conn.unknown .ico{background:var(--dim)}
+.conn-head .lbl{font-size:13px;color:var(--gold);text-transform:uppercase;letter-spacing:.09em;font-weight:700}
+.conn.needs .lbl{color:var(--red)}
+.conn-head .sum{font-size:17px;font-weight:500;color:var(--bone)}
+.conn-head .age{font-size:13px;color:var(--dim);margin-left:auto;font-variant-numeric:tabular-nums}
+.conn-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:12px;margin-top:14px}
+.conn-cards:empty{display:none}
+.cc{background:var(--tile2);border-left:3px solid var(--red);border-radius:0 10px 10px 0;padding:13px 16px}
+.cc.needs_approval,.cc.offline,.cc.stale,.cc.unknown{border-left-color:var(--gold)}
+.cc .cl{font-size:12.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--gold)}
+.cc.needs_sign_in .cl{color:var(--red)}
+.cc .ca{font-size:18.5px;line-height:1.4;color:var(--bone);margin-top:6px;font-weight:500}
+.cc .cm{font-size:13px;color:var(--dim);margin-top:6px}
+.conn-ok{font-size:14px;color:var(--dim);margin-top:10px}
+
+/* ---------- monday dismiss ----------
+   Samuel, Sept 21 2026: "neesd an X button the monday stuff when monday doesnt
+   work correctly and i dont want to say close out". Saying "close out" is the
+   one control that needs her to be hearing him correctly, which is exactly the
+   case where she is not. So the card gets a real button, and so does the mic. */
+.wake{position:relative}
+.wx{position:absolute;top:14px;right:14px;width:46px;height:46px;border-radius:50%;
+    background:transparent;border:1px solid var(--hair);color:var(--dim);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.wx:hover,.wx:focus-visible{border-color:var(--gold);color:var(--bone)}
+.wx:focus-visible{outline:3px solid var(--bone);outline-offset:3px}
+.wx svg{width:18px;height:18px;display:block}
+.wake .foot{display:flex;align-items:center;justify-content:center;gap:16px}
+.wmute{appearance:none;background:transparent;border:1px solid var(--hair);border-radius:10px;
+       color:var(--dim);font:700 12.5px 'Plus Jakarta Sans',sans-serif;letter-spacing:.06em;
+       text-transform:lowercase;padding:9px 14px;cursor:pointer;min-height:44px}
+.wmute:hover,.wmute:focus-visible{border-color:var(--gold);color:var(--bone)}
+.monday.muted{border-color:var(--gold)}
+.monday.muted .orb{background:var(--gold);animation:none}
+.monday .unmute{appearance:none;background:transparent;border:1px solid var(--gold);border-radius:10px;
+       color:var(--bone);font:700 12.5px 'Plus Jakarta Sans',sans-serif;letter-spacing:.06em;
+       text-transform:lowercase;padding:8px 13px;cursor:pointer;min-height:44px;display:none}
+.monday.muted .unmute{display:block}
+
 /* ---------- alarm wake ---------- */
 .dawn{
   position:fixed;inset:0;z-index:60;pointer-events:none;
@@ -149,7 +203,7 @@ header{display:flex;align-items:flex-end;justify-content:space-between;gap:30px}
   display:flex;align-items:center;justify-content:center;
   opacity:0;pointer-events:none;transition:opacity .22s ease;z-index:40;
 }
-.veil.show{opacity:1}
+.veil.show{opacity:1;pointer-events:auto}
 .wake{
   width:min(760px,76vw);background:var(--tile2);
   border:1px solid var(--gold);border-radius:20px;
@@ -174,6 +228,13 @@ body{position:relative}
    real room for rows instead of collapsing to their headers. */
 @media (max-height: 900px){
   body{padding:22px 26px;gap:14px}
+  .conn{padding:11px 16px}
+  .conn-cards{grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:9px;margin-top:10px}
+  .cc{padding:9px 13px}
+  .cc .ca{font-size:16px;margin-top:4px}
+  .cc .cm{font-size:12px;margin-top:4px}
+  .conn-head .sum{font-size:15px}
+  .conn-ok{font-size:12.5px;margin-top:7px}
   .clock{font-size:58px}
   .meridiem{font-size:22px}
   .datel{font-size:14px;margin-top:7px}
@@ -188,6 +249,8 @@ body{position:relative}
 }
 @media (max-height: 720px){
   .clock{font-size:44px}
+  .cc .ca{font-size:15px}
+  .conn-ok{display:none}
   .panel{padding:12px 15px}
   .al{padding-top:7px;padding-bottom:7px}
   .al::before{top:9px;bottom:9px}
@@ -233,6 +296,17 @@ body{position:relative}
   <span class="meta" id="alarmMeta">say &ldquo;monday set alarm for 7 30&rdquo;</span>
 </div>
 
+<section class="conn unknown" id="conn" aria-live="polite">
+  <div class="conn-head">
+    <span class="ico"></span>
+    <span class="lbl" id="connLbl">connections</span>
+    <span class="sum" id="connSum">checking</span>
+    <span class="age" id="connAge"></span>
+  </div>
+  <div class="conn-cards" id="connCards"></div>
+  <div class="conn-ok" id="connOk" hidden></div>
+</section>
+
 <div class="zones">
   <div class="col">
     <section class="panel fixed">
@@ -258,10 +332,13 @@ body{position:relative}
 
 <div class="veil" id="veil">
   <div class="wake" id="wake">
+    <button class="wx" id="wakeClose" type="button" aria-label="close monday">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
     <div class="orbwrap"><span class="borb"></span><span class="bst" id="wState">listening</span></div>
     <div class="heard dim" id="wHeard">go ahead</div>
     <div class="reply" id="wReply"></div>
-    <div class="foot">say &ldquo;close out&rdquo; when you&rsquo;re done</div>
+    <div class="foot"><span>say &ldquo;close out&rdquo;, or press X</span><button class="wmute" id="wakeMute" type="button">mute 30 min</button></div>
   </div>
 </div>
 
@@ -269,7 +346,8 @@ body{position:relative}
   <span class="orb"></span>
   <span class="st" id="mState">offline</span>
   <span class="tx idle" id="mText">monday is not running</span>
-  <span class="hint">say &ldquo;monday&rdquo; &middot; &ldquo;close out&rdquo; to end</span>
+  <span class="hint" id="mHint">say &ldquo;monday&rdquo; &middot; &ldquo;close out&rdquo; to end</span>
+  <button class="unmute" id="mUnmute" type="button">unmute</button>
 </div>
 
 <script>
@@ -628,6 +706,66 @@ $('wakeDismiss').addEventListener('keydown', function (event) {
 });
 $('wakeDismiss').addEventListener('keyup', endDismissHold);
 
+
+// ---- connections: the credential layer, the only row that exists to make him
+// act before he leaves. Calm when it can, loud when it must, never truncated.
+var CONN_BAD = ['needs_sign_in', 'needs_approval', 'offline'];
+var CONN_WARN = ['stale', 'unknown'];
+
+function renderConnections(c) {
+  var box = $('conn'), cards = $('connCards'), ok = $('connOk');
+  cards.innerHTML = '';
+  if (!c || !c.rows || !c.rows.length) {
+    box.className = 'conn unknown';
+    $('connSum').textContent = (c && c.headline) || 'connection probe has not run';
+    $('connAge').textContent = '';
+    ok.hidden = true;
+    return;
+  }
+  var bad = c.rows.filter(function (r) { return CONN_BAD.indexOf(r.state) >= 0; });
+  var warn = c.rows.filter(function (r) { return CONN_WARN.indexOf(r.state) >= 0; });
+  var live = c.rows.filter(function (r) { return r.state === 'live'; });
+
+  box.className = 'conn ' + (bad.length ? 'needs' : warn.length ? 'warn' : 'calm');
+  $('connLbl').textContent = bad.length ? 'needs you' : 'connections';
+  $('connSum').textContent = bad.length
+    ? (bad.length === 1 ? '1 thing needs you' : bad.length + ' things need you')
+    : (warn.length ? warn.length + ' unproven, the rest are connected' : 'everything is connected');
+  $('connAge').textContent = c.age_s === null || c.age_s === undefined
+    ? 'never checked'
+    : 'checked ' + shortAge(c.age_s);
+
+  bad.concat(warn).slice(0, 4).forEach(function (r) {
+    var card = document.createElement('div');
+    card.className = 'cc ' + (r.state || 'unknown');
+    var l = document.createElement('div'); l.className = 'cl'; l.textContent = r.label || r.key;
+    var a = document.createElement('div'); a.className = 'ca';
+    a.textContent = r.action || r.headline || '';
+    var m = document.createElement('div'); m.className = 'cm'; m.textContent = r.headline || '';
+    card.appendChild(l); card.appendChild(a);
+    if (r.action) card.appendChild(m);
+    cards.appendChild(card);
+  });
+
+  if (live.length && (bad.length || warn.length)) {
+    ok.hidden = false;
+    ok.textContent = 'connected: ' + live.map(function (r) { return r.label || r.key; }).join(', ');
+  } else if (!bad.length && !warn.length) {
+    ok.hidden = false;
+    ok.textContent = live.map(function (r) { return r.label || r.key; }).join(' \u00b7 ');
+  } else {
+    ok.hidden = true;
+  }
+}
+
+function shortAge(sec) {
+  if (sec === null || sec === undefined) return 'never';
+  if (sec < 90) return 'just now';
+  if (sec < 3600) return Math.floor(sec / 60) + 'm ago';
+  if (sec < 86400) return Math.floor(sec / 3600) + 'h ago';
+  return Math.floor(sec / 86400) + 'd ago';
+}
+
 function renderBoard(d) {
   var sys = $('sys');
   sys.innerHTML = '';
@@ -659,6 +797,7 @@ function renderBoard(d) {
     });
   }
 
+  renderConnections(d.connections);
   renderToday(d.today);
   renderLanes(d.lanes);
 
@@ -764,11 +903,58 @@ poll();
 setInterval(poll, 15000);
 
 // ---- Monday, over her own websocket. Absent daemon = honest "offline". ----
+
+// ---- the X. Saying "close out" is the one control that needs her to be hearing
+// him correctly, which is exactly the case where she is not, so the card gets a
+// real button: it hides instantly here AND cancels her turn on the daemon.
+var suppressVeilUntil = 0;
+var mutedUntil = 0;
+
+function sendMonday(message) {
+  try {
+    if (ws && ws.readyState === 1) { ws.send(JSON.stringify(message)); return true; }
+  } catch (e) {}
+  return false;
+}
+
+function closeWake() {
+  clearTimeout(hideTimer);
+  suppressVeilUntil = Date.now() + 1500;
+  $('veil').classList.remove('show');
+  $('wHeard').textContent = 'go ahead';
+  $('wHeard').className = 'heard dim';
+  $('wReply').textContent = '';
+  sendMonday({ type: 'cancel' });
+}
+
+function muteMonday(minutes) {
+  sendMonday({ type: 'mute', minutes: minutes });
+  if (minutes > 0) closeWake();
+}
+
+$('wakeClose').addEventListener('click', closeWake);
+$('wakeMute').addEventListener('click', function () { muteMonday(30); });
+$('mUnmute').addEventListener('click', function () { muteMonday(0); });
+document.addEventListener('keydown', function (event) {
+  if (event.key === 'Escape' && $('veil').classList.contains('show')) closeWake();
+});
+
 var LABEL = { idle: 'ready', listening: 'listening', thinking: 'thinking', speaking: 'speaking' };
 var hideTimer = null;
 var micAvailable = null;
 
 function setMonday(state, text) {
+  if (state === 'idle' && mutedUntil > Date.now()) {
+    var mins = Math.max(1, Math.round((mutedUntil - Date.now()) / 60000));
+    var el0 = $('monday');
+    el0.className = 'monday muted';
+    $('mState').textContent = 'muted';
+    $('mText').textContent = 'monday is muted for ' + mins + ' more min';
+    $('mText').className = 'tx idle';
+    $('mHint').textContent = 'she is not listening';
+    paintVeil('idle');
+    return;
+  }
   if (state === 'idle' && micAvailable !== true) {
     state = 'down';
     text = micAvailable === false ? 'microphone permission needed' : 'checking microphone';
@@ -799,6 +985,7 @@ function paintVeil(state) {
     }, 2600);
     return;
   }
+  if (Date.now() < suppressVeilUntil) return;
   clearTimeout(hideTimer);
   veil.classList.add('show');
   if (state === 'listening') $('wReply').textContent = '';
@@ -827,6 +1014,9 @@ function connectMonday() {
     else if (m.type === 'reply' && m.text) { setMonday('speaking', m.text); showReply(m.text); }
     else if (m.type === 'mic') {
       micAvailable = !!m.ok;
+      mutedUntil = m.muted_until ? new Date(m.muted_until).getTime() : 0;
+      if (mutedUntil > Date.now()) { setMonday('idle', ''); return; }
+      $('mHint').textContent = 'say \u201cmonday\u201d \u00b7 \u201cclose out\u201d to end';
       setMonday(m.ok ? 'idle' : 'down',
         m.ok ? 'say “monday”' : 'microphone permission needed');
     }

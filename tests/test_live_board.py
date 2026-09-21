@@ -143,3 +143,90 @@ def test_board_surfaces_microphone_permission_and_hides_inactive_alarm_dialog():
     assert 'id="wakeAlarm" role="dialog"' in html
     assert 'aria-hidden="true"' in html
     assert "setAttribute('aria-hidden', 'false')" in html
+
+
+# ---- connections strip: the credential layer (Sept 21 2026) ----------------
+# Samuel: "if it cant ping the turo system or school system say it needs to sing
+# in this live app needs to be connected to everything and acc work correctly or
+# its useles". These lock the behaviour that makes that true.
+
+def test_connections_strip_exists_and_reads_the_board_payload():
+    html = source()
+    assert 'id="conn"' in html
+    assert "function renderConnections" in html
+    assert "renderConnections(d.connections)" in html
+
+
+def test_connection_action_text_is_never_truncated():
+    """The half of the line that tells him what to do is the half that got cut."""
+    html = source()
+    conn_css = html.split(".cc .ca{")[1].split("}")[0]
+    assert "text-overflow" not in conn_css
+    assert "white-space:nowrap" not in conn_css
+    assert "line-height" in conn_css
+
+
+def test_sign_in_states_are_loud_and_the_calm_state_is_quiet():
+    html = source()
+    assert "CONN_BAD = ['needs_sign_in', 'needs_approval', 'offline']" in html
+    assert "'1 thing needs you'" in html
+    assert "'everything is connected'" in html
+    assert ".conn.needs{border-color:var(--red)}" in html
+
+
+def test_connections_never_claim_a_verdict_nobody_rechecked():
+    html = source()
+    assert "'never checked'" in html
+    assert "'connection probe has not run'" in html
+
+
+def test_systems_detail_wraps_instead_of_ellipsing():
+    html = source()
+    sys_css = html.split(".s .d{")[1].split("}")[0]
+    assert "text-overflow:ellipsis" not in sys_css
+    assert "-webkit-line-clamp:2" in sys_css
+
+
+# ---- monday dismiss (Sept 21 2026) ----------------------------------------
+# "neesd an X button the monday stuff when monday doesnt work correctly and i
+# dont want to say close out"
+
+def test_monday_card_has_a_real_close_button():
+    html = source()
+    assert 'id="wakeClose"' in html
+    assert 'aria-label="close monday"' in html
+    assert "$('wakeClose').addEventListener('click', closeWake)" in html
+
+
+def test_closing_cancels_her_turn_instead_of_only_hiding_the_card():
+    html = source()
+    assert "sendMonday({ type: 'cancel' })" in html
+    assert "suppressVeilUntil" in html
+
+
+def test_escape_key_closes_the_card_too():
+    html = source()
+    assert "event.key === 'Escape'" in html
+
+
+def test_mute_and_unmute_are_buttons_not_voice_only():
+    html = source()
+    assert 'id="wakeMute"' in html
+    assert 'id="mUnmute"' in html
+    assert "sendMonday({ type: 'mute', minutes: minutes })" in html
+    assert "monday is muted for" in html
+
+
+def test_close_targets_meet_the_44px_touch_rule():
+    html = source()
+    wx = html.split(".wx{")[1].split("}")[0]
+    assert "width:46px" in wx and "height:46px" in wx
+    mute = html.split(".wmute{")[1].split("}")[0]
+    assert "min-height:44px" in mute
+
+
+def test_the_card_accepts_clicks_when_it_is_shown():
+    """It rendered perfectly and swallowed every click: .veil.show never restored
+    pointer-events, so the X was decorative until a real browser test found it."""
+    html = source()
+    assert ".veil.show{opacity:1;pointer-events:auto}" in html
