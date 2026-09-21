@@ -247,6 +247,16 @@ body{position:relative}
   .s{padding:9px 11px}
   .monday{padding:12px 18px}
 }
+@media (max-height: 800px){
+  body{padding:16px 22px;gap:11px}
+  .conn{padding:9px 14px}
+  .conn-cards{gap:8px;margin-top:8px}
+  .cc{padding:8px 11px}
+  .cc .ca{font-size:15px}
+  .cc .cm{display:none}
+  .s{padding:7px 10px}
+  .monday{padding:10px 16px}
+}
 @media (max-height: 720px){
   .clock{font-size:44px}
   .cc .ca{font-size:15px}
@@ -736,7 +746,11 @@ function renderConnections(c) {
     ? 'never checked'
     : 'checked ' + shortAge(c.age_s);
 
-  bad.concat(warn).slice(0, 4).forEach(function (r) {
+  // a short screen (the iPad kiosk, a laptop check) cannot afford four cards
+  // without pushing the systems panel off the bottom, and a cut off board is a
+  // board he stops trusting
+  var maxCards = window.innerHeight < 820 ? 2 : 4;
+  bad.concat(warn).slice(0, maxCards).forEach(function (r) {
     var card = document.createElement('div');
     card.className = 'cc ' + (r.state || 'unknown');
     var l = document.createElement('div'); l.className = 'cl'; l.textContent = r.label || r.key;
