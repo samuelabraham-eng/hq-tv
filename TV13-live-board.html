@@ -726,6 +726,7 @@ function renderConnections(c) {
   var warn = c.rows.filter(function (r) { return CONN_WARN.indexOf(r.state) >= 0; });
   var live = c.rows.filter(function (r) { return r.state === 'live'; });
 
+  box.dataset.lastSeen = String(Date.now());
   box.className = 'conn ' + (bad.length ? 'needs' : warn.length ? 'warn' : 'calm');
   $('connLbl').textContent = bad.length ? 'needs you' : 'connections';
   $('connSum').textContent = bad.length
@@ -756,6 +757,18 @@ function renderConnections(c) {
   } else {
     ok.hidden = true;
   }
+}
+
+// When the board cannot be reached, the strip must stop implying freshness. The
+// rows stay (they were true at the time) but the header says what it really is.
+function markConnectionsUnreachable() {
+  var box = $('conn');
+  if (!box.dataset.lastSeen) return;
+  box.className = 'conn unknown';
+  $('connLbl').textContent = 'connections';
+  $('connSum').textContent = 'board unreachable, showing the last reading';
+  $('connAge').textContent = 'read ' + shortAge(
+    Math.round((Date.now() - Number(box.dataset.lastSeen)) / 1000));
 }
 
 function shortAge(sec) {
@@ -893,6 +906,7 @@ function poll() {
         ? 'refresh failed, showing last update ' + lastBoardUpdate
         : 'board unreachable';
       $('stamp').className = 'stamp stale';
+      markConnectionsUnreachable();
     });
   fetch('/api/alarm', { cache: 'no-store' })
     .then(expectJson)

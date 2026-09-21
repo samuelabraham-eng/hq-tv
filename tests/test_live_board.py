@@ -230,3 +230,10 @@ def test_the_card_accepts_clicks_when_it_is_shown():
     pointer-events, so the X was decorative until a real browser test found it."""
     html = source()
     assert ".veil.show{opacity:1;pointer-events:auto}" in html
+
+
+def test_an_unreachable_board_stops_the_strip_claiming_freshness():
+    html = source()
+    assert "function markConnectionsUnreachable" in html
+    assert "board unreachable, showing the last reading" in html
+    assert "markConnectionsUnreachable();" in html
