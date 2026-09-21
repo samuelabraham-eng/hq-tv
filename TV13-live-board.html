@@ -806,7 +806,12 @@ function renderBoard(d) {
       var t = document.createElement('span'); t.className = 'severity'; t.textContent = severity;
       var x = document.createElement('span'); x.className = 'main'; x.textContent = a.text || '';
       x.title = a.text || '';
-      r.appendChild(t); r.appendChild(x); al.appendChild(r);
+      r.appendChild(t); r.appendChild(x);
+      if (a.side) {          // mail that the sweep has not refreshed says its age
+        var sd = document.createElement('span'); sd.className = 'side'; sd.textContent = a.side;
+        r.appendChild(sd);
+      }
+      al.appendChild(r);
     });
   }
 
