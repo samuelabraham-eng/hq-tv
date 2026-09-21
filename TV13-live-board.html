@@ -709,7 +709,7 @@ $('wakeDismiss').addEventListener('keyup', endDismissHold);
 
 // ---- connections: the credential layer, the only row that exists to make him
 // act before he leaves. Calm when it can, loud when it must, never truncated.
-var CONN_BAD = ['needs_sign_in', 'needs_approval', 'offline'];
+var CONN_BAD = ['needs_sign_in', 'needs_approval', 'broken', 'offline'];
 var CONN_WARN = ['stale', 'unknown'];
 
 function renderConnections(c) {

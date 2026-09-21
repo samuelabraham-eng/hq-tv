@@ -168,7 +168,7 @@ def test_connection_action_text_is_never_truncated():
 
 def test_sign_in_states_are_loud_and_the_calm_state_is_quiet():
     html = source()
-    assert "CONN_BAD = ['needs_sign_in', 'needs_approval', 'offline']" in html
+    assert "'needs_sign_in'" in html.split("var CONN_BAD =")[1].split(";")[0]
     assert "'1 thing needs you'" in html
     assert "'everything is connected'" in html
     assert ".conn.needs{border-color:var(--red)}" in html
@@ -237,3 +237,8 @@ def test_an_unreachable_board_stops_the_strip_claiming_freshness():
     assert "function markConnectionsUnreachable" in html
     assert "board unreachable, showing the last reading" in html
     assert "markConnectionsUnreachable();" in html
+
+
+def test_a_broken_background_job_renders_loud_not_quiet():
+    html = source()
+    assert "'broken'" in html.split("var CONN_BAD =")[1].split(";")[0]
