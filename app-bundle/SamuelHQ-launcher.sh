@@ -7,8 +7,8 @@
 # dock entry. Nothing is installed and no server runs here -- boardd already
 # serves the page, this only opens a window onto it.
 set -u
-BOARD="http://127.0.0.1:8770/"
-PORT=8770
+BOARD="http://127.0.0.1:9770/"
+PORT=9770
 LOG="${HOME}/monday-runner/state/hq-app.log"
 mkdir -p "$(dirname "$LOG")"
 stamp(){ date '+%Y-%m-%d %H:%M:%S'; }
@@ -26,7 +26,7 @@ fi
 
 if ! /usr/bin/nc -z 127.0.0.1 "$PORT" >/dev/null 2>&1; then
   echo "$(stamp) FATAL: boardd still down on $PORT" >> "$LOG"
-  /usr/bin/osascript -e 'display alert "Samuel HQ" message "The board service (boardd) is not running on port 8770." as critical' >/dev/null 2>&1
+  /usr/bin/osascript -e 'display alert "Samuel HQ" message "The board service (boardd) is not running on port 9770." as critical' >/dev/null 2>&1
   exit 1
 fi
 

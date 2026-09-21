@@ -4,8 +4,8 @@ import WebKit
 final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate {
     private var window: NSWindow!
     private var webView: WKWebView!
-    private let boardURL = URL(string: "http://127.0.0.1:8770/")!
-    private let alarmURL = URL(string: "http://127.0.0.1:8770/api/alarm")!
+    private let boardURL = URL(string: "http://127.0.0.1:9770/")!
+    private let alarmURL = URL(string: "http://127.0.0.1:9770/api/alarm")!
     private var attempts = 0
 
     func applicationDidFinishLaunching(_ notification: Notification) {

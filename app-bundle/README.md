@@ -24,7 +24,7 @@ The visible dashboard is a native AppKit and WebKit application. It owns its
 window and app identity, starts boardd and Monday, waits for the local service,
 and allows the alarm chime without requiring a first click.
 
-1. Checks boardd on 8770. If it is down, kickstarts the launchd job and waits,
+1. Checks boardd on 9770. If it is down, kickstarts the launchd job and waits,
    rather than opening a window onto a dead port. If it stays down, it says so in
    an alert instead of showing a blank page.
 2. Starts Monday.app if she is not already up. The board works without her and
