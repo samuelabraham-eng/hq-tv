@@ -68,3 +68,13 @@ stuff when monday doesnt work correctly and i dont want to say close out"*.
 - **Board unreachable** now says so in the strip instead of showing the last
   reading as if it were fresh.
 - Tests: 29 in `tests/test_live_board.py`, all green.
+
+### Same night, after the first pass
+- Cards are for rows that need action. Unproven rows moved to a single line under
+  the header, because the strip plus a ninth system row had starved the TODAY panel
+  to zero height at 1080 (and 25px at 720). The browser contract now asserts TODAY
+  keeps 120px on every viewport, not only 720.
+- Systems render three across under 800px tall.
+- Playwright is installed at `~/hqtv-venv` and `tests/run_contract.py` runs the
+  contract against an isolated boardd plus the scripted fake Monday, which now
+  records inbound messages so the X can be proven to cancel.

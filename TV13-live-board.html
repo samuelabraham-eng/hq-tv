@@ -779,9 +779,9 @@ function renderConnections(c) {
 
   if (warn.length) {
     ok.hidden = false;
-    ok.textContent = 'unproven: ' + warn.map(function (r) {
-      return (r.label || r.key) + ' (' + (r.headline || '') + ')';
-    }).join('  ·  ');
+    ok.textContent = 'unproven: ' + warn.slice(0, 3).map(function (r) {
+      return (r.label || r.key);
+    }).join(', ') + (warn[0] && warn[0].headline ? '  \u00b7  ' + warn[0].headline : '');
   } else if (live.length && bad.length) {
     ok.hidden = false;
     ok.textContent = 'connected: ' + live.map(function (r) { return r.label || r.key; }).join(', ');
