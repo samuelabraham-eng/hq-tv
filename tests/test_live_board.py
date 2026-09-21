@@ -247,5 +247,5 @@ def test_a_broken_background_job_renders_loud_not_quiet():
 def test_a_short_screen_keeps_the_sentence_and_drops_the_cards():
     """A collapsed TODAY panel is how the browser contract caught this."""
     html = source()
-    assert "var maxCards = h < 760 ? 0 : (h < 820 ? 2 : 4);" in html
+    assert "var maxCards = h < 760 ? 0 : (h < 820 ? 2 : 3);" in html
     assert "if (maxCards === 0 && bad.length) {" in html

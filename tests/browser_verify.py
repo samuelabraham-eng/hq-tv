@@ -93,11 +93,12 @@ def verify_page(browser, name, viewport):
     assert bounds["body"]["right"] <= bounds["width"] + 1
     assert bounds["body"]["bottom"] <= bounds["height"] + 1
 
-    if name == "tv-720":
-        today_bounds = page.locator("#today").bounding_box()
-        assert today_bounds is not None
-        assert today_bounds["height"] >= 120, today_bounds
-        assert page.locator("#today .al").count() >= 1
+    # every viewport, not just 720: the connections strip starved this panel to
+    # zero height at 1080 while the 720 assertion still passed
+    today_bounds = page.locator("#today").bounding_box()
+    assert today_bounds is not None
+    assert today_bounds["height"] >= 120, (name, today_bounds)
+    assert page.locator("#today .al").count() >= 1
 
     if name == "tv-1080":
         console_errors.clear()

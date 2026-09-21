@@ -756,13 +756,16 @@ function renderConnections(c) {
   // without collapsing the panels below, and a board with a zero height panel is
   // a board he stops trusting. Under 760 the strip keeps the words and drops the
   // cards: the sentence he has to act on moves up into the summary line.
+  // Cards are for things to ACT on. Unproven rows are context and ride in the
+  // line underneath, because a strip that fills with amber pushes the TODAY panel
+  // to zero height, which is how this board starved its own school deadlines.
   var h = window.innerHeight;
-  var maxCards = h < 760 ? 0 : (h < 820 ? 2 : 4);
+  var maxCards = h < 760 ? 0 : (h < 820 ? 2 : 3);
   if (maxCards === 0 && bad.length) {
     $('connSum').textContent = (bad.length === 1 ? '' : bad.length + ' need you: ')
       + (bad[0].action || bad[0].headline || '');
   }
-  bad.concat(warn).slice(0, maxCards).forEach(function (r) {
+  bad.slice(0, maxCards).forEach(function (r) {
     var card = document.createElement('div');
     card.className = 'cc ' + (r.state || 'unknown');
     var l = document.createElement('div'); l.className = 'cl'; l.textContent = r.label || r.key;
@@ -774,7 +777,12 @@ function renderConnections(c) {
     cards.appendChild(card);
   });
 
-  if (live.length && (bad.length || warn.length)) {
+  if (warn.length) {
+    ok.hidden = false;
+    ok.textContent = 'unproven: ' + warn.map(function (r) {
+      return (r.label || r.key) + ' (' + (r.headline || '') + ')';
+    }).join('  ·  ');
+  } else if (live.length && bad.length) {
     ok.hidden = false;
     ok.textContent = 'connected: ' + live.map(function (r) { return r.label || r.key; }).join(', ');
   } else if (!bad.length && !warn.length) {
