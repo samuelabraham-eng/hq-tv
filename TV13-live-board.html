@@ -149,20 +149,24 @@ header{display:flex;align-items:flex-end;justify-content:space-between;gap:30px}
 .wake{position:relative}
 .wx{position:absolute;top:14px;right:14px;width:46px;height:46px;border-radius:50%;
     background:transparent;border:1px solid var(--hair);color:var(--dim);
-    display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+    display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;
+    touch-action:manipulation}
 .wx:hover,.wx:focus-visible{border-color:var(--gold);color:var(--bone)}
 .wx:focus-visible{outline:3px solid var(--bone);outline-offset:3px}
 .wx svg{width:18px;height:18px;display:block}
 .wake .foot{display:flex;align-items:center;justify-content:center;gap:16px}
 .wmute{appearance:none;background:transparent;border:1px solid var(--hair);border-radius:10px;
        color:var(--dim);font:700 12.5px 'Plus Jakarta Sans',sans-serif;letter-spacing:.06em;
-       text-transform:lowercase;padding:9px 14px;cursor:pointer;min-height:44px}
+       text-transform:lowercase;padding:9px 14px;cursor:pointer;min-height:44px;
+       touch-action:manipulation}
 .wmute:hover,.wmute:focus-visible{border-color:var(--gold);color:var(--bone)}
+.wmute:focus-visible,.monday .unmute:focus-visible{outline:3px solid var(--bone);outline-offset:3px}
 .monday.muted{border-color:var(--gold)}
 .monday.muted .orb{background:var(--gold);animation:none}
 .monday .unmute{appearance:none;background:transparent;border:1px solid var(--gold);border-radius:10px;
        color:var(--bone);font:700 12.5px 'Plus Jakarta Sans',sans-serif;letter-spacing:.06em;
-       text-transform:lowercase;padding:8px 13px;cursor:pointer;min-height:44px;display:none}
+       text-transform:lowercase;padding:8px 13px;cursor:pointer;min-height:44px;display:none;
+       touch-action:manipulation}
 .monday.muted .unmute{display:block}
 
 /* ---------- alarm wake ---------- */
@@ -347,7 +351,7 @@ body{position:relative}
 </div>
 
 <div class="veil" id="veil">
-  <div class="wake" id="wake">
+  <div class="wake" id="wake" role="dialog" aria-label="monday">
     <button class="wx" id="wakeClose" type="button" aria-label="close monday">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>

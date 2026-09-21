@@ -249,3 +249,14 @@ def test_a_short_screen_keeps_the_sentence_and_drops_the_cards():
     html = source()
     assert "var maxCards = h < 760 ? 0 : (h < 820 ? 2 : 3);" in html
     assert "if (maxCards === 0 && bad.length) {" in html
+
+
+def test_the_new_controls_pass_the_interface_guidelines():
+    """Checked against vercel-labs/web-interface-guidelines, Sept 21 2026."""
+    html = source()
+    assert 'role="dialog" aria-label="monday"' in html
+    for block in (".wx{", ".wmute{", ".monday .unmute{"):
+        css = html.split(block)[1].split("}")[0]
+        assert "touch-action:manipulation" in css, block
+    assert ".wmute:focus-visible,.monday .unmute:focus-visible{outline:3px solid" in html
+    assert "transition: all" not in html and "transition:all" not in html
