@@ -1,0 +1,1223 @@
+<!doctype html>
+<html lang="en" data-theme="noir">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#100e0c">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<link rel="icon" href="data:,">
+<title>samuel hq board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══ TV14. The deployed tile board (index.html), wired to the live feed. ═══
+   Skin is DESIGN-LOCK verbatim: warm black, gold accent, Plus Jakarta Sans.
+   TV13 proved the wiring; this file moves that wiring onto the tile layout
+   Samuel actually likes. Content zones changed, not one locked token did. */
+[data-theme="noir"]{
+  --ground:#100e0c; --tile:#1a1512; --tile2:#211b16; --line:#2a241d;
+  --bone:#f1ebdf; --dim:#8a8073; --accent:#c9a96a; --onAccent:#2b2208; --onAccentDim:#5c4a20;
+  --alert:#d0402e; --ok:#7e9b7a; --border:1px solid var(--line); --tilebg:var(--tile);
+}
+[data-theme="espresso"]{   /* his stated favourite dark, from the HQ kit */
+  --ground:#1a1512; --tile:#251e18; --tile2:#2e251e; --line:#392e25;
+  --bone:#efe4d3; --dim:#998b78; --accent:#cfa863; --onAccent:#2b2208; --onAccentDim:#5c4a20;
+  --alert:#d9503a; --ok:#86a882; --border:1px solid var(--line); --tilebg:var(--tile);
+}
+[data-theme="clay"]{       /* warm mid-dark, far softer than noir */
+  --ground:#2a231e; --tile:#352d26; --tile2:#3e352c; --line:#473c32;
+  --bone:#f0e7d9; --dim:#a3947f; --accent:#d8b473; --onAccent:#2b2208; --onAccentDim:#6b5427;
+  --alert:#e2604a; --ok:#8fb08a; --border:1px solid var(--line); --tilebg:var(--tile);
+}
+
+:root{ --safe:2.2vw; --gap:0.8vw; }
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:var(--ground);overflow:hidden;max-width:100%}
+body{
+  font-family:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  color:var(--bone); -webkit-font-smoothing:antialiased;
+}
+
+/* the sunrise. the tv is a very large lamp, so use it as one. */
+#dawn{
+  position:fixed; inset:0; pointer-events:none; opacity:0; z-index:5;
+  background:radial-gradient(125% 90% at 50% 120%, var(--dawn1,#2a1a08) 0%, var(--dawn2,#1a1208) 30%, var(--dawn3,#120e0a) 55%, rgba(0,0,0,0) 82%);
+  transition:opacity 2s linear, background 4s linear;
+}
+
+/* privacy swaps money out rather than hiding the tile, so the board still
+   reads correctly on camera and he can still see WHAT is due, just not what
+   it costs. index.html established this pattern; money is what it was for. */
+body.privacy .privhide{display:none}
+.privshow{display:none}
+body.privacy .privshow{display:inline}
+
+#board{height:100%;padding:var(--safe);display:flex;flex-direction:column;gap:var(--gap);position:relative;z-index:10}
+
+/* ── top band ── */
+.top{display:grid;grid-template-columns:1.55fr 1fr;gap:var(--gap);flex:0 0 auto}
+.clockwrap{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:1.5vw;min-width:0}
+.clockstack{display:flex;flex-direction:column;justify-content:center;min-width:0}
+.clock{font-size:clamp(38px,min(7.4vw,12.5vh),120px);font-weight:800;letter-spacing:-.05em;line-height:.86}
+.clock .mer{font-size:.2em;font-weight:500;letter-spacing:.12em;color:var(--dim);margin-left:.12em;vertical-align:.9em}
+.dateline{font-size:clamp(11px,min(1.4vw,2.6vh),22px);color:var(--dim);margin-top:.35vw;font-weight:500}
+.brand{text-align:right;flex:0 0 auto}
+.brand h1{font-size:clamp(13px,min(1.7vw,3vh),26px);font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.brand .stamp{font-size:clamp(9px,min(1vw,1.9vh),15px);color:var(--dim);font-weight:500;margin-top:.2vw}
+
+/* the alarm card keeps TV13's element id so the proven wake engine binds
+   to it unchanged. only its skin moved. */
+.alarm{
+  background:var(--tilebg);border:var(--border);border-left:3px solid var(--accent);
+  padding:.8vw 1.1vw;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:.25vw;
+}
+.alarm .lab{color:var(--accent)}
+.alarm.off{border-left-color:var(--dim)}
+.alarm.off .lab{color:var(--dim)}
+.alarm.unavailable{border-left-color:var(--alert)}
+.alarm.unavailable .lab{color:var(--alert)}
+.alarmtime{font-size:clamp(18px,min(3vw,5.4vh),48px);font-weight:800;letter-spacing:-.03em;line-height:1}
+.alarmmeta{font-size:clamp(9.5px,min(1.05vw,2.1vh),17px);color:var(--dim);font-weight:500;line-height:1.35}
+
+/* ── tiles ── */
+.grid{flex:1 1 auto;display:grid;grid-template-columns:repeat(4,1fr);
+  grid-template-rows:repeat(3,minmax(0,1fr));gap:var(--gap);min-height:0}
+.t{
+  background:var(--tilebg);border:var(--border);padding:.7vw .95vw;min-height:0;
+  display:flex;flex-direction:column;justify-content:flex-start;gap:.35vw;
+  position:relative;overflow:hidden;outline:none;
+}
+.t.w2{grid-column:span 2}
+.t.gold{background:var(--accent);border-color:var(--accent)}
+.t.gold .lab{color:var(--onAccentDim)}
+.t.gold .big,.t.gold .mid{color:var(--onAccent)}
+.t.gold .sub{color:var(--onAccentDim)}
+.t.hot{border-color:var(--alert)}
+.t.hot .lab{color:var(--alert)}
+.t.hot .big,.t.hot .mid{color:var(--alert)}
+.t .lab{color:var(--dim)}
+.lab{font-size:clamp(9px,.85vw,14px);letter-spacing:.16em;font-weight:700;flex:0 0 auto}
+.big{font-size:clamp(18px,min(2.7vw,5vh),44px);font-weight:800;letter-spacing:-.04em;line-height:.95}
+.mid{font-size:clamp(13px,min(1.8vw,3.4vh),29px);font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.sub{font-size:clamp(9.5px,min(1.02vw,2.1vh),17px);color:var(--dim);font-weight:500;line-height:1.3}
+.t.calm{opacity:.62}
+
+/* the one thing allowed to move. it only moves when it changes. */
+@keyframes settle{0%{opacity:0;transform:translateY(.6vw)}100%{opacity:1;transform:none}}
+.t.gold .mid,.t.gold .sub{animation:settle .5s ease-out}
+
+/* list rows inside wide tiles */
+.rows{display:flex;flex-direction:column;gap:.1vw;width:100%;min-height:0;overflow:hidden;flex:1 1 auto}
+.row{display:flex;gap:.8vw;align-items:baseline;font-size:clamp(10px,min(1.02vw,2.15vh),18px);
+  font-weight:500;justify-content:space-between;flex:0 0 auto}
+.row .nm{color:var(--bone);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .st{color:var(--dim);flex-shrink:0;white-space:nowrap}
+.row .st.live{color:var(--ok)}
+.row .st.warn{color:var(--alert)}
+.row.dim .nm{color:var(--dim)}
+/* alerts and bus notes run long, so they wrap to two lines instead of being
+   cut at a word. TV13's lesson: an ellipsed alert is an unread alert. */
+.row.wrap{align-items:flex-start}
+.row.wrap .nm{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* the systems tile packs nine rows, so it gets its own tighter grid */
+.sysgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:.2vw 1vw;flex:1 1 auto;
+  min-height:0;align-content:space-between}
+.sysrow{display:grid;grid-template-columns:auto 1fr;column-gap:.45vw;row-gap:0;min-width:0;
+  font-size:clamp(9.5px,min(.98vw,2.05vh),17px);font-weight:500}
+.sysrow .d{width:.45vw;height:.45vw;min-width:5px;min-height:5px;border-radius:50%;
+  background:var(--dim);flex:0 0 auto;align-self:center;grid-row:1}
+.sysrow.live .d{background:var(--ok)}
+.sysrow.attention .d{background:var(--accent)}
+.sysrow.down .d{background:var(--alert)}
+.sysrow.down .n{color:var(--alert)}
+.sysrow .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;grid-row:1}
+/* the detail is why he trusts the dot. it was on TV13 and it stays. */
+.sysrow .sd{grid-column:2;grid-row:2;color:var(--dim);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;font-size:.82em;line-height:1.25}
+
+/* money. the amounts carry .privhide so the privacy toggle empties them. */
+.moneyline{display:flex;align-items:baseline;gap:.5vw;flex-wrap:wrap}
+.moneyline .cur{font-size:.5em;font-weight:500;color:var(--dim);letter-spacing:0}
+.hidden-amt{color:var(--dim);letter-spacing:.1em}
+
+/* ── the whiteboard strip: what the other machines are doing ── */
+.wb{border-top:1px solid var(--line);padding-top:.6vw;display:flex;gap:1.2vw;
+  align-items:center;flex:0 0 auto;overflow:hidden;margin-bottom:2.6vw}
+.wb .wlabel{font-size:clamp(9px,.85vw,14px);letter-spacing:.16em;color:var(--accent);font-weight:700;flex:0 0 auto}
+.wb .items{display:flex;gap:1.1vw;font-size:clamp(9.5px,1.02vw,17px);color:var(--dim);
+  font-weight:500;overflow:hidden;white-space:nowrap}
+.wb .items i{font-style:normal;color:var(--dim);overflow:hidden;text-overflow:ellipsis;max-width:34ch}
+.wb .items i::before{content:"○ ";color:var(--accent);opacity:.7}
+.wb .items b{color:var(--bone);font-weight:500}
+
+/* ── Monday. carried over from TV13 unchanged in behaviour. ── */
+.monday{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:center;gap:.9vw;
+  padding:.55vw var(--safe);background:var(--ground);border-top:1px solid var(--line);
+  font-size:clamp(9.5px,1.02vw,17px);font-weight:500;
+}
+.monday .orb{width:.6vw;height:.6vw;min-width:7px;min-height:7px;border-radius:50%;background:var(--ok);flex:0 0 auto}
+.monday.down .orb{background:var(--alert)}
+.monday.muted .orb{background:var(--dim)}
+.monday .st{color:var(--accent);letter-spacing:.14em;font-weight:700;
+  font-size:clamp(8.5px,.82vw,13px);text-transform:uppercase;flex:0 0 auto}
+.monday .tx{color:var(--bone);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1 1 auto}
+.monday .tx.idle{color:var(--dim)}
+.monday .hint{color:var(--dim);flex:0 0 auto}
+.monday .unmute{display:none;background:transparent;border:1px solid var(--accent);color:var(--accent);
+  padding:.25vw .7vw;font-family:inherit;font-size:inherit;font-weight:500;cursor:pointer;border-radius:6px;
+  min-height:32px;touch-action:manipulation}
+.monday.muted .unmute{display:block}
+
+.veil{position:fixed;inset:0;z-index:60;background:rgba(10,8,6,.86);display:grid;place-items:center;
+  opacity:0;pointer-events:none;transition:opacity .25s;padding:6vw}
+.veil.show{opacity:1;pointer-events:auto}
+/* The card holds a STABLE size while she talks. Found the hard way on Sept 24:
+   a growing transcript pushed the footer down between aiming at the mute button
+   and pressing it, so the press landed on the board behind. The one control he
+   reaches for when she is misbehaving must never move while she misbehaves. */
+.wake{position:relative;background:var(--tile);border:1px solid var(--line);border-left:3px solid var(--accent);
+  padding:2vw 2.4vw;max-width:min(60ch,86vw);width:100%;min-height:min(38vh,340px);max-height:78vh;
+  display:flex;flex-direction:column;gap:1vh;justify-content:flex-start}
+.wake .wx{position:absolute;top:1vw;right:1vw;width:2.6vw;height:2.6vw;min-width:34px;min-height:34px;
+  border:1px solid var(--line);border-radius:50%;background:transparent;color:var(--dim);
+  display:grid;place-items:center;cursor:pointer;touch-action:manipulation;padding:.5vw}
+.wake .wx:hover,.wake .wx:focus-visible{border-color:var(--accent);color:var(--accent);outline:none}
+.wake .wx svg{width:100%;height:100%}
+.orbwrap{display:flex;align-items:center;gap:.8vw}
+.borb{width:1vw;height:1vw;min-width:12px;min-height:12px;border-radius:50%;background:var(--accent)}
+.bst{font-size:clamp(9px,.9vw,15px);letter-spacing:.16em;color:var(--accent);font-weight:700;text-transform:uppercase}
+.heard{font-size:clamp(15px,2.1vw,34px);font-weight:800;letter-spacing:-.03em;line-height:1.15;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;flex:0 0 auto}
+.heard.dim{color:var(--dim);font-weight:500}
+.reply{font-size:clamp(11px,1.25vw,21px);color:var(--dim);font-weight:500;line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden;
+  flex:1 1 auto;min-height:0}
+.wake .foot{display:flex;align-items:center;justify-content:space-between;gap:1vw;
+  font-size:clamp(9.5px,1vw,16px);color:var(--dim);font-weight:500;margin-top:auto;
+  padding-top:.5vh;flex:0 0 auto}
+.wmute{background:transparent;border:1px solid var(--line);color:var(--dim);padding:.35vw .9vw;
+  font-family:inherit;font-size:inherit;font-weight:500;cursor:pointer;border-radius:6px;
+  min-height:32px;touch-action:manipulation}
+.wmute:hover,.wmute:focus-visible{border-color:var(--accent);color:var(--accent);outline:none}
+
+/* ── the alarm wake screen, TV13's proven path ── */
+.alarm-wake{position:fixed;inset:0;z-index:70;display:none;place-items:center;padding:6vw;
+  background:radial-gradient(130% 95% at 50% 118%, #fff3dc 0%, #ffd08a 34%, #f0913a 62%, #b8460f 100%)}
+.alarm-wake.show{display:grid}
+.alarm-wake-card{text-align:center;display:flex;flex-direction:column;gap:2vh;align-items:center}
+.alarm-wake .eyebrow{font-size:clamp(11px,1.5vw,24px);letter-spacing:.2em;color:#6b3007;font-weight:700;text-transform:uppercase}
+.alarm-wake h2{font-size:clamp(20px,3vw,48px);font-weight:800;color:#3d1a03;letter-spacing:-.03em}
+.wake-time{font-size:clamp(54px,14vw,220px);font-weight:800;letter-spacing:-.05em;line-height:.85;color:#3d1a03}
+.wake-sound{font-size:clamp(13px,1.7vw,28px);color:#7c3a0c;font-weight:500}
+.alarm-actions{display:flex;gap:1.4vw;flex-wrap:wrap;justify-content:center;margin-top:1vh}
+.alarm-actions button{background:transparent;color:#5c2a06;border:2px solid #5c2a06;padding:1.4vh 3.2vw;
+  font-family:inherit;font-size:clamp(13px,1.7vw,26px);font-weight:700;letter-spacing:-.02em;cursor:pointer}
+.alarm-actions button.dismiss{background:#3d1a03;color:#ffeccf;border-color:#3d1a03}
+.alarm-actions button:disabled{opacity:.35;cursor:not-allowed}
+
+/* ── remote-reachable controls, same as the deployed board ── */
+#bar{display:flex;gap:.5vw;flex:0 0 auto;margin-left:auto;opacity:.3;transition:opacity .25s}
+#bar:hover,#bar:focus-within,#bar.lit{opacity:1}
+#bar button{background:var(--tile);color:var(--dim);border:1px solid var(--line);padding:.4vw .9vw;
+  font-family:inherit;font-size:clamp(9.5px,.95vw,15px);font-weight:500;cursor:pointer;
+  min-height:32px;touch-action:manipulation}
+#bar button:hover,#bar button:focus-visible{color:var(--bone);border-color:var(--accent);outline:none}
+#bar button.on{background:var(--accent);border-color:var(--accent);color:var(--onAccent)}
+
+/* ── the 720p TV and the iPad kiosk ──
+   TV13's lesson, kept: never let a zone collapse to nothing. Below 800px tall
+   the grid drops to two rows and the systems tile goes wider rather than any
+   tile squeezing to zero height. */
+@media (max-height:800px){
+  :root{--safe:1.8vw;--gap:.6vw}
+  .grid{grid-template-rows:repeat(3,minmax(0,1fr))}
+  .wb{margin-bottom:3.4vw}
+}
+@media (max-width:1100px){
+  :root{--safe:20px;--gap:10px}
+  .top{grid-template-columns:1fr}
+  .grid{grid-template-columns:repeat(2,1fr);grid-template-rows:none;grid-auto-rows:minmax(96px,auto)}
+  .t.w2{grid-column:span 2}
+  html,body{overflow:auto}
+  #board{height:auto;min-height:100%}
+  .clock{font-size:clamp(34px,9vw,58px)}
+  .big{font-size:clamp(24px,7vw,44px)} .mid{font-size:clamp(17px,4.6vw,30px)}
+  .sub,.row,.sysrow{font-size:14px} .lab,.wb .wlabel{font-size:11px} .wb .items{font-size:13px}
+  .sysgrid{grid-template-columns:repeat(2,1fr)}
+  .wb{white-space:normal;flex-wrap:wrap;margin-bottom:64px}
+  .wb .items{flex-wrap:wrap;white-space:normal}
+  #bar{opacity:1;margin-left:0} #bar button{font-size:13px;padding:8px 12px}
+  .monday{padding:10px 16px;font-size:13px}
+}
+@media (max-width:560px){ .grid{grid-template-columns:1fr} .t.w2{grid-column:span 1} .sysgrid{grid-template-columns:1fr} }
+@media (prefers-reduced-motion:reduce){ #dawn{transition:none} .t.gold .mid,.t.gold .sub{animation:none} }
+</style>
+<body>
+
+<div id="dawn"></div>
+
+<div class="alarm-wake" id="wakeAlarm" role="dialog" aria-label="Alarm" aria-modal="true" aria-hidden="true">
+  <div class="alarm-wake-card">
+    <div class="eyebrow">alarm</div>
+    <h2 id="wakeAlarmTitle">good morning</h2>
+    <div class="wake-time" id="wakeAlarmTime"></div>
+    <div class="wake-sound" id="wakeAlarmSound">waking the room</div>
+    <div class="alarm-actions">
+      <button id="wakeSnooze" type="button">snooze 9 min</button>
+      <button class="dismiss" id="wakeDismiss" type="button">hold to say I am up</button>
+    </div>
+  </div>
+</div>
+
+<main id="board">
+
+  <section class="top">
+    <div class="clockwrap">
+      <div class="clockstack">
+        <div class="clock"><span id="time">--:--</span><span class="mer" id="mer"></span></div>
+        <div class="dateline" id="date">&nbsp;</div>
+      </div>
+      <div class="brand">
+        <h1>samuel hq</h1>
+        <div class="stamp" id="stamp">connecting</div>
+      </div>
+    </div>
+    <div class="alarm off" id="alarm">
+      <div class="lab">NEXT ALARM</div>
+      <div class="alarmtime" id="alarmTime">none set</div>
+      <div class="alarmmeta" id="alarmMeta">say &ldquo;monday set alarm for 7 30&rdquo;</div>
+    </div>
+  </section>
+
+  <section class="grid">
+
+    <!-- The one tile allowed to be gold. It carries the single most urgent
+         thing across every system, or says plainly that nothing needs him.
+         Never a list: a list of urgent things is not an urgent thing. -->
+    <div class="t gold w2" id="tNeed">
+      <div class="lab" id="needLab">NEEDS YOU</div>
+      <div class="mid" id="needMid">reading the system</div>
+      <div class="sub" id="needSub">&nbsp;</div>
+    </div>
+
+    <div class="t" id="tConn">
+      <div class="lab">CONNECTIONS</div>
+      <div class="big" id="connBig">&middot;</div>
+      <div class="sub" id="connSub">checking</div>
+    </div>
+
+    <div class="t" id="tSpend">
+      <div class="lab">SPENT THIS MONTH</div>
+      <div class="big moneyline"><span class="privhide" id="spendBig">&middot;</span><span class="privshow hidden-amt">••••</span></div>
+      <div class="sub" id="spendSub">waiting for the money feed</div>
+    </div>
+
+    <div class="t w2" id="tSys">
+      <div class="lab">SYSTEMS</div>
+      <div class="sysgrid" id="sysGrid"></div>
+    </div>
+
+    <div class="t w2" id="tMoney">
+      <div class="lab" id="moneyLab">MONEY OUT, EVERY MONTH</div>
+      <div class="rows" id="moneyRows"></div>
+      <div class="sub" id="moneySub">&nbsp;</div>
+    </div>
+
+    <div class="t w2" id="tToday">
+      <div class="lab">TODAY</div>
+      <div class="rows" id="todayRows"></div>
+    </div>
+
+    <div class="t w2" id="tAlerts">
+      <div class="lab">ALERTS</div>
+      <div class="rows" id="alertRows"></div>
+    </div>
+
+  </section>
+
+  <div class="wb">
+    <div class="wlabel">NOW WORKING</div>
+    <div class="items" id="wbItems"></div>
+    <div id="bar">
+      <button id="privBtn" type="button">privacy</button>
+      <button id="themeBtn" type="button">theme: noir</button>
+    </div>
+  </div>
+
+</main>
+
+<div class="veil" id="veil">
+  <div class="wake" id="wake" role="dialog" aria-label="monday">
+    <button class="wx" id="wakeClose" type="button" aria-label="close monday">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="orbwrap"><span class="borb"></span><span class="bst" id="wState">listening</span></div>
+    <div class="heard dim" id="wHeard">go ahead</div>
+    <div class="reply" id="wReply"></div>
+    <div class="foot"><span>say &ldquo;close out&rdquo;, or press X</span><button class="wmute" id="wakeMute" type="button">mute 30 min</button></div>
+  </div>
+</div>
+
+<div class="monday down" id="monday">
+  <span class="orb"></span>
+  <span class="st" id="mState">offline</span>
+  <span class="tx idle" id="mText">monday is not running</span>
+  <span class="hint" id="mHint">say &ldquo;monday&rdquo; &middot; &ldquo;close out&rdquo; to end</span>
+  <button class="unmute" id="mUnmute" type="button">unmute</button>
+</div>
+
+<script>
+// TV14. Wiring carried from TV13 verbatim where it was already proven:
+// the alarm/dawn/audio engine, the 15 second poll, and Monday's socket.
+// Only the renderers changed, because only the layout changed.
+
+'use strict';
+// Honesty rules (DESIGN-LOCK): real data only, stale shown as stale, never a
+// placeholder presented as live. Every failure path writes an explicit unknown.
+
+var $ = function (id) { return document.getElementById(id); };
+
+function clock() {
+  var d = new Date();
+  var h = d.getHours(), m = d.getMinutes();
+  $('time').textContent = (h % 12 || 12) + ':' + (m < 10 ? '0' + m : m);
+  $('mer').textContent = h < 12 ? 'am' : 'pm';
+  $('date').textContent = d.toLocaleDateString('en-US',
+    { weekday: 'long', month: 'long', day: 'numeric' }).toLowerCase();
+  paintSunrise(d);
+  checkAlarm(d);
+}
+clock();
+setInterval(clock, 1000);
+
+function ago(s) {
+  if (s === null || s === undefined) return '';
+  if (s < 90) return Math.round(s) + 's ago';
+  if (s < 5400) return Math.round(s / 60) + 'm ago';
+  if (s < 172800) return Math.round(s / 3600) + 'h ago';
+  return Math.round(s / 86400) + 'd ago';
+}
+
+function setAlarmMeta(lines) {
+  var meta = $('alarmMeta');
+  meta.textContent = '';
+  (lines || []).forEach(function (line, index) {
+    if (index) meta.appendChild(document.createElement('br'));
+    meta.appendChild(document.createTextNode(line));
+  });
+}
+
+function renderAlarm(a) {
+  var el = $('alarm');
+  if (!validAlarmPayload(a)) { renderAlarmUnavailable(); return; }
+  if (!adoptAlarm(a)) return;
+  if (!a || !a.enabled || !a.time) {
+    resetAlarmRuntime();
+    el.className = 'alarm off';
+    $('alarmTime').textContent = 'none set';
+    setAlarmMeta(['say “monday set alarm for 7 30”']);
+    return;
+  }
+  alarmState = a;
+  claimPlaybackSession();
+  el.className = 'alarm on';
+  var p = a.time.split(':'), h = parseInt(p[0], 10), mm = p[1];
+  $('alarmTime').textContent = (h % 12 || 12) + ':' + mm + ' ' + (h < 12 ? 'am' : 'pm');
+  var lines = [], timing = '';
+  if (a.fires_in_s !== null && a.fires_in_s !== undefined) {
+    var totalMinutes = Math.ceil(a.fires_in_s / 60);
+    var hrs = Math.floor(totalMinutes / 60), mins = totalMinutes % 60;
+    timing = totalMinutes === 0 ? 'now' : 'in ' + (hrs ? hrs + 'h' : '') +
+      (mins ? (hrs ? ' ' : '') + mins + 'm' : '');
+  }
+  if (a.label) timing += (timing ? ' · ' : '') + a.label;
+  if (timing) lines.push(timing);
+  if (a.set_by) lines.push('set by ' + a.set_by);
+  lines.push(audioReady ? 'sound ready' : 'press any remote button once for sound');
+  setAlarmMeta(lines.length ? lines : ['active']);
+  checkAlarm(new Date());
+}
+
+function renderAlarmUnavailable() {
+  $('alarm').className = 'alarm unavailable';
+  $('alarmTime').textContent = 'alarm status unavailable';
+  setAlarmMeta([alarmParts() ? 'board connection failed; using last confirmed alarm' : 'board connection failed']);
+}
+
+// The live board replaced the original alarm surface, so the proven TV wake
+// path lives here too. The server owns the setting; this foreground kiosk owns
+// the dawn, sound, snooze, and wake interaction.
+var alarmState = { enabled: false, time: null };
+var firedOn = null, snoozeUntil = 0, ringing = false, snoozeCount = 0;
+var audioContext = null, audioReady = false, master = null, chimeTimer = null, chimeStep = 0;
+var RAMP_MINUTES = 30;
+var MAX_SNOOZES = 3;
+var CATCH_UP_MS = 5 * 60000;
+var ALARM_RUNTIME_KEY = 'samuel-hq-alarm-runtime-v1';
+var acceptedAlarmEpoch = 0, currentAlarmKey = null;
+var DAWN = [
+  { at:30, color:'#1a0000', opacity:.02 },
+  { at:22, color:'#3d0000', opacity:.06 },
+  { at:15, color:'#6e0800', opacity:.13 },
+  { at:9, color:'#a52c00', opacity:.29 },
+  { at:5, color:'#d4620f', opacity:.52 },
+  { at:2, color:'#f0932e', opacity:.78 },
+  { at:0, color:'#ffd9a0', opacity:1 }
+];
+
+function validAlarmPayload(a) {
+  if (!a || typeof a.enabled !== 'boolean') return false;
+  if (!a.enabled) return a.time === null || a.time === undefined;
+  return typeof a.time === 'string' && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(a.time);
+}
+
+function alarmKey(a) {
+  return [a.enabled ? 'on' : 'off', a.time || '', a.updated_at || ''].join('|');
+}
+
+function readAlarmRuntime() {
+  try { return JSON.parse(localStorage.getItem(ALARM_RUNTIME_KEY) || 'null'); }
+  catch (e) { return null; }
+}
+
+function persistAlarmRuntime() {
+  if (!currentAlarmKey) return;
+  try {
+    localStorage.setItem(ALARM_RUNTIME_KEY, JSON.stringify({
+      key:currentAlarmKey, firedOn:firedOn, snoozeUntil:snoozeUntil,
+      snoozeCount:snoozeCount
+    }));
+  } catch (e) {}
+}
+
+function resetAlarmRuntime() {
+  stopTone();
+  firedOn = null; snoozeUntil = 0; snoozeCount = 0; ringing = false;
+  $('wakeAlarm').classList.remove('show');
+  $('wakeAlarm').setAttribute('aria-hidden', 'true');
+  $('dawn').style.opacity = '0';
+  try { localStorage.removeItem(ALARM_RUNTIME_KEY); } catch (e) {}
+}
+
+function restoreAlarmRuntime(key) {
+  var saved = readAlarmRuntime();
+  if (!saved || saved.key !== key) return;
+  firedOn = typeof saved.firedOn === 'string' ? saved.firedOn : null;
+  snoozeUntil = Number.isFinite(saved.snoozeUntil) && saved.snoozeUntil > 0
+    ? saved.snoozeUntil : 0;
+  snoozeCount = Number.isInteger(saved.snoozeCount)
+    ? Math.max(0, Math.min(MAX_SNOOZES, saved.snoozeCount)) : 0;
+}
+
+function adoptAlarm(a) {
+  var incomingEpoch = a.updated_at ? Date.parse(a.updated_at) : 0;
+  if (acceptedAlarmEpoch && (!incomingEpoch || incomingEpoch < acceptedAlarmEpoch)) return false;
+  var nextKey = alarmKey(a), firstState = currentAlarmKey === null;
+  if (!firstState && nextKey !== currentAlarmKey) resetAlarmRuntime();
+  alarmState = a;
+  currentAlarmKey = nextKey;
+  if (incomingEpoch) acceptedAlarmEpoch = incomingEpoch;
+  if (firstState && a.enabled) restoreAlarmRuntime(nextKey);
+  return true;
+}
+
+function alarmParts() {
+  if (!alarmState || !alarmState.enabled || !alarmState.time) return null;
+  var parts = alarmState.time.split(':');
+  return { hour:parseInt(parts[0], 10), minute:parseInt(parts[1], 10) };
+}
+
+function minutesUntilAlarm(now) {
+  var parts = alarmParts();
+  if (!parts) return null;
+  var target = new Date(now);
+  target.setHours(parts.hour, parts.minute, 0, 0);
+  if (target.getTime() <= now.getTime() - 60000) target.setDate(target.getDate() + 1);
+  return Math.max(0, (target.getTime() - now.getTime()) / 60000);
+}
+
+function blendHex(a, b, amount) {
+  function rgb(value) { return [1,3,5].map(function (i) { return parseInt(value.slice(i,i+2),16); }); }
+  var from = rgb(a), to = rgb(b);
+  return '#' + from.map(function (value, i) {
+    return Math.round(value + (to[i] - value) * amount).toString(16).padStart(2, '0');
+  }).join('');
+}
+
+function paintSunrise(now) {
+  var dawn = $('dawn');
+  if (!dawn || ringing) return;
+  var left = minutesUntilAlarm(now);
+  if (left === null || left > RAMP_MINUTES) { dawn.style.opacity = '0'; return; }
+  var i = 0;
+  while (i < DAWN.length - 1 && left < DAWN[i + 1].at) i++;
+  var from = DAWN[i], to = DAWN[Math.min(i + 1, DAWN.length - 1)];
+  var span = from.at - to.at;
+  var amount = span ? Math.max(0, Math.min(1, (from.at - left) / span)) : 1;
+  dawn.style.background = blendHex(from.color, to.color, amount);
+  dawn.style.opacity = String(from.opacity + (to.opacity - from.opacity) * amount * amount);
+}
+
+function markAudio() {
+  audioReady = !!(audioContext && audioContext.state === 'running');
+}
+
+function claimPlaybackSession() {
+  try { if ('audioSession' in navigator) navigator.audioSession.type = 'playback'; } catch (e) {}
+}
+
+function unlockAudio() {
+  var AudioEngine = window.AudioContext || window.webkitAudioContext;
+  if (!AudioEngine) return null;
+  if (!audioContext) {
+    audioContext = new AudioEngine();
+    audioContext.onstatechange = markAudio;
+    try {
+      var buffer = audioContext.createBuffer(1, audioContext.sampleRate, audioContext.sampleRate);
+      var source = audioContext.createBufferSource(), gain = audioContext.createGain();
+      source.buffer = buffer; source.loop = true; gain.gain.value = .0001;
+      source.connect(gain); gain.connect(audioContext.destination); source.start();
+    } catch (e) {}
+  }
+  if (audioContext.state !== 'running') audioContext.resume().then(markAudio).catch(function () {});
+  markAudio();
+  return audioContext;
+}
+
+["pointerdown","keydown","touchstart"].forEach(function (eventName) {
+  document.addEventListener(eventName, unlockAudio, { passive:true });
+});
+
+function strike(freq, when, volume) {
+  [[1,1],[2.01,.30],[3.04,.13],[4.17,.06],[5.43,.03]].forEach(function (partial) {
+    var oscillator = audioContext.createOscillator(), gain = audioContext.createGain();
+    oscillator.type = 'sine'; oscillator.frequency.value = freq * partial[0];
+    oscillator.detune.value = Math.random() * 6 - 3;
+    var duration = 2.6 / (1 + partial[0] * .55);
+    gain.gain.setValueAtTime(.0001, when);
+    gain.gain.linearRampToValueAtTime(volume * partial[1], when + .006);
+    gain.gain.exponentialRampToValueAtTime(.0001, when + duration);
+    oscillator.connect(gain); gain.connect(master);
+    oscillator.start(when); oscillator.stop(when + duration + .05);
+  });
+}
+
+function stopTone() {
+  if (chimeTimer) { clearTimeout(chimeTimer); chimeTimer = null; }
+  if (master) { try { master.disconnect(); } catch (e) {} master = null; }
+}
+
+function startTone() {
+  claimPlaybackSession();
+  if (!unlockAudio()) return;
+  stopTone();
+  var notes = [523.25,587.33,659.25,783.99,880,1046.5];
+  chimeStep = 0;
+  master = audioContext.createGain();
+  var soften = audioContext.createBiquadFilter();
+  soften.type = 'lowpass'; soften.frequency.value = 5200;
+  master.gain.value = .0001; master.connect(soften); soften.connect(audioContext.destination);
+  master.gain.exponentialRampToValueAtTime(.16, audioContext.currentTime + 1);
+  function cycle() {
+    if (!master) return;
+    var when = audioContext.currentTime + .05, step = chimeStep++;
+    var count = step < 3 ? 3 : step < 7 ? 4 : 6;
+    var spacing = step < 3 ? .42 : step < 7 ? .34 : .26;
+    for (var i = 0; i < count; i++) strike(notes[i], when + i * spacing, .9);
+    master.gain.setTargetAtTime(Math.min(.16 + step * .045, .62), audioContext.currentTime, 6);
+    chimeTimer = setTimeout(cycle, step < 3 ? 4200 : step < 7 ? 3200 : 2400);
+  }
+  cycle();
+}
+
+function fireAlarm() {
+  if (ringing) return;
+  var parts = alarmParts();
+  ringing = true;
+  $('dawn').style.background = '#ffd9a0';
+  $('dawn').style.opacity = '1';
+  $('wakeAlarmTime').textContent = parts
+    ? (parts.hour % 12 || 12) + ':' + String(parts.minute).padStart(2, '0') + (parts.hour < 12 ? ' am' : ' pm')
+    : '';
+  $('wakeAlarmSound').textContent = audioReady
+    ? 'the sunrise is full and the chime is playing'
+    : 'sound needs one remote press; the full-screen wake is active';
+  $('wakeSnooze').disabled = snoozeCount >= MAX_SNOOZES;
+  $('wakeSnooze').textContent = snoozeCount >= MAX_SNOOZES ? 'no more snoozes' : 'snooze 9 min';
+  $('wakeAlarm').classList.add('show');
+  $('wakeAlarm').setAttribute('aria-hidden', 'false');
+  startTone();
+  markAudio();
+  $('wakeAlarmSound').textContent = audioReady
+    ? 'the sunrise is full and the chime is playing'
+    : 'sound needs one remote press; the full-screen wake is active';
+  persistAlarmRuntime();
+  $('wakeDismiss').focus();
+}
+
+function snoozeAlarm() {
+  if (snoozeCount >= MAX_SNOOZES) return;
+  snoozeCount++;
+  stopTone(); ringing = false;
+  $('wakeAlarm').classList.remove('show');
+  $('wakeAlarm').setAttribute('aria-hidden', 'true');
+  $('dawn').style.opacity = '.22';
+  snoozeUntil = Date.now() + 9 * 60000;
+  persistAlarmRuntime();
+  setAlarmMeta(['snoozed for 9m', audioReady ? 'sound ready' : 'press any remote button once for sound']);
+}
+
+function dismissAlarm() {
+  stopTone(); ringing = false; snoozeUntil = 0;
+  $('wakeAlarm').classList.remove('show');
+  $('wakeAlarm').setAttribute('aria-hidden', 'true');
+  $('dawn').style.opacity = '0';
+  persistAlarmRuntime();
+}
+
+function checkAlarm(now) {
+  var parts = alarmParts();
+  if (!parts) {
+    if (snoozeUntil) { snoozeUntil = 0; persistAlarmRuntime(); }
+    return;
+  }
+  if (snoozeUntil && now.getTime() >= snoozeUntil) {
+    snoozeUntil = 0; persistAlarmRuntime(); fireAlarm(); return;
+  }
+  var stamp = now.toDateString() + ' ' + parts.hour + ':' + parts.minute;
+  if (firedOn === stamp) return;
+  var target = new Date(now);
+  target.setHours(parts.hour, parts.minute, 0, 0);
+  var lateBy = now.getTime() - target.getTime();
+  var setAt = alarmState.updated_at ? Date.parse(alarmState.updated_at) : 0;
+  var catchUpIsSafe = lateBy < 60000 || !setAt || setAt <= target.getTime();
+  if (lateBy >= 0 && lateBy <= CATCH_UP_MS && catchUpIsSafe) {
+    firedOn = stamp;
+    snoozeCount = 0;
+    persistAlarmRuntime();
+    fireAlarm();
+  }
+}
+
+$('wakeSnooze').addEventListener('click', snoozeAlarm);
+var dismissHoldTimer = null;
+var HOLD_MS = 1600;
+function beginDismissHold(event) {
+  if (event) event.preventDefault();
+  if (dismissHoldTimer) return;
+  $('wakeDismiss').textContent = 'keep holding';
+  dismissHoldTimer = setTimeout(function () {
+    dismissHoldTimer = null;
+    dismissAlarm();
+    $('wakeDismiss').textContent = 'hold to say I am up';
+  }, HOLD_MS);
+}
+function endDismissHold() {
+  if (dismissHoldTimer) clearTimeout(dismissHoldTimer);
+  dismissHoldTimer = null;
+  $('wakeDismiss').textContent = 'hold to say I am up';
+}
+$('wakeDismiss').addEventListener('pointerdown', beginDismissHold);
+['pointerup','pointerleave','pointercancel','blur'].forEach(function (eventName) {
+  $('wakeDismiss').addEventListener(eventName, endDismissHold);
+});
+$('wakeDismiss').addEventListener('keydown', function (event) {
+  if ((event.key === 'Enter' || event.key === ' ') && !event.repeat) beginDismissHold(event);
+});
+$('wakeDismiss').addEventListener('keyup', endDismissHold);
+
+// ---- connections: the credential layer. On the tile board it collapses to one
+// number, because the detail belongs in the gold tile where he will actually
+// read it. A count is a glance; an action is a sentence. ----
+var CONN_BAD = ['needs_sign_in', 'needs_approval', 'broken', 'offline'];
+var CONN_WARN = ['stale', 'unknown'];
+var SYS_DOWN = ['down', 'offline', 'broken'];
+
+function shortAge(sec) {
+  if (sec === null || sec === undefined) return 'never';
+  if (sec < 90) return 'just now';
+  if (sec < 3600) return Math.floor(sec / 60) + 'm ago';
+  if (sec < 86400) return Math.floor(sec / 3600) + 'h ago';
+  return Math.floor(sec / 86400) + 'd ago';
+}
+
+function money(n) {
+  if (n === null || n === undefined || isNaN(n)) return null;
+  var v = Math.abs(Number(n));
+  var s = v >= 1000 ? v.toLocaleString('en-US', { maximumFractionDigits: 0 })
+                    : v.toFixed(v % 1 ? 2 : 0);
+  return (Number(n) < 0 ? '-$' : '$') + s;
+}
+
+function renderConnections(c) {
+  var tile = $('tConn');
+  if (!c || !c.rows || !c.rows.length) {
+    tile.className = 't';
+    $('connBig').textContent = '?';
+    $('connSub').textContent = (c && c.headline) || 'probe has not run';
+    return null;
+  }
+  tile.dataset.lastSeen = String(Date.now());
+  var bad = c.rows.filter(function (r) { return CONN_BAD.indexOf(r.state) >= 0; });
+  var warn = c.rows.filter(function (r) { return CONN_WARN.indexOf(r.state) >= 0; });
+  var live = c.rows.filter(function (r) { return r.state === 'live'; });
+
+  tile.className = 't' + (bad.length ? ' hot' : '');
+  $('connBig').textContent = bad.length
+    ? String(bad.length) + ' need you'
+    : String(live.length) + ' live';
+  $('connSub').textContent = (warn.length
+    ? warn.length + ' unproven'
+    : (bad.length ? live.length + ' still live' : 'all proven'))
+    + ' · checked ' + shortAge(c.age_s);
+  return bad.length ? bad[0] : null;
+}
+
+// When the board cannot be reached the strip must stop implying freshness. The
+// count stays (it was true at the time) but the label says what it really is.
+function markConnectionsUnreachable() {
+  var tile = $('tConn');
+  if (!tile.dataset.lastSeen) return;
+  tile.className = 't calm';
+  $('connSub').textContent = 'board unreachable, last read ' + shortAge(
+    Math.round((Date.now() - Number(tile.dataset.lastSeen)) / 1000));
+}
+
+// ---- the gold tile. One thing. Never a list.
+// Order is deliberate: a dead credential outranks a struggling system, because
+// a credential only he can fix will still be dead tomorrow, while a system in
+// attention is usually the machine already working on it.
+function renderNeedsYou(worstConn, systems, moneyBlock) {
+  var tile = $('tNeed'), lab = $('needLab'), mid = $('needMid'), sub = $('needSub');
+  var down = (systems || []).filter(function (s) { return SYS_DOWN.indexOf(s.state) >= 0; });
+  var att = (systems || []).filter(function (s) { return s.state === 'attention'; });
+
+  tile.className = 't w2 gold';
+  if (worstConn) {
+    lab.textContent = 'NEEDS YOU';
+    mid.textContent = worstConn.headline || (worstConn.label + ' needs you');
+    sub.textContent = worstConn.action || 'sign back in so this stops guessing';
+    return;
+  }
+  if (down.length) {
+    lab.textContent = 'SOMETHING IS DOWN';
+    mid.textContent = down[0].name.replace(/_/g, ' ') + ' is down';
+    sub.textContent = down[0].detail || '';
+    return;
+  }
+  if (moneyBlock && moneyBlock.state === 'stale') {
+    lab.textContent = 'NEEDS YOU';
+    mid.textContent = 'the money feed went quiet';
+    sub.textContent = moneyBlock.headline || 'numbers below are older than a day';
+    return;
+  }
+  if (att.length) {
+    tile.className = 't w2';
+    lab.textContent = 'WORTH A LOOK';
+    mid.textContent = att[0].name.replace(/_/g, ' ') + ' · ' + (att[0].detail || '');
+    sub.textContent = att.length > 1 ? (att.length - 1) + ' more in attention' : 'nothing else is asking';
+    return;
+  }
+  tile.className = 't w2 calm';
+  lab.textContent = 'NEEDS YOU';
+  mid.textContent = 'nothing';
+  sub.textContent = 'every login proven, every system green';
+}
+
+function renderSystems(systems) {
+  var g = $('sysGrid');
+  g.innerHTML = '';
+  (systems || []).forEach(function (s) {
+    var d = document.createElement('div');
+    d.className = 'sysrow ' + (s.state || 'unknown');
+    d.appendChild(Object.assign(document.createElement('span'), { className: 'd' }));
+    var n = document.createElement('span');
+    n.className = 'n';
+    n.textContent = (s.name || '').replace(/_/g, ' ');
+    n.title = s.detail || '';
+    d.appendChild(n);
+    var sd = document.createElement('span');
+    sd.className = 'sd';
+    sd.textContent = s.detail || '';
+    sd.title = s.detail || '';
+    d.appendChild(sd);
+    g.appendChild(d);
+  });
+  if (!g.children.length) {
+    g.innerHTML = '<div class="sysrow"><span class="d"></span><span class="n">no systems reported</span></div>';
+  }
+}
+
+// ---- money. Recurring charges, biggest first, with what each one actually is.
+// Amounts carry .privhide so the privacy button empties them without collapsing
+// the tile: on a TV in a room that gets filmed, the list is safe and the
+// numbers are not.
+function renderMoney(m) {
+  var rows = $('moneyRows'), sub = $('moneySub'), lab = $('moneyLab');
+  var spendTile = $('tSpend');
+  rows.innerHTML = '';
+
+  if (!m || m.state === 'unknown') {
+    spendTile.className = 't';
+    $('spendBig').textContent = '\u00b7';
+    $('spendSub').textContent = (m && m.headline) || 'money feed has not run yet';
+    lab.textContent = 'MONEY OUT, EVERY MONTH';
+    rows.innerHTML = '<div class="row dim"><span class="nm">no bank data yet</span><span class="st">\u00b7</span></div>';
+    sub.textContent = 'the money-feed task seeds this every morning';
+    return;
+  }
+
+  if (m.state === 'stale') {
+    spendTile.className = 't calm';
+    $('spendBig').textContent = '\u00b7';
+    $('spendSub').textContent = m.headline || 'feed went quiet';
+    lab.textContent = 'MONEY OUT, EVERY MONTH';
+    rows.innerHTML = '<div class="row dim"><span class="nm">not re-checked, so not shown</span><span class="st">stale</span></div>';
+    sub.textContent = 'old money numbers are worse than none';
+    return;
+  }
+
+  // spend tile
+  var spent = money(m.spent);
+  spendTile.className = 't';
+  $('spendBig').textContent = spent || '\u00b7';
+  $('spendSub').textContent = (m.spent_label || 'this month')
+    + (m.top && m.top.length ? ' · mostly ' + m.top[0].label : '');
+
+  // the recurring list
+  lab.textContent = m.needs_you && m.needs_you.length
+    ? 'MONEY OUT · ' + String(m.headline || '').toUpperCase()
+    : 'MONEY OUT, EVERY MONTH';
+  $('tMoney').className = 't w2' + (m.needs_you && m.needs_you.length ? ' hot' : '');
+
+  (m.recurring || []).slice(0, 4).forEach(function (r) {
+    var row = document.createElement('div');
+    row.className = 'row';
+    var nm = document.createElement('span');
+    nm.className = 'nm';
+    nm.textContent = (r.merchant || '').toLowerCase()
+      + (r.frequency && r.frequency !== 'monthly' ? ' · ' + r.frequency : '');
+    var st = document.createElement('span');
+    st.className = 'st privhide';
+    st.textContent = money(r.amount) || '';
+    var hid = document.createElement('span');
+    hid.className = 'st privshow hidden-amt';
+    hid.textContent = '•••';
+    row.appendChild(nm); row.appendChild(st); row.appendChild(hid);
+    rows.appendChild(row);
+  });
+
+  if (!rows.children.length) {
+    rows.innerHTML = '<div class="row dim"><span class="nm">no recurring charges detected</span><span class="st">\u00b7</span></div>';
+  }
+
+  var bits = [];
+  if (m.subs_monthly !== null && m.subs_monthly !== undefined) {
+    bits.push('subs ' + money(m.subs_monthly) + '/mo');
+  }
+  if (m.income_monthly) bits.push('turo in ' + money(m.income_monthly) + '/mo');
+  bits.push('checked ' + shortAge(m.age_s));
+  sub.innerHTML = '';
+  var visible = document.createElement('span');
+  visible.className = 'privhide';
+  visible.textContent = bits.join(' · ');
+  var hidden = document.createElement('span');
+  hidden.className = 'privshow';
+  hidden.textContent = 'amounts hidden · checked ' + shortAge(m.age_s);
+  sub.appendChild(visible); sub.appendChild(hidden);
+}
+
+function dayLabel(iso) {
+  if (!iso) return '';
+  var d = new Date(iso + 'T12:00:00');
+  if (isNaN(d)) return iso;
+  var today = new Date(); today.setHours(12, 0, 0, 0);
+  var days = Math.round((d - today) / 86400000);
+  if (days === 0) return 'today';
+  if (days === 1) return 'tomorrow';
+  if (days < 0) return 'overdue';
+  if (days < 7) return d.toLocaleDateString('en-US', { weekday: 'short' }).toLowerCase();
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toLowerCase();
+}
+
+function tileRow(parent, main, side, cls) {
+  var r = document.createElement('div');
+  r.className = 'row' + (cls ? ' ' + cls : '');
+  var m = document.createElement('span');
+  m.className = 'nm'; m.textContent = main; m.title = main;
+  r.appendChild(m);
+  if (side) {
+    var s = document.createElement('span');
+    s.className = 'st' + (side === 'overdue' || side === 'today' ? ' warn' : '');
+    s.textContent = side;
+    r.appendChild(s);
+  }
+  parent.appendChild(r);
+  return r;
+}
+
+// `today` is an object of named sections, not a list. School deadlines are the
+// spine; a live Turo trip earns a line of its own.
+function renderToday(t) {
+  var el = $('todayRows');
+  el.innerHTML = '';
+  if (!t || typeof t !== 'object') {
+    tileRow(el, 'today unavailable', '', 'dim');
+    return;
+  }
+  (t.school_next || []).slice(0, 4).forEach(function (it) {
+    tileRow(el, (it.course ? it.course.toLowerCase() + ' · ' : '') + (it.item || ''),
+            dayLabel(it.date));
+  });
+  var turo = t.turo;
+  if (turo && typeof turo === 'object') {
+    var guest = turo.guest || turo.next_guest;
+    if (guest) {
+      tileRow(el, 'turo · ' + guest,
+              turo.start ? dayLabel(String(turo.start).slice(0, 10)) : '');
+    }
+  }
+  if (!el.children.length) tileRow(el, 'nothing scheduled', '', 'dim');
+}
+
+function renderAlerts(alerts) {
+  var el = $('alertRows');
+  el.innerHTML = '';
+  if (!alerts || !alerts.length) {
+    tileRow(el, 'nothing needs you right now', '', 'dim');
+    return;
+  }
+  alerts.slice(0, 4).forEach(function (a) {
+    var r = tileRow(el, a.text || '', a.side || '', 'wrap');
+    if (a.severity === 'critical') r.querySelector('.nm').style.color = 'var(--alert)';
+  });
+}
+
+// bus/FEED entries on one strip: machine, then the note, clipped not dumped.
+function renderLanes(lanes) {
+  var el = $('wbItems');
+  el.innerHTML = '';
+  if (!lanes || !lanes.length) {
+    el.innerHTML = '<i>no active work reported</i>';
+    return;
+  }
+  lanes.slice(0, 3).forEach(function (l) {
+    var i = document.createElement('i');
+    var b = document.createElement('b');
+    b.textContent = (l.machine || 'unknown').toLowerCase() + ' ';
+    i.appendChild(b);
+    i.appendChild(document.createTextNode(l.note || ''));
+    i.title = (l.machine || '') + ': ' + (l.note || '');
+    el.appendChild(i);
+  });
+}
+
+function renderBoard(d) {
+  var worstConn = renderConnections(d.connections);
+  renderSystems(d.systems);
+  renderMoney(d.money);
+  renderNeedsYou(worstConn, d.systems, d.money);
+  renderToday(d.today);
+  renderAlerts(d.alerts);
+  renderLanes(d.lanes);
+
+  var gen = d.generated ? String(d.generated).replace('T', ' ').slice(0, 16) : 'unknown';
+  lastBoardUpdate = gen;
+  $('stamp').textContent = 'board ' + gen;
+}
+
+// ---- remote-reachable controls. Privacy is the one that matters here: money
+// went on the TV today, and the TV is in a room he films in.
+var PRIV_KEY = 'samuel-hq-privacy-v1';
+try {
+  if (localStorage.getItem(PRIV_KEY) === '1') document.body.classList.add('privacy');
+} catch (e) { /* private window, fall through unprivate */ }
+
+$('privBtn').addEventListener('click', function () {
+  var on = document.body.classList.toggle('privacy');
+  this.classList.toggle('on', on);
+  this.textContent = on ? 'privacy on' : 'privacy';
+  try { localStorage.setItem(PRIV_KEY, on ? '1' : '0'); } catch (e) { /* nothing to persist to */ }
+});
+if (document.body.classList.contains('privacy')) {
+  $('privBtn').classList.add('on');
+  $('privBtn').textContent = 'privacy on';
+}
+
+var THEMES = ['noir', 'espresso', 'clay'];
+var THEME_KEY = 'samuel-hq-theme-v1';
+try {
+  var saved = localStorage.getItem(THEME_KEY);
+  if (THEMES.indexOf(saved) >= 0) {
+    document.documentElement.dataset.theme = saved;
+    $('themeBtn').textContent = 'theme: ' + saved;
+  }
+} catch (e) { /* stays noir */ }
+
+$('themeBtn').addEventListener('click', function () {
+  var cur = document.documentElement.dataset.theme || 'noir';
+  var next = THEMES[(THEMES.indexOf(cur) + 1) % THEMES.length];
+  document.documentElement.dataset.theme = next;
+  this.textContent = 'theme: ' + next;
+  try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* not persisted */ }
+});
+var lastBoardUpdate = null;
+
+function expectJson(r) {
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+
+function poll() {
+  fetch('/api/board', { cache: 'no-store' })
+    .then(expectJson)
+    .then(renderBoard)
+    .catch(function () {
+      $('stamp').textContent = lastBoardUpdate
+        ? 'refresh failed, showing last update ' + lastBoardUpdate
+        : 'board unreachable';
+      $('stamp').className = 'stamp stale';
+      markConnectionsUnreachable();
+    });
+  fetch('/api/alarm', { cache: 'no-store' })
+    .then(expectJson)
+    .then(renderAlarm)
+    .catch(renderAlarmUnavailable);
+}
+poll();
+setInterval(poll, 15000);
+// ---- Monday, over her own websocket. Absent daemon = honest "offline". ----
+
+// ---- the X. Saying "close out" is the one control that needs her to be hearing
+// him correctly, which is exactly the case where she is not, so the card gets a
+// real button: it hides instantly here AND cancels her turn on the daemon.
+var suppressVeilUntil = 0;
+var mutedUntil = 0;
+
+function sendMonday(message) {
+  try {
+    if (ws && ws.readyState === 1) { ws.send(JSON.stringify(message)); return true; }
+  } catch (e) {}
+  return false;
+}
+
+function closeWake() {
+  clearTimeout(hideTimer);
+  suppressVeilUntil = Date.now() + 1500;
+  $('veil').classList.remove('show');
+  $('wHeard').textContent = 'go ahead';
+  $('wHeard').className = 'heard dim';
+  $('wReply').textContent = '';
+  sendMonday({ type: 'cancel' });
+}
+
+function muteMonday(minutes) {
+  sendMonday({ type: 'mute', minutes: minutes });
+  if (minutes > 0) closeWake();
+}
+
+$('wakeClose').addEventListener('click', closeWake);
+$('wakeMute').addEventListener('click', function () { muteMonday(30); });
+$('mUnmute').addEventListener('click', function () { muteMonday(0); });
+document.addEventListener('keydown', function (event) {
+  if (event.key === 'Escape' && $('veil').classList.contains('show')) closeWake();
+});
+
+var LABEL = { idle: 'ready', listening: 'listening', thinking: 'thinking', speaking: 'speaking' };
+var hideTimer = null;
+var micAvailable = null;
+
+function setMonday(state, text) {
+  if (state === 'idle' && mutedUntil > Date.now()) {
+    var mins = Math.max(1, Math.round((mutedUntil - Date.now()) / 60000));
+    var el0 = $('monday');
+    el0.className = 'monday muted';
+    $('mState').textContent = 'muted';
+    $('mText').textContent = 'monday is muted for ' + mins + ' more min';
+    $('mText').className = 'tx idle';
+    $('mHint').textContent = 'she is not listening';
+    paintVeil('idle');
+    return;
+  }
+  if (state === 'idle' && micAvailable !== true) {
+    state = 'down';
+    text = micAvailable === false ? 'microphone permission needed' : 'checking microphone';
+  }
+  var el = $('monday');
+  el.className = 'monday ' + state;
+  $('mState').textContent = LABEL[state] || state;
+  var tx = $('mText');
+  tx.textContent = text;
+  tx.className = 'tx' + (state === 'idle' || state === 'down' ? ' idle' : '');
+  paintVeil(state);
+}
+
+// The card is up for exactly as long as she is in a turn. idle/down drop it,
+// after a short grace period so a finished answer stays readable.
+function paintVeil(state) {
+  var veil = $('veil'), wake = $('wake');
+  wake.className = 'wake ' + state;
+  $('wState').textContent = LABEL[state] || state;
+
+  if (state === 'idle' || state === 'down') {
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(function () {
+      veil.classList.remove('show');
+      $('wHeard').textContent = 'go ahead';
+      $('wHeard').className = 'heard dim';
+      $('wReply').textContent = '';
+    }, 2600);
+    return;
+  }
+  if (Date.now() < suppressVeilUntil) return;
+  clearTimeout(hideTimer);
+  veil.classList.add('show');
+  if (state === 'listening') $('wReply').textContent = '';
+}
+
+function showHeard(text) {
+  var h = $('wHeard');
+  h.textContent = text;
+  h.className = 'heard';
+}
+
+function showReply(text) { $('wReply').textContent = text; }
+
+var ws = null, retry = null;
+function connectMonday() {
+  try { ws = new WebSocket('ws://127.0.0.1:8765/ws'); } catch (e) { return schedule(); }
+  ws.onopen = function () {
+    setMonday('idle', 'say “monday”');
+    try { ws.send(JSON.stringify({ type: 'hello' })); } catch (e) {}
+  };
+  ws.onmessage = function (ev) {
+    var m;
+    try { m = JSON.parse(ev.data); } catch (e) { return; }
+    if (m.type === 'state') setMonday(m.value, m.value === 'idle' ? 'say “monday”' : '…');
+    else if (m.type === 'transcript' && m.text) { setMonday('listening', m.text); showHeard(m.text); }
+    else if (m.type === 'reply' && m.text) { setMonday('speaking', m.text); showReply(m.text); }
+    else if (m.type === 'mic') {
+      micAvailable = !!m.ok;
+      mutedUntil = m.muted_until ? new Date(m.muted_until).getTime() : 0;
+      if (mutedUntil > Date.now()) { setMonday('idle', ''); return; }
+      $('mHint').textContent = 'say \u201cmonday\u201d \u00b7 \u201cclose out\u201d to end';
+      setMonday(m.ok ? 'idle' : 'down',
+        m.ok ? 'say “monday”' : 'microphone permission needed');
+    }
+    else if (m.type === 'panel' && m.name === 'alarm') renderAlarm(m.data);
+    else if (m.type === 'error' && m.text) setMonday('down', m.text);
+  };
+  ws.onclose = function () { setMonday('down', 'monday is not running'); schedule(); };
+  ws.onerror = function () { try { ws.close(); } catch (e) {} };
+}
+function schedule() {
+  clearTimeout(retry);
+  retry = setTimeout(connectMonday, 5000);
+}
+connectMonday();
+</script>
+</body>
+</html>

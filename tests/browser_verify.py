@@ -34,27 +34,31 @@ def verify_page(browser, name, viewport):
     page.wait_for_function("document.querySelector('#stamp').textContent !== 'connecting'")
 
     assert page.locator("h1").inner_text() == "samuel hq"
-    headings = page.locator(".panel > h2").all_inner_texts()
-    assert headings == [
-        "SYSTEMS",
-        "TODAY",
-        "ALERTS",
-        "NOW WORKING",
-    ], headings
+    # TV14 is a tile board. Every zone is a tile, and losing one in a reskin is
+    # exactly the kind of silent regression a screenshot pass would wave through.
+    for tile in ("tNeed", "tConn", "tSpend", "tSys", "tMoney", "tToday", "tAlerts"):
+        assert page.locator(f"#{tile}").is_visible(), tile
     assert page.locator("#monday").is_visible()
     assert page.locator("#alarm").is_visible()
     # nine since the disk row landed (2026-09-21): both outages that year began
     # with no free space and nothing was watching the number
-    names = page.locator("#sys .s .n").all_inner_texts()
-    assert page.locator("#sys .s").count() == 9, names
+    names = page.locator("#sysGrid .sysrow .n").all_inner_texts()
+    assert page.locator("#sysGrid .sysrow").count() == 9, names
     assert "disk" in names, names
 
-    # the credential strip: the row that exists to make him act before he leaves
-    assert page.locator("#conn").is_visible()
-    summary = page.locator("#connSum").inner_text()
-    assert summary and summary != "checking", summary
-    for action in page.locator(".cc .ca").all_inner_texts():
-        assert action.strip(), "a connection card with no action text"
+    # the credential layer: the reason this board exists rather than a webpage
+    conn_summary = page.locator("#connSub").inner_text()
+    assert conn_summary and conn_summary != "checking", conn_summary
+    assert page.locator("#connBig").inner_text().strip() not in ("", "?"), "no connection count"
+
+    # the gold tile carries ONE thing and always says something actionable
+    need = page.locator("#needMid").inner_text().strip()
+    assert need and need != "reading the system", need
+
+    # money: the numbers must never render without saying how old they are
+    money_sub = page.locator("#moneySub").inner_text()
+    assert "checked" in money_sub or "worse than none" in money_sub or "seeds this" in money_sub, money_sub
+    assert page.locator("#moneyRows .row").count() >= 1, "money tile rendered nothing at all"
     assert console_errors == [], console_errors
 
     if EXPECT_MONDAY:
@@ -78,6 +82,24 @@ def verify_page(browser, name, viewport):
                 FAKE_MONDAY_LOG.read_text(encoding="utf-8").splitlines() if line.strip()]
         assert any(m.get("type") == "cancel" for m in sent), sent
 
+    # Privacy, checked in a real browser because it is the one feature whose
+    # failure mode is his bank figures sitting on a TV in a filmed room. The
+    # amounts must go and the merchant names must stay.
+    if name == "tv-1080":
+        amounts_before = page.locator("#tSpend .privhide").inner_text()
+        assert amounts_before.strip(), "spend tile had no amount to hide"
+        merchants_before = page.locator("#moneyRows .nm").all_inner_texts()
+        page.locator("#privBtn").click()
+        page.wait_for_function("document.body.classList.contains('privacy')")
+        assert not page.locator("#tSpend .privhide").is_visible(), "amount still on screen"
+        for amount in page.locator("#moneyRows .privhide").all():
+            assert not amount.is_visible(), "a recurring charge amount survived privacy"
+        assert page.locator("#moneyRows .nm").all_inner_texts() == merchants_before
+        assert "amounts hidden" in page.locator("#moneySub").inner_text()
+        page.locator("#privBtn").click()
+        page.wait_for_function("!document.body.classList.contains('privacy')")
+        assert page.locator("#tSpend .privhide").is_visible()
+
 
     bounds = page.evaluate(
         """() => ({
@@ -95,10 +117,10 @@ def verify_page(browser, name, viewport):
 
     # every viewport, not just 720: the connections strip starved this panel to
     # zero height at 1080 while the 720 assertion still passed
-    today_bounds = page.locator("#today").bounding_box()
+    today_bounds = page.locator("#tToday").bounding_box()
     assert today_bounds is not None
     assert today_bounds["height"] >= 120, (name, today_bounds)
-    assert page.locator("#today .al").count() >= 1
+    assert page.locator("#todayRows .row").count() >= 1
 
     if name == "tv-1080":
         console_errors.clear()
