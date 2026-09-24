@@ -180,3 +180,65 @@ def test_monday_controls_do_not_move_while_she_talks():
     assert "min-height:min(38vh,340px)" in html
     assert "margin-top:auto" in html
     assert "-webkit-line-clamp:3" in html
+
+
+# ------------------------------------------------------------- the app
+
+APP = Path(__file__).resolve().parents[1] / "app-bundle" / "SamuelHQ.swift"
+
+
+def app_source():
+    return APP.read_text(encoding="utf-8")
+
+
+def test_the_app_is_a_one_display_kiosk_not_a_fullscreen_app():
+    """Native fullscreen makes a Space, and a Space takes the whole Mac. He
+    asked for a board on one monitor while he keeps using the other."""
+    swift = app_source()
+    assert ".fullScreenNone" in swift
+    assert ".canJoinAllSpaces" in swift
+    assert ".stationary" in swift
+    assert "styleMask: [.borderless]" in swift
+    assert "toggleFullScreen" not in swift
+
+
+def test_the_board_keeps_drawing_while_he_works_on_the_other_screen():
+    assert "hidesOnDeactivate = false" in app_source()
+
+
+def test_a_borderless_window_can_still_take_the_keyboard():
+    """Without this Cmd+Q dies and the alarm never gets its unlock gesture."""
+    swift = app_source()
+    assert "override var canBecomeKey: Bool { true }" in swift
+
+
+def test_there_is_always_a_way_out_of_a_window_with_no_title_bar():
+    swift = app_source()
+    assert "NSStatusBar.system.statusItem" in swift
+    assert "Quit Samuel HQ" in swift
+
+
+def test_the_chosen_display_survives_a_reboot_and_a_replug():
+    swift = app_source()
+    assert "SamuelHQChosenScreen" in swift
+    assert "didChangeScreenParametersNotification" in swift
+    # display IDs are not stable everywhere, so the name is the second chance
+    assert "SamuelHQChosenScreenName" in swift
+
+
+def test_it_defaults_to_the_external_display():
+    """The built in screen is the computer he is trying to keep using."""
+    swift = app_source()
+    body = swift[swift.index("private func targetScreen()"):]
+    body = body[:body.index("\n    private func placeOnScreen")]
+    assert "$0 != NSScreen.main" in body
+
+
+def test_mirrored_displays_are_reported_rather_than_faked():
+    """The one setup the app cannot satisfy. It says so instead of covering
+    both screens with the same picture and calling it done."""
+    swift = app_source()
+    assert "CGDisplayIsInMirrorSet(displayID) != 0" in swift
+    # the master of a mirror set mirrors nobody, so this extra clause was a bug
+    assert "CGDisplayIsInMirrorSet(displayID) != 0 && CGDisplayMirrorsDisplay" not in swift
+    assert "mirrored" in swift.lower()
