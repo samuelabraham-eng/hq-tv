@@ -342,8 +342,12 @@ body.privacy #larp{display:grid}
 body.sleeping #larp{opacity:.28;transition:opacity 1.6s linear}
 body.privacy .alarmstate.off{color:var(--dim)}
 #larp .t{justify-content:flex-start}
-#larp .hero{grid-area:hero;justify-content:space-between}
-#larp .hero .big{font-size:clamp(26px,min(4vw,6.6vh),76px)}
+#larp .hero{grid-area:hero;flex-direction:row;align-items:stretch;justify-content:space-between;gap:2vw}
+#larp .hero .htext{display:flex;flex-direction:column;justify-content:space-between;min-width:0}
+.wk{flex:0 0 38%;display:flex;flex-direction:column;justify-content:center;gap:.9vh}
+.wk .hb{color:var(--onAccent)} .wk .hb .n{color:var(--onAccentDim)} .wk .hb .v{color:var(--onAccent)}
+.wk .hb .tr{background:rgba(43,34,8,.14);height:max(6px,1.2vh)} .wk .hb .tr b{background:var(--onAccent)} .wk .hb .tr b.m{background:var(--onAccentDim);opacity:.55}
+#larp .hero .big{font-size:clamp(22px,min(2.9vw,5.4vh),110px);white-space:nowrap}
 #larp .kpi{justify-content:space-between}
 .lplot{flex:1;min-height:0;position:relative}
 .lplot svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
@@ -400,20 +404,27 @@ body.privacy .alarmstate.off{color:var(--dim)}
 
   <!-- TEMP larp board: shows only in privacy mode. revert the commit to remove. -->
   <section id="larp" aria-label="SML dashboard">
-    <div class="t gold hero"><div class="lab">LAST 3 DAYS</div><div class="big" id="lUp"></div><div class="sub" id="lUpSub"></div></div>
+    <div class="t gold hero"><div class="htext"><div class="lab">THIS WEEK · LAST 7 DAYS</div><div class="big" id="lUp"></div><div class="sub" id="lUpSub"></div></div><div class="wk" id="lWk"></div></div>
     <div class="t kpi" style="grid-area:gross"><div class="lab">GROSS INCOME · LAST 3 DAYS</div><div class="big" id="lGross"></div><div class="sub" id="lGrossSub"></div></div>
     <div class="t kpi" style="grid-area:ret"><div class="lab">NEW RETAINER</div><div class="big">$750<span style="font-size:.45em;color:var(--dim)">/mo</span></div><div class="sub">signed today · 4 active · $2,400/mo</div></div>
     <div class="t" style="grid-area:chart"><div class="lhead"><div class="lab">GROSS INCOME BY DAY · LAST 14 DAYS</div><div class="lkey" id="l14tot"></div></div><div class="lplot" id="lDaily"></div></div>
     <div class="t" style="grid-area:pace"><div class="lab" id="lMonthLab"></div><div class="big" id="lMtd" style="margin-top:.4vh"></div><div class="sub" id="lMtdSub"></div><div class="lplot" id="lPace" style="margin-top:1vh"></div><div class="lkey"><span><i></i>actual</span><span><i class="d"></i>goal pace</span></div></div>
     <div class="t feed" style="grid-area:feed"><div class="lab">RECENT PAYMENTS</div><div class="rows" id="lFeed"></div></div>
     <div class="t" style="grid-area:mix"><div class="lab">WHERE IT CAME FROM · 3 DAYS</div><div class="hbars" id="lMix"></div></div>
-    <div class="t" style="grid-area:funnel"><div class="lab" id="lFunLab"></div><div class="hbars" id="lFunnel"></div></div>
-    <div class="t" style="grid-area:market"><div class="lab">THE MARKET · ARLINGTON</div><div class="rows" style="flex:1;justify-content:space-evenly">
-      <div class="row"><span class="nm">median list price</span><span class="st">$742k</span></div>
-      <div class="row"><span class="nm">days on market</span><span class="st">18</span></div>
-      <div class="row"><span class="nm">inventory vs last month</span><span class="st live">+6%</span></div>
+    <div class="t" style="grid-area:funnel"><div class="lab">RICHMOND LISTING ADS · 7 DAYS</div><div class="rows" style="flex:1;justify-content:space-evenly">
+      <div class="row"><span class="nm">people reached</span><span class="st">48.2k</span></div>
+      <div class="row"><span class="nm">clicks · 2.6%</span><span class="st">1,240</span></div>
+      <div class="row"><span class="nm">leads for agents</span><span class="st live">37</span></div>
       </div></div>
-    <div class="t kpi" style="grid-area:list"><div class="lab">LISTINGS SHOT THIS MONTH</div><div class="big">6</div><div class="sub">2 in the last 3 days · avg delivery 26 hrs</div></div>
+    <div class="t" style="grid-area:market"><div class="lab">THE MARKET · RICHMOND</div><div class="rows" style="flex:1;justify-content:space-evenly">
+      <div class="row"><span class="nm">median list price</span><span class="st">$389k</span></div>
+      <div class="row"><span class="nm">days on market</span><span class="st">21</span></div>
+      <div class="row"><span class="nm">inventory vs last month</span><span class="st live">+4%</span></div>
+      </div></div>
+    <div class="t" style="grid-area:list"><div class="lab">NEXT MEETING</div><div class="mid">monday · 3:00 pm</div><div class="rows" style="flex:1;justify-content:space-evenly">
+      <div class="row"><span class="nm">keller</span><span class="st">monday 3pm</span></div>
+      <div class="row"><span class="nm">jo wallbron</span><span class="st">waiting to hear back</span></div>
+      </div></div>
   </section>
 
   <section class="grid privhide">
@@ -1473,7 +1484,7 @@ function askRole(){
 /* ── TEMP larp board. made-up numbers for a photo. revert the commit to remove. ──
    Every figure is derived from these lists so the tiles agree with each other. */
 const LARP = (() => {
-  const daily = [184,236,152,268,221,305,247,339,320,358,318,402,540,921]; // oldest → today
+  const daily = [184,236,199,268,271,305,247,339,320,358,318,402,540,921]; // oldest → today
   const pays = [ // last 3 days; per-day sums match daily's last three
     [0,"new retainer","retainers",750],[0,"ad management","ad management",171],
     [1,"listing package","listing media",540],
@@ -1483,14 +1494,15 @@ const LARP = (() => {
   const dayAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return d; };
   const md = d => d.toLocaleDateString(undefined,{month:"short",day:"numeric"}).toLowerCase();
   const when = n => n === 0 ? "today" : n === 1 ? "yesterday" : md(dayAgo(n));
-  const last3 = sum(daily.slice(-3)), prev3 = sum(daily.slice(-6,-3));
+  const last3 = sum(daily.slice(-3)), wk = sum(daily.slice(-7)), prevWk = sum(daily.slice(-14,-7)), upWk = Math.round((wk/prevWk - 1)*100);
   const now = new Date(), dom = now.getDate(), dim = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
   const mtdDays = daily.slice(-Math.min(dom, daily.length)), mtd = sum(mtdDays), goal = 5000;
   const month = now.toLocaleDateString(undefined,{month:"long"}).toLowerCase();
 
   function fill(){
-    $("#lUp").textContent = "you're up " + Math.round((last3/prev3 - 1)*100) + "%";
-    $("#lUpSub").textContent = "+" + $$(last3 - prev3) + " gross vs the 3 days before · " + md(dayAgo(2)) + " to today";
+    $("#lUp").textContent = "you're up " + upWk + "% this week";
+    $("#lUpSub").textContent = "+" + $$(wk - prevWk) + " gross vs the 7 days before";
+    hbars("#lWk", [["last week", prevWk, $$(prevWk)], ["this week", wk, $$(wk)]], true);
     $("#lGross").textContent = $$(last3);
     $("#lGrossSub").textContent = pays.length + " payments · avg " + $$(last3 / pays.length);
     $("#l14tot").textContent = $$(sum(daily)) + " total";
@@ -1501,8 +1513,6 @@ const LARP = (() => {
       '</span><span class="st live">+' + $$(p[3]) + '</span></div>').join("");
     const mix = {}; pays.forEach(p => mix[p[2]] = (mix[p[2]] || 0) + p[3]);
     hbars("#lMix", Object.entries(mix).sort((a,b) => b[1]-a[1]).map(([k,v]) => [k, v, $$(v)]));
-    $("#lFunLab").textContent = "AGENT PIPELINE · " + month.toUpperCase();
-    hbars("#lFunnel", [["agents contacted",64,"64"],["replied",19,"19 · 30%"],["signed",3,"3"]], true);
   }
   function hbars(sel, rows, lastOnly){
     const max = Math.max(...rows.map(r => r[1]));
@@ -1526,15 +1536,18 @@ const LARP = (() => {
     const L = c.fs*3.4, R = c.w - 4, T = c.fs*3.2, B = c.h - c.fs*1.9, max = 1000, n = daily.length, band = (R-L)/n, bw = band*.62;
     grid(c, L, T, R, B, max, [0,250,500,750,1000]);
     daily.forEach((v,i) => {
-      const x = L + i*band + (band-bw)/2, y = B - (v/max)*(B-T), hot = i >= n-3, r = Math.min(4, bw/2);
+      const x = L + i*band + (band-bw)/2, y = B - (v/max)*(B-T), hot = i >= n-7, r = Math.min(4, bw/2);
       c.el("path", {d:`M${x},${B} V${y+r} Q${x},${y} ${x+r},${y} H${x+bw-r} Q${x+bw},${y} ${x+bw},${y+r} V${B} Z`,
         fill: hot ? "var(--accent)" : "var(--dim)", opacity: hot ? 1 : .45});
-      if (hot) c.el("text", {class:"v", x:x+bw/2, y:y-c.fs*.5, "text-anchor":"middle", "font-size":c.fs}, "$" + v);
+      if (i === n-1) c.el("text", {class:"v", x:x+bw/2, y:y-c.fs*.5, "text-anchor":"middle", "font-size":c.fs}, "$" + v);
       if ((n-1-i) % 2 === 0) c.el("text", {x:x+bw/2, y:c.h-c.fs*.3, "text-anchor":"middle", "font-size":c.fs}, i === n-1 ? "today" : md(dayAgo(n-1-i)));
     });
-    const x1 = L + (n-3)*band + 4, x2 = R - 4, yb = T - c.fs*1.9;
-    c.el("path", {d:`M${x1},${yb+c.fs*.6} V${yb} H${x2} V${yb+c.fs*.6}`, fill:"none", stroke:"var(--accent)", "stroke-width":2});
-    c.el("text", {class:"v", x:(x1+x2)/2, y:yb-c.fs*.5, "text-anchor":"middle", "font-size":c.fs*1.1}, "+" + Math.round((last3/prev3-1)*100) + "% vs prior 3 days");
+    const yb = T - c.fs*1.9, brk = (a, b, col, txt, cls) => {
+      const x1 = L + a*band + 4, x2 = L + b*band - 4;
+      c.el("path", {d:`M${x1},${yb+c.fs*.6} V${yb} H${x2} V${yb+c.fs*.6}`, fill:"none", stroke:col, "stroke-width":2});
+      c.el("text", {class:cls, x:(x1+x2)/2, y:yb-c.fs*.5, "text-anchor":"middle", "font-size":c.fs*1.1}, txt); };
+    brk(0, n-7, "var(--dim)", "last week " + $$(prevWk), "");
+    brk(n-7, n, "var(--accent)", "this week " + $$(wk) +" · +" + upWk + "%", "v");
   }
   function pace(){
     const c = svgIn($("#lPace")); if (c.w < 50 || c.h < 40) return;
