@@ -336,11 +336,17 @@ input[type=time]{background:var(--tile2);border:1px solid var(--line);color:var(
 @media (max-width:560px){ .grid{grid-template-columns:1fr} .t.w2{grid-column:span 1} }
 /* ── TEMP larp board (privacy mode only). revert the commit to remove. ── */
 #larp{display:none;flex:1;min-height:0;gap:var(--gap);
-  grid-template-columns:repeat(4,1fr);grid-template-rows:1fr 1.2fr 1.2fr 1.05fr;
+  grid-template-columns:repeat(4,1fr);grid-template-rows:1fr 1.1fr 1.1fr 1.35fr;
   grid-template-areas:"hero hero gross ret" "chart chart pace feed" "chart chart pace feed" "mix funnel market list"}
 body.privacy #larp{display:grid}
 body.sleeping #larp{opacity:.28;transition:opacity 1.6s linear}
-body.privacy .alarmstate.off{color:var(--dim)}
+body.privacy .alarmcard{background:transparent;border-color:transparent;justify-content:flex-end;align-items:flex-end}
+body.privacy .alarmcard > :not(.pchips){display:none}
+body.privacy .alarmcard .pchips{opacity:.18;transition:opacity .25s}
+body.privacy .alarmcard .pchips:hover,body.privacy .alarmcard .pchips:focus-within{opacity:1}
+#larp .meet .big{font-size:clamp(20px,min(2.5vw,5.4vh),110px);white-space:nowrap}
+#larp .meet .row{font-size:clamp(12px,min(1.35vw,2.9vh),30px)}
+#larp .hot .mid{color:var(--alert)}
 #larp .t{justify-content:flex-start}
 #larp .hero{grid-area:hero;flex-direction:row;align-items:stretch;justify-content:space-between;gap:2vw}
 #larp .hero .htext{display:flex;flex-direction:column;justify-content:space-between;min-width:0}
@@ -406,23 +412,23 @@ body.privacy .alarmstate.off{color:var(--dim)}
   <section id="larp" aria-label="SML dashboard">
     <div class="t gold hero"><div class="htext"><div class="lab">THIS WEEK · LAST 7 DAYS</div><div class="big" id="lUp"></div><div class="sub" id="lUpSub"></div></div><div class="wk" id="lWk"></div></div>
     <div class="t kpi" style="grid-area:gross"><div class="lab">GROSS INCOME · LAST 3 DAYS</div><div class="big" id="lGross"></div><div class="sub" id="lGrossSub"></div></div>
-    <div class="t kpi" style="grid-area:ret"><div class="lab">NEW RETAINER</div><div class="big">$750<span style="font-size:.45em;color:var(--dim)">/mo</span></div><div class="sub">signed today · 4 active · $2,400/mo</div></div>
+    <div class="t kpi hot" style="grid-area:ret"><div class="lab">NEW RETAINER</div><div class="mid">needs attention</div><div class="sub">signed today · 4 active · $2,400/mo</div></div>
     <div class="t" style="grid-area:chart"><div class="lhead"><div class="lab">GROSS INCOME BY DAY · LAST 14 DAYS</div><div class="lkey" id="l14tot"></div></div><div class="lplot" id="lDaily"></div></div>
     <div class="t" style="grid-area:pace"><div class="lab" id="lMonthLab"></div><div class="big" id="lMtd" style="margin-top:.4vh"></div><div class="sub" id="lMtdSub"></div><div class="lplot" id="lPace" style="margin-top:1vh"></div><div class="lkey"><span><i></i>actual</span><span><i class="d"></i>goal pace</span></div></div>
     <div class="t feed" style="grid-area:feed"><div class="lab">RECENT PAYMENTS</div><div class="rows" id="lFeed"></div></div>
     <div class="t" style="grid-area:mix"><div class="lab">WHERE IT CAME FROM · 3 DAYS</div><div class="hbars" id="lMix"></div></div>
     <div class="t" style="grid-area:funnel"><div class="lab">RICHMOND LISTING ADS · 7 DAYS</div><div class="rows" style="flex:1;justify-content:space-evenly">
-      <div class="row"><span class="nm">people reached</span><span class="st">48.2k</span></div>
-      <div class="row"><span class="nm">clicks · 2.6%</span><span class="st">1,240</span></div>
-      <div class="row"><span class="nm">leads for agents</span><span class="st live">37</span></div>
+      <div class="row"><span class="nm">reach vs last week</span><span class="st live">+64%</span></div>
+      <div class="row"><span class="nm">click rate</span><span class="st">2.6%</span></div>
+      <div class="row"><span class="nm">clicks that became leads</span><span class="st live">3.0%</span></div>
       </div></div>
     <div class="t" style="grid-area:market"><div class="lab">THE MARKET · RICHMOND</div><div class="rows" style="flex:1;justify-content:space-evenly">
       <div class="row"><span class="nm">median list price</span><span class="st">$389k</span></div>
       <div class="row"><span class="nm">days on market</span><span class="st">21</span></div>
       <div class="row"><span class="nm">inventory vs last month</span><span class="st live">+4%</span></div>
       </div></div>
-    <div class="t" style="grid-area:list"><div class="lab">NEXT MEETING</div><div class="mid">monday · 3:00 pm</div><div class="rows" style="flex:1;justify-content:space-evenly">
-      <div class="row"><span class="nm">keller</span><span class="st">monday 3pm</span></div>
+    <div class="t meet" style="grid-area:list"><div class="lab">NEXT MEETING</div><div class="big">monday · 3pm</div><div class="rows" style="flex:1;justify-content:space-evenly">
+      <div class="row"><span class="nm">keller</span><span class="st live">confirmed</span></div>
       <div class="row"><span class="nm">jo wallbron</span><span class="st">waiting to hear back</span></div>
       </div></div>
   </section>
@@ -1501,18 +1507,18 @@ const LARP = (() => {
 
   function fill(){
     $("#lUp").textContent = "you're up " + upWk + "% this week";
-    $("#lUpSub").textContent = "+" + $$(wk - prevWk) + " gross vs the 7 days before";
-    hbars("#lWk", [["last week", prevWk, $$(prevWk)], ["this week", wk, $$(wk)]], true);
+    $("#lUpSub").textContent = "compared to last week · locked in";
+    hbars("#lWk", [["last week", prevWk, ""], ["this week", wk, "+" + upWk + "%"]], true);
     $("#lGross").textContent = $$(last3);
     $("#lGrossSub").textContent = pays.length + " payments · avg " + $$(last3 / pays.length);
-    $("#l14tot").textContent = $$(sum(daily)) + " total";
+    $("#l14tot").textContent = "";
     $("#lMonthLab").textContent = month.toUpperCase() + " · MONTH TO DATE";
-    $("#lMtd").textContent = $$(mtd);
-    $("#lMtdSub").textContent = "of " + $$(goal) + " goal · " + Math.round(mtd/goal*100) + "% · " + $$(mtd - goal/dim*dom) + " ahead of pace";
+    $("#lMtd").textContent = "listing closing"; $("#lMtd").className = "mid";
+    $("#lMtdSub").textContent = "pending · ahead of goal pace";
     $("#lFeed").innerHTML = pays.map(p => '<div class="row"><span class="w">' + when(p[0]) + '</span><span class="nm">' + p[1] +
       '</span><span class="st live">+' + $$(p[3]) + '</span></div>').join("");
     const mix = {}; pays.forEach(p => mix[p[2]] = (mix[p[2]] || 0) + p[3]);
-    hbars("#lMix", Object.entries(mix).sort((a,b) => b[1]-a[1]).map(([k,v]) => [k, v, $$(v)]));
+    hbars("#lMix", Object.entries(mix).sort((a,b) => b[1]-a[1]).map(([k,v]) => [k, v, Math.round(v/last3*100) + "%"]));
   }
   function hbars(sel, rows, lastOnly){
     const max = Math.max(...rows.map(r => r[1]));
@@ -1526,28 +1532,28 @@ const LARP = (() => {
     const el = (tag, at, txt) => { const e = document.createElementNS(NS, tag); for (const k in at) e.setAttribute(k, at[k]); if (txt != null) e.textContent = txt; s.appendChild(e); return e; };
     return { w, h, fs, el };
   }
-  function grid(c, L, T, R, B, max, ticks){
+  function grid(c, L, T, R, B, max, ticks, noLab){
     ticks.forEach(t => { const y = B - (t/max)*(B-T);
       c.el("line", {x1:L, x2:R, y1:y, y2:y, stroke:"var(--line)", "stroke-width":1});
-      c.el("text", {x:L-8, y:y+c.fs*.35, "text-anchor":"end", "font-size":c.fs}, t >= 1000 ? "$" + (t/1000) + "k" : "$" + t); });
+      if (!noLab) c.el("text", {x:L-8, y:y+c.fs*.35, "text-anchor":"end", "font-size":c.fs}, t >= 1000 ? "$" + (t/1000) + "k" : "$" + t); });
   }
   function daily14(){
     const c = svgIn($("#lDaily")); if (c.w < 50 || c.h < 50) return;
-    const L = c.fs*3.4, R = c.w - 4, T = c.fs*3.2, B = c.h - c.fs*1.9, max = 1000, n = daily.length, band = (R-L)/n, bw = band*.62;
-    grid(c, L, T, R, B, max, [0,250,500,750,1000]);
+    const L = 4, R = c.w - 4, T = c.fs*3.2, B = c.h - c.fs*1.9, max = 1000, n = daily.length, band = (R-L)/n, bw = band*.62;
+    grid(c, L, T, R, B, max, [0,250,500,750,1000], true);
     daily.forEach((v,i) => {
       const x = L + i*band + (band-bw)/2, y = B - (v/max)*(B-T), hot = i >= n-7, r = Math.min(4, bw/2);
       c.el("path", {d:`M${x},${B} V${y+r} Q${x},${y} ${x+r},${y} H${x+bw-r} Q${x+bw},${y} ${x+bw},${y+r} V${B} Z`,
         fill: hot ? "var(--accent)" : "var(--dim)", opacity: hot ? 1 : .45});
-      if (i === n-1) c.el("text", {class:"v", x:x+bw/2, y:y-c.fs*.5, "text-anchor":"middle", "font-size":c.fs}, "$" + v);
+      
       if ((n-1-i) % 2 === 0) c.el("text", {x:x+bw/2, y:c.h-c.fs*.3, "text-anchor":"middle", "font-size":c.fs}, i === n-1 ? "today" : md(dayAgo(n-1-i)));
     });
     const yb = T - c.fs*1.9, brk = (a, b, col, txt, cls) => {
       const x1 = L + a*band + 4, x2 = L + b*band - 4;
       c.el("path", {d:`M${x1},${yb+c.fs*.6} V${yb} H${x2} V${yb+c.fs*.6}`, fill:"none", stroke:col, "stroke-width":2});
       c.el("text", {class:cls, x:(x1+x2)/2, y:yb-c.fs*.5, "text-anchor":"middle", "font-size":c.fs*1.1}, txt); };
-    brk(0, n-7, "var(--dim)", "last week " + $$(prevWk), "");
-    brk(n-7, n, "var(--accent)", "this week " + $$(wk) +" · +" + upWk + "%", "v");
+    brk(0, n-7, "var(--dim)", "last week", "");
+    brk(n-7, n, "var(--accent)", "this week · +" + upWk + "%", "v");
   }
   function pace(){
     const c = svgIn($("#lPace")); if (c.w < 50 || c.h < 40) return;
