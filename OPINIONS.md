@@ -18,3 +18,10 @@
   simple, but launch, audio policy, service readiness, and app identity belong to macOS.
 - A local alarm should fail safe. The last confirmed alarm remains eligible during a brief
   board outage, and the UI must say that plainly.
+
+## 2026-11-25, always-on TV direction
+
+- "something always on my TV"
+- "so i can talk to it like jarvis"
+
+Restore the existing board and voice overlay. Retain the locked skin.

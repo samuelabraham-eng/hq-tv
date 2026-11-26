@@ -78,3 +78,19 @@ stuff when monday doesnt work correctly and i dont want to say close out"*.
 - Playwright is installed at `~/hqtv-venv` and `tests/run_contract.py` runs the
   contract against an isolated boardd plus the scripted fake Monday, which now
   records inbound messages so the X can be proven to cancel.
+
+## 2026-11-25, live TV review and microphone honesty
+
+- Pulled origin and read CURRENT.md plus DESIGN-LOCK.md.
+- Opened the existing native board app and reviewed the live Chrome board render
+  on the connected Insignia TV. The native accessibility tree contained the board,
+  but its screenshot was blank, so native rendering is not verified. Chrome
+  visibly rendered the existing tile board correctly.
+- Changed the disconnected microphone label to microphone unavailable. A false
+  mic status does not prove the user denied permission. Skin and layout unchanged.
+- Alarm state was read and preserved at 10:00, label class. No alarm writes.
+- Monday answer engine recovery is in the monday repo. Full room-microphone
+  acceptance and unattended restart are pending a macOS access approval.
+
+Final verification: 59 tests passed; boss reviewed the updated fullscreen
+Chrome TV render. Microphone unavailable is shown honestly.

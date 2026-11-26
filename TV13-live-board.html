@@ -1014,7 +1014,7 @@ function setMonday(state, text) {
   }
   if (state === 'idle' && micAvailable !== true) {
     state = 'down';
-    text = micAvailable === false ? 'microphone permission needed' : 'checking microphone';
+    text = micAvailable === false ? 'microphone unavailable' : 'checking microphone';
   }
   var el = $('monday');
   el.className = 'monday ' + state;
@@ -1075,7 +1075,7 @@ function connectMonday() {
       if (mutedUntil > Date.now()) { setMonday('idle', ''); return; }
       $('mHint').textContent = 'say \u201cmonday\u201d \u00b7 \u201cclose out\u201d to end';
       setMonday(m.ok ? 'idle' : 'down',
-        m.ok ? 'say “monday”' : 'microphone permission needed');
+        m.ok ? 'say “monday”' : 'microphone unavailable');
     }
     else if (m.type === 'panel' && m.name === 'alarm') renderAlarm(m.data);
     else if (m.type === 'error' && m.text) setMonday('down', m.text);

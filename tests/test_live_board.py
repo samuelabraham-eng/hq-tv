@@ -135,9 +135,9 @@ def test_mac_app_launches_monday_without_a_duplicate_board_and_allows_alarm_audi
     assert 'window.title = "Samuel HQ"' in app
 
 
-def test_board_surfaces_microphone_permission_and_hides_inactive_alarm_dialog():
+def test_board_surfaces_microphone_unavailability_and_hides_inactive_alarm_dialog():
     html = source()
-    assert "microphone permission needed" in html
+    assert "microphone unavailable" in html
     assert "micAvailable !== true" in html
     assert "checking microphone" in html
     assert 'id="wakeAlarm" role="dialog"' in html
